@@ -501,6 +501,25 @@ const util = {
             m*=1000;
         }
         return v;
+    },
+
+    mergeClassNames(className1,className2){
+        
+        if(className1 && className2){
+            return className1+' '+className2;
+        }else if(className1){
+            return className1;
+        }else{
+            return className2;
+        }
+        
+    },
+
+    mergePropClass(props,className){
+        if(!props){
+            return className;
+        }
+        return util.mergeClassNames(props.className,className)
     }
 
 }
