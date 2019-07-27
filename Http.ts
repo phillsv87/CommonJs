@@ -51,7 +51,12 @@ export default class Http
             headers:{}
         };
         if(data){
-            request.data=data;
+            if(method==='GET'){
+                request.params=data;
+            }else{
+                request.data=data;
+            }
+            
         }
         if(this._authToken){
             request.headers._satoken=this._authToken;
@@ -60,7 +65,7 @@ export default class Http
         if(configRequest){
             configRequest(request);
         }
-
+        
         const result=await http(request);
 
         return result.data;
