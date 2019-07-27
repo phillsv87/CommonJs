@@ -65,7 +65,7 @@ interface NavRouteProps
     path?:string,
     match?:RegExp,
     render?:(matchResult:MatchResult)=>any
-    children:any,
+    children?:any,
     inClass?:string|null,
     outClass?:string|null,
     transDelay?:Number,
@@ -173,6 +173,10 @@ function Link(props:any){
             e.preventDefault();
             const {onClick,to,back,forward,push}=props;
     
+            if(onClick){
+                onClick(e);
+            }
+    
             if(to){
                 nav.push(to);
             }else if(push){
@@ -181,10 +185,6 @@ function Link(props:any){
                 nav.pop();
             }else if(forward){
                 nav.forward();
-            }
-    
-            if(onClick){
-                onClick(e);
             }
         }
 
