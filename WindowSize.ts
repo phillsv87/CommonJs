@@ -34,6 +34,7 @@ export interface WindowSize{
     width:number
     height:number
     breakpoint:WindowBreakpoint
+    isMobile:boolean
 }
 
 export function useWindowSize():WindowSize{
@@ -42,6 +43,7 @@ export function useWindowSize():WindowSize{
     const [height,setHeight]=useState<number>(window.innerHeight);
     const bp=useBreakpoints();
     const breakpoint=numberToBreakpoint(width,bp);
+    const isMobile=breakpoint<=WindowBreakpoint.sm;
 
     useEffect(()=>{
         const listener=()=>{
@@ -57,22 +59,24 @@ export function useWindowSize():WindowSize{
     return {
         width,
         height,
-        breakpoint
+        breakpoint,
+        isMobile
     };
 
 }
 
 export function useBreakpointBodyClasses(logChangesToConsole?:boolean)
 {
-    const {breakpoint}=useWindowSize();
+    const {breakpoint,isMobile}=useWindowSize();
     useLayoutEffect(()=>{
         if(logChangesToConsole){
             console.log('Set breakpoint class to '+WindowBreakpoint[breakpoint]);
         }
         const body=window.document.body;
-        body.classList.remove('bp-xs','bp-sm','bp-md','bp-lg','bp-xl');
+        body.classList.remove('bp-xs','bp-sm','bp-md','bp-lg','bp-xl','bp-mobile','bp-desktop');
         body.classList.add('bp-'+WindowBreakpoint[breakpoint]);
-    },[breakpoint,logChangesToConsole]);
+        body.classList.add(isMobile?'bp-mobile':'bp-desktop');
+    },[breakpoint,isMobile,logChangesToConsole]);
 }
 
 export function numberToBreakpoint(num:number, breakpoints?:WindowBreakpoints):WindowBreakpoint{
