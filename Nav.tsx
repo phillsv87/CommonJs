@@ -4,6 +4,7 @@ import { History } from "history";
 import util from "./util";
 
 const history:History=createBrowserHistory();
+const defaultTransDelay=700;
 
 class Nav
 {
@@ -11,6 +12,7 @@ class Nav
     constructor()
     {
         this.history=history;
+        document.body.style.setProperty('--vNavTransTime',((defaultTransDelay-100)/1000)+'px');
     }
 
     push=(path:string)=>{
@@ -52,15 +54,16 @@ function isMatch(path:string|undefined,match:RegExp|undefined,history:History):M
 
 enum TransType
 {
-    Fade = 'fade'
+    Fade = 'fade',
+    Slide = 'slide',
+    SlideTarget = 'slide-target'
 }
 
 const conBaseClass='nav-route';
-const defaultTransDelay=700;
 const defaultInClass='nav-route-in';
 const defaultOutClass='nav-route-out';
 
-interface NavRouteProps
+interface NavRouteProps<Tcb>
 {
     path?:string,
     match?:RegExp,
@@ -71,17 +74,21 @@ interface NavRouteProps
     transDelay?:Number,
     className?:string,
     includeDefaultClass?:boolean,
-    transType?:TransType
+    transType?:TransType,
+    cbData?:Tcb,
+    onChange?:(active:boolean,data:Tcb)=>void
 }
-function NavRoute({
+function NavRoute<Tcb>({
     path,match,render,children,
+    onChange,
+    cbData,
     className='',
     includeDefaultClass=true,
     inClass=defaultInClass,
     outClass=defaultOutClass,
     transDelay=defaultTransDelay,
-    transType=TransType.Fade
-    }:NavRouteProps):any
+    transType=TransType.SlideTarget
+    }:NavRouteProps<Tcb>):any
 {
     const [matchResult,setMatchResult]=useState<MatchResult>(()=>isMatch(path,match,history));
     const [conClass,setConClass]=useState<string|null>('');
@@ -90,29 +97,37 @@ function NavRoute({
 
     useEffect(()=>{
         let effectActive=true;
+        let transId=0;
         const listener=history.listen(async ()=>{
             const updateMatch=isMatch(path,match,history);
             if(updateMatch.success===isActive){
                 return;
             }
 
+            
             setForceShow(true);
             setConClass(isActive?outClass:inClass);
+
+            if(onChange){
+                onChange(updateMatch.success,cbData as Tcb);
+            }
+
+            const cid=++transId;
             await util.delayAsync(transDelay);
 
-            if(!effectActive){
+            if(!effectActive || cid!==transId){
                 return;
             }
 
+            setMatchResult(isMatch(path,match,history));
             setForceShow(false);
             setConClass('');
-            setMatchResult(updateMatch);
         });
         return ()=>{
             listener();
             effectActive=false;
         }
-    },[path,match,isActive,inClass,outClass,transDelay]);
+    },[path,match,isActive,inClass,outClass,transDelay,onChange,cbData]);
 
     let content:any;
 
@@ -138,57 +153,65 @@ function NavRoute({
     );
 }
 
-function Link(props:any){
-    const {children,to,back,forward,push,autoHide}=props;
-        const copy={...props};
-        const nav=defaultNav;
+interface LinkProps{
+    to?:string,
+    onClick?:(e:any)=>void,
+    children?:any,
+    nav?:Nav,
+    back?:boolean,
+    forward?:boolean,
+    autoHide?:boolean,
+    disabled?:boolean,
+    className?:string,
+    [other:string]:any
 
-        delete copy.onClick;
-        delete copy.children;
-        delete copy.nav;
-        delete copy.to;
-        delete copy.back;
-        delete copy.forward;
-        delete copy.push;
-        delete copy.autoHide;
+}
 
-        let href;
+function Link({children,to,back,forward,push,autoHide,nav:_nav,disabled,onClick,className,...props}:LinkProps){
+
+    const nav:Nav=_nav||defaultNav;
+    const cn=(className?className:'')+(disabled?' disabled':'');
+
+    let href;
+    if(to){
+        href=to;
+    }else if(push){
+        href=push;
+    }else if(back){
+        href='#back'
+    }else if(forward){
+        href='#forward';
+    }else{
+        href=null;
+    }
+
+    if(!href && autoHide){
+        return null;
+    }
+
+    const _onClick=(e:any)=>{
+        e.preventDefault();
+
+        if(disabled){
+            return;
+        }
+
+        if(onClick){
+            onClick(e);
+        }
+
         if(to){
-            href=to;
+            nav.push(to);
         }else if(push){
-            href=push;
+            nav.push(push);
         }else if(back){
-            href='#back'
+            nav.pop();
         }else if(forward){
-            href='#forward';
-        }else{
-            href=null;
+            nav.forward();
         }
+    }
 
-        if(!href && autoHide){
-            return null;
-        }
-
-        const onClick=(e:any)=>{
-            e.preventDefault();
-            const {onClick,to,back,forward,push}=props;
-    
-            if(onClick){
-                onClick(e);
-            }
-    
-            if(to){
-                nav.push(to);
-            }else if(push){
-                nav.push(push);
-            }else if(back){
-                nav.pop();
-            }else if(forward){
-                nav.forward();
-            }
-        }
-
-        return <a {...copy} href={href} onClick={onClick}>{children}</a>
+    return <a {...props} className={cn} href={href} onClick={_onClick}>{children}</a>
 }
 
 export {NavRoute,Link,Nav,defaultNav}
