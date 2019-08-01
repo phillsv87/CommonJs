@@ -73,3 +73,19 @@ export function useAsync<T,D>(defaultValue:D,asyncCallback:()=>Promise<T>,deps:D
 
     return value;
 }
+
+export interface Point{
+    x:number
+    y:number
+}
+
+export function getElementPageOffset(elem:HTMLElement|null|undefined):Point{
+    let x=0;
+    let y=0;
+    while(elem && elem.offsetParent){
+        x+=elem.offsetLeft;
+        y+=elem.offsetTop;
+        elem=elem.offsetParent as HTMLElement;
+    }
+    return {x,y};
+}
