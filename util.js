@@ -339,7 +339,7 @@ const util = {
 
     distinct(ary,selectValue){
         if(!ary || !selectValue)
-            return 0;
+            return [];
 
         const vals=[];
         const items=[];
