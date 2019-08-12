@@ -1,5 +1,5 @@
 import {createBrowserHistory} from "history";
-import React,{ useEffect, useState } from "react";
+import React,{ useEffect, useState, useCallback } from "react";
 import { History } from "history";
 import util from "./util";
 
@@ -153,9 +153,19 @@ function NavRoute<Tcb>({
     );
 }
 
+export type LinkHookCallback=(e:any,tag:string|undefined,to:string|undefined)=>void;
+
+let defaultLinkHookCallback:LinkHookCallback|null=null;
+
+export function setLinkHook(callback:LinkHookCallback)
+{
+    defaultLinkHookCallback=callback;
+}
+
 interface LinkProps{
     to?:string,
     onClick?:(e:any)=>void,
+    tag?:string,
     children?:any,
     nav?:Nav,
     back?:boolean,
@@ -167,7 +177,7 @@ interface LinkProps{
 
 }
 
-function Link({children,to,back,forward,push,autoHide,nav:_nav,disabled,onClick,className,...props}:LinkProps){
+function Link({children,to,back,forward,push,autoHide,nav:_nav,disabled,onClick,className,tag,...props}:LinkProps){
 
     const nav:Nav=_nav||defaultNav;
     const cn=(className?className:'')+(disabled?' disabled':'');
@@ -185,15 +195,15 @@ function Link({children,to,back,forward,push,autoHide,nav:_nav,disabled,onClick,
         href=null;
     }
 
-    if(!href && autoHide){
-        return null;
-    }
-
-    const _onClick=(e:any)=>{
+    const _onClick=useCallback((e:any)=>{
         e.preventDefault();
 
         if(disabled){
             return;
+        }
+
+        if(defaultLinkHookCallback){
+            defaultLinkHookCallback(e,tag,to);
         }
 
         if(onClick){
@@ -209,6 +219,10 @@ function Link({children,to,back,forward,push,autoHide,nav:_nav,disabled,onClick,
         }else if(forward){
             nav.forward();
         }
+    },[to,tag,onClick,push,back,forward,nav,disabled]);
+
+    if(!href && autoHide){
+        return null;
     }
 
     return <a {...props} className={cn} href={href} onClick={_onClick}>{children}</a>
