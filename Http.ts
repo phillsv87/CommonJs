@@ -45,9 +45,14 @@ export default class Http
     }
 
     callAsync=async (method:string,path:string,data:any,configRequest:any=null):Promise<any>=>{
+
+        if(path.indexOf('http:')===-1 && path.indexOf('https:')===-1){
+            path=this._baseUrl+path;
+        }
+
         const request:any={
             method:method,
-            url:this._baseUrl+path,
+            url:path,
             headers:{}
         };
         if(data){
