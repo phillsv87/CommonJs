@@ -1,13 +1,15 @@
-import { useLayoutEffect, useMemo } from 'react';
+import React, { useLayoutEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 
 interface PortalProps
 {
-    targetId:string
-    children?:any
+    targetId?:string;
+    className?:string;
+    onClick?:EventListener;
+    children?:any;
 }
 
-export default function Portal({targetId,children}:PortalProps){
+export default function Portal({targetId,className,onClick,children}:PortalProps){
 
     const elem=useMemo(()=>document.createElement('div'),[]);
 
@@ -26,6 +28,9 @@ export default function Portal({targetId,children}:PortalProps){
                         }
                     },20);
                 }
+            }else{
+                parent=document.body;
+                parent.appendChild(elem);
             }
         }
         mount();
@@ -36,6 +41,20 @@ export default function Portal({targetId,children}:PortalProps){
             }
         }
     },[targetId,elem]);
+
+    useLayoutEffect(()=>{
+        if(elem){
+            elem.className=className||'';
+            if(onClick){
+                elem.addEventListener('click',onClick);
+            }
+        }
+        return ()=>{
+            if(elem && onClick){
+                elem.removeEventListener('click',onClick);
+            }
+        }
+    },[elem,className,onClick]);
 
     return ReactDOM.createPortal(children,elem);
 }
