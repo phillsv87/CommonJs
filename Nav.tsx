@@ -1,5 +1,5 @@
 import {createBrowserHistory} from "history";
-import React,{ useEffect, useState, useCallback } from "react";
+import React,{ useEffect, useState, useCallback, useLayoutEffect } from "react";
 import { History } from "history";
 import util from "./util";
 
@@ -90,15 +90,27 @@ function NavRoute<Tcb>({
     transType=TransType.SlideTarget
     }:NavRouteProps<Tcb>):any
 {
-    const [matchResult,setMatchResult]=useState<MatchResult>(()=>isMatch(path,match,history));
+    const [iniMatchResult]=useState(()=>({disposed:false,result:isMatch(path,match,history)}));
+    const [matchResult,setMatchResult]=useState<MatchResult>(iniMatchResult.result);
     const [conClass,setConClass]=useState<string|null>('');
     const [forceShow,setForceShow]=useState<boolean>(false);
     const isActive=matchResult.success;
+
+    // Triggers onChange for routes that start as active
+    useLayoutEffect(()=>{
+        if(iniMatchResult.result.success && !iniMatchResult.disposed){
+            iniMatchResult.disposed=true;
+            if(onChange){
+                onChange(true,cbData as Tcb);
+            }
+        }
+    },[iniMatchResult,onChange,cbData]);
 
     useEffect(()=>{
         let effectActive=true;
         let transId=0;
         const listener=history.listen(async ()=>{
+            iniMatchResult.disposed=true;
             const updateMatch=isMatch(path,match,history);
             if(updateMatch.success===isActive){
                 return;
@@ -127,7 +139,7 @@ function NavRoute<Tcb>({
             listener();
             effectActive=false;
         }
-    },[path,match,isActive,inClass,outClass,transDelay,onChange,cbData]);
+    },[path,match,isActive,inClass,outClass,transDelay,onChange,cbData,iniMatchResult]);
 
     let content:any;
 
