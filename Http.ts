@@ -76,7 +76,7 @@ export default class Http
         return result.data;
     }
 
-    setAuthToken=(token:string)=>
+    setAuthToken=(token:string|null)=>
     {
         this._authToken=token;
     }

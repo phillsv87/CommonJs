@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo } from 'react';
+import { useLayoutEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 
 interface PortalProps
