@@ -210,14 +210,20 @@ interface LinkProps{
     autoHide?:boolean,
     disabled?:boolean,
     className?:string,
+    btnType?:string,
     [other:string]:any
 
 }
 
-function Link({children,to,back,forward,push,autoHide,nav:_nav,disabled,onClick,className,tag,...props}:LinkProps){
+function Link({
+    children,to,back,forward,push,
+    autoHide,nav:_nav,disabled,onClick,
+    className,tag,btnType,
+    ...props}:LinkProps)
+{
 
     const nav:Nav=_nav||defaultNav;
-    const cn=(className?className:'')+(disabled?' disabled':'');
+    const cn=(className?className:'')+(disabled?' disabled':'')+(btnType?' btn btn-'+btnType:'');
 
     let href;
     if(to){
