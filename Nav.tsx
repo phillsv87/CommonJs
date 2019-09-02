@@ -5,14 +5,39 @@ import util from "./util";
 
 const history:History=createBrowserHistory();
 const defaultTransDelay=700;
+const backClass='history-pop';
 
 class Nav
 {
+    /**
+     * If true the history-pop class will be added to the body tag on history pop events
+     */
+    addBodyClasses:boolean=true;
     history:History;
     constructor()
     {
         this.history=history;
         document.body.style.setProperty('--vNavTransTime',((defaultTransDelay-100)/1000)+'px');
+        
+        window.addEventListener('popstate', this._onPop);
+    }
+
+    _popIv:any=-1;
+
+    _onPop=(e:any)=>{
+        clearTimeout(this._popIv);
+
+        
+        if(!document.body.classList.contains(backClass)){
+            document.body.classList.add(backClass);
+        }
+        this._popIv=setTimeout(()=>{
+            document.body.classList.remove(backClass);
+        },defaultTransDelay+200);
+    }
+
+    dispose(){
+        window.removeEventListener('popstate', this._onPop);
     }
 
     push=(path:string)=>{

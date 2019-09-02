@@ -1,3 +1,5 @@
+$transLength: 0.6s;
+
 .nav-route{
 
     position: absolute;
@@ -7,8 +9,6 @@
     height:100%;
     display:flex;
     flex-direction: column;
-
-    $transLength: 0.6s;
 
     @keyframes fade-in {
         0%{
@@ -48,6 +48,28 @@
         }
         100%{
             transform: translateX(-100%);
+            opacity: 0;
+        }
+    }
+
+    @keyframes slide-in-pop {
+        0%{
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        100%{
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slide-out-pop {
+        0%{
+            transform: translateX(0);
+            opacity: 1;
+        }
+        100%{
+            transform: translateX(100%);
             opacity: 0;
         }
     }
@@ -104,6 +126,32 @@
         &.nav-route-out .nav-trans-target{
             z-index:2;
             animation: slide-out $transLength ease-in-out forwards;
+        }
+
+    }
+}
+
+.history-pop .nav-route{
+    &.nav-route-slide{
+
+        &.nav-route-in{
+            animation: slide-in-pop $transLength ease-in-out forwards;
+        }
+
+        &.nav-route-out{
+            animation: slide-out-pop $transLength ease-in-out forwards;
+        }
+
+    }
+
+    &.nav-route-slide-target{
+
+        &.nav-route-in .nav-trans-target{
+            animation: slide-in-pop $transLength ease-in-out forwards;
+        }
+
+        &.nav-route-out .nav-trans-target{
+            animation: slide-out-pop $transLength ease-in-out forwards;
         }
 
     }
