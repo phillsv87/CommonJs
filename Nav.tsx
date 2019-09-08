@@ -17,7 +17,7 @@ class Nav
     constructor()
     {
         this.history=history;
-        document.body.style.setProperty('--vNavTransTime',((defaultTransDelay-100)/1000)+'px');
+        document.body.style.setProperty('--vNavTransTime',((defaultTransDelay-100)/1000)+'s');
         
         window.addEventListener('popstate', this._onPop);
     }
