@@ -1,16 +1,22 @@
 import http from 'axios';
 
+export const simpleAuthHeaderParam:string='_authToken';
+
+export const bearerAuthHeaderParam:string='Authorization';
+
 
 export default class Http
 {
     _baseUrl:string;
     _authToken:string|null;
+    _authHeaderParam:string|null;
 
 
     constructor(baseUrl:string)
     {
         this._baseUrl=baseUrl;
         this._authToken=null;
+        this._authHeaderParam=null;
     }
 
     setBaseUrl=(baseUrl:string)=>{
@@ -63,8 +69,8 @@ export default class Http
             }
             
         }
-        if(this._authToken){
-            request.headers._satoken=this._authToken;
+        if(this._authToken && this._authHeaderParam){
+            request.headers[this._authHeaderParam]=this._authToken;
         }
 
         if(configRequest){
@@ -76,8 +82,15 @@ export default class Http
         return result.data;
     }
 
-    setAuthToken=(token:string|null)=>
+    setAuthToken=(token:string|null, authHeaderParam:string=simpleAuthHeaderParam)=>
     {
         this._authToken=token;
+        this._authHeaderParam=authHeaderParam;
+    }
+
+    setBearerAuthToken=(token:string|null)=>
+    {
+        this._authToken=token?'bearer '+token:null;
+        this._authHeaderParam=bearerAuthHeaderParam;
     }
 }
