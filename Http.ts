@@ -46,7 +46,8 @@ export default class Http
 
     callAsync=async (method:string,path:string,data:any,configRequest:any=null):Promise<any>=>{
 
-        if(path.indexOf('http:')===-1 && path.indexOf('https:')===-1){
+        const isRel=path.indexOf('http:')===-1 && path.indexOf('https:')===-1;
+        if(isRel){
             path=this._baseUrl+path;
         }
 
@@ -63,7 +64,7 @@ export default class Http
             }
             
         }
-        if(this._authToken){
+        if(this._authToken && isRel){
             request.headers._satoken=this._authToken;
         }
 
