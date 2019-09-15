@@ -69,9 +69,9 @@ export default class Http
                 if(!request.params){
                     request.params={}
                 }
-                request.params._satoken=this._authToken;
+                request.params.SaToken=this._authToken;
             }else{
-                request.headers._satoken=this._authToken;
+                request.headers.SaToken=this._authToken;
             }
         }
 
