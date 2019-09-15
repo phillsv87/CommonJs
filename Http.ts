@@ -65,7 +65,14 @@ export default class Http
             
         }
         if(this._authToken && isRel){
-            request.headers._satoken=this._authToken;
+            if(method==='GET'){
+                if(!request.params){
+                    request.params={}
+                }
+                request.params._satoken=this._authToken;
+            }else{
+                request.headers._satoken=this._authToken;
+            }
         }
 
         if(configRequest){
