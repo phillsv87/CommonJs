@@ -40,7 +40,14 @@ class Nav
         window.removeEventListener('popstate', this._onPop);
     }
 
-    push=(path:string)=>{
+    push=(path:string, ...parts:string[])=>{
+
+        if(parts){
+            for(let p of parts){
+                path+='/'+encodeURIComponent(p);
+            }
+        }
+
         this.history.push(path);
     }
 
