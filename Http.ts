@@ -1,6 +1,6 @@
 import http from 'axios';
 
-export const simpleAuthHeaderParam:string='_authToken';
+export const simpleAuthHeaderParam:string='SaToken';
 
 export const bearerAuthHeaderParam:string='Authorization';
 
