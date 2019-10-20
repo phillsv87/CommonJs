@@ -29,6 +29,15 @@ export default class Http
         return this.callAsync('GET',path,data);
     }
 
+    getSingleAsync=async (path:string,data:any=null):Promise<any>=>{
+        const r=await this.callAsync('GET',path,data);
+        if(Array.isArray(r)){
+            return r[0];
+        }else{
+            return r;
+        }
+    }
+
     postAsync=(path:string,data:any=null):Promise<any>=>{
         return this.callAsync('POST',path,data);
     }
@@ -79,7 +88,11 @@ export default class Http
         
         const result=await http(request);
 
-        return result.data;
+        if(result.data && result.data['@odata.context']){
+            return result.data.value;
+        }else{
+            return result.data;
+        }
     }
 
     setAuthToken=(token:string|null, authHeaderParam:string=simpleAuthHeaderParam)=>
