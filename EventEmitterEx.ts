@@ -24,6 +24,11 @@ class EventEmitterEx extends EventEmitter
 
     }
 
+    emitProperty<T, K extends keyof T>(self:T,propertyName:K)
+    {
+        this.emit(propertyName as string);
+    }
+
 }
 
 export default EventEmitterEx;
