@@ -18,15 +18,7 @@ export function useMerged<T>(value:T):T{
 }
 
 
-export function useEvent(emitter:EventEmitter,event:string|symbol,listener: (...args: any[]) => void):void{
-    useEffect(()=>{
-        emitter.on(event,listener);
 
-        return ()=>{
-            emitter.off(event,listener);
-        }
-    },[emitter,event,listener]);
-}
 
 export function useEmitter(emitter:EventEmitter,event:string|symbol):number{
     const [count,setCount]=useState(0);
@@ -46,6 +38,61 @@ export function useEmitter(emitter:EventEmitter,event:string|symbol):number{
     },[emitter,event])
 
     return count;
+}
+
+export function useEvent(
+    emitter:EventEmitter,
+    event:string|symbol,
+    listener: (...args: any[]) => void,
+    enabled:boolean=true)
+{
+    useEffect(()=>{
+        if(emitter && enabled){
+            emitter.on(event,listener);
+        }
+        return ()=>{
+            if(emitter && enabled){
+                emitter.off(event,listener);
+            }
+        }
+    },[emitter,listener,enabled,event]);
+
+}
+
+export function useUpdateEvent(
+    emitter:EventEmitter,
+    event:string|symbol,
+    enabled:boolean=true):number
+{
+    const [index,setIndex]=useState<number>(0);
+
+    useEvent(emitter,event,()=>{
+        setIndex(v=>v+1);
+    },enabled);
+
+    return index;
+
+}
+
+export function useUpdateProperty<T extends EventEmitter>(
+    emitter:T,
+    key: keyof T,
+    enabled:boolean=true):number
+{
+    const [index,setIndex]=useState<number>(0);
+
+    useEvent(emitter,key as string,()=>{
+        setIndex(v=>v+1);
+    },enabled);
+
+    return index;
+
+}
+
+export function useProperty<T extends EventEmitter,V>(emitter:T,propertyName:keyof T,getValue:(emitter:T)=>V):V
+{
+    useUpdateEvent(emitter,propertyName as string);
+    return getValue(emitter);
 }
 
 export function useAsync<T,D>(defaultValue:D,asyncCallback:()=>Promise<T>,deps:DependencyList):T|D
@@ -88,4 +135,37 @@ export function getElementPageOffset(elem:HTMLElement|null|undefined):Point{
         elem=elem.offsetParent as HTMLElement;
     }
     return {x,y};
+}
+
+export interface Mounted
+{
+    mounted:boolean;
+}
+
+export function useMounted():Mounted
+{
+    const [clt]=useState<Mounted>({mounted:true});
+    useEffect(()=>{
+        return ()=>{
+            clt.mounted=false;
+        }
+    },[clt]);
+    return clt;
+}
+
+export function delayAsync(delayMs:number):Promise<void>
+{
+    return new Promise((r)=>{
+        setTimeout(()=>{
+            r();
+        },delayMs);
+    });
+}
+
+export function delayWithValueAsync<T>(delayMs:number,value:T):Promise<T>{
+    return new Promise<T>((r)=>{
+        setTimeout(()=>{
+            r(value);
+        },delayMs);
+    });
 }
