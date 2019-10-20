@@ -75,6 +75,11 @@ export interface UserDataRequest
     Props?: { [key: string]: string };
 }
 
+export interface RegisterRequest extends UserDataRequest
+{
+    Type: string;
+}
+
 export interface SignInOrError
 {
     signIn?:SignIn|null;

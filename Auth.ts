@@ -1,6 +1,6 @@
 import EventEmitterEx from './EventEmitterEx';
 import Http from './Http';
-import { SignIn, SignInRequest, SignInStatus, UserDataRequest, SignInOrError } from './AuthTypes';
+import { SignIn, SignInRequest, SignInStatus, SignInOrError, RegisterRequest } from './AuthTypes';
 import AsyncObjStore from './AsyncObjStore';
 import Log from './Log';
 import { delayAsync } from './utilTs';
@@ -182,7 +182,7 @@ export class AuthManager extends EventEmitterEx
     /**
      * Attempts the register
      */
-    async registerAsync(request:UserDataRequest):Promise<SignInOrError>
+    async registerAsync(request:RegisterRequest):Promise<SignInOrError>
     {
         let signIn:SignIn|null;
         try{
