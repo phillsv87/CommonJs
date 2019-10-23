@@ -92,6 +92,9 @@ export class AuthManager extends EventEmitterEx
         if(this.objStore){
             const signIn=await this.objStore.loadAsync<SignIn>(this.config.storeKey!);
             await this.handleSignInAsync(signIn);
+            if(this._signIn && this.showTryRenew(this._signIn)){
+                await this.renewAsync();
+            }
         }
 
         this.renewLoop();
@@ -102,25 +105,29 @@ export class AuthManager extends EventEmitterEx
         this._disposed=true;
     }
 
+    private showTryRenew(signIn:SignIn):boolean
+    {
+        const now=new Date().getTime();
+
+        return !this.config.autoRenew?false:(
+            (
+                signIn.ExpiresDate && signIn.ExpiresDate-now<this.config.autoRenewBufferTime!
+            )
+            ||
+            (
+                now - (signIn.LastRenew||0) >= 1000*60*60*24
+            )
+        )
+    }
+
     private async renewLoop()
     {
         while(!this._disposed){
 
-            const now=new Date().getTime();
-
-            if( this.config.autoRenew && this._signIn && (
-                    (
-                        this._signIn.ExpiresDate &&
-                        this._signIn.ExpiresDate-now<this.config.autoRenewBufferTime!
-                    )
-                    ||
-                    (
-                        now - (this._signIn.LastRenew||0) >= 1000*60*60*24
-                    )
-                )
-            ){
+            if(this._signIn && this.showTryRenew(this._signIn)){
                 await this.renewAsync();
             }
+            
             if(this._disposed){
                 break;
             }
@@ -222,8 +229,13 @@ export class AuthManager extends EventEmitterEx
                 signIn.LastRenew=new Date().getTime();
             }
         }catch(ex){
-            Log.error('Error renewing sign in token',ex);
-            return {error:ex.message}
+            if(ex.response && ex.response.status===401){
+                Log.info('SignIn rejected',ex);
+                signIn=null;
+            }else{
+                Log.error('Error renewing sign in token',ex);
+                return {error:ex.message};
+            }
         }
         signIn = await this.handleSignInAsync(signIn);
         return {
