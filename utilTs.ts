@@ -169,3 +169,26 @@ export function delayWithValueAsync<T>(delayMs:number,value:T):Promise<T>{
         },delayMs);
     });
 }
+
+
+export function useRender():(cb?:()=>void)=>void{
+    const [,setR]=useState(0);
+    return useCallback((cb?:()=>void)=>{
+        if(cb){
+            cb();
+        }
+        setR(r=>r+1);
+    },[]);
+}
+
+export function mergeClassNames(className1:string|null|undefined,className2:string|null|undefined):string|undefined{
+        
+    if(className1 && className2){
+        return className1+' '+className2;
+    }else if(className1){
+        return className1;
+    }else{
+        return className2||undefined;
+    }
+    
+}
