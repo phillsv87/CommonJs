@@ -1,4 +1,4 @@
-import { useState, useEffect, DependencyList, useCallback } from "react";
+import { useState, useEffect, DependencyList, useCallback, useMemo } from "react";
 import { EventEmitter } from "events";
 import Log from "./Log";
 
@@ -197,4 +197,26 @@ export function preventDefault(e:any){
     if(e&& (typeof e.preventDefault === 'function')){
         e.preventDefault();
     }
+}
+
+export function useJson<T>(value:string|null|undefined):T|undefined
+{
+    const result=useMemo(()=>{
+        if(!value){
+            return undefined;
+        }
+        try{
+            return JSON.parse(value) as T;
+        }catch{
+            return undefined;
+        }
+    },[value]);
+
+    return result;
+}
+
+export function useJsonOrDefault<T>(defaultValue:T,value:string|null|undefined):T
+{
+    const result=useJson(value);
+    return result===undefined?defaultValue:(result as T);
 }
