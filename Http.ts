@@ -89,7 +89,8 @@ export default class Http extends EventEmitterEx
     async callAsync(method:string,path:string,data:any,configRequest:any=null):Promise<any>
     {
 
-        if(path.indexOf('http:')===-1 && path.indexOf('https:')===-1){
+        const isRel=path.indexOf('http:')===-1 && path.indexOf('https:')===-1;
+        if(isRel){
             path=this._baseUrl+path;
         }
 
@@ -106,8 +107,15 @@ export default class Http extends EventEmitterEx
             }
             
         }
-        if(this._authToken && this._authHeaderParam){
-            request.headers[this._authHeaderParam]=this._authToken;
+        if(this._authToken && this._authHeaderParam && isRel){
+            if(method==='GET'){
+                if(!request.params){
+                    request.params={}
+                }
+                request.headers[this._authHeaderParam]=this._authToken;
+            }else{
+                request.headers[this._authHeaderParam]=this._authToken;
+            }
         }
 
         if(configRequest){

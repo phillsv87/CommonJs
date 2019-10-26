@@ -28,6 +28,28 @@ class ObjStore
     save<T>(key:string, value:T):void{
         window.localStorage.setItem(this.prefix+'::'+key,JSON.stringify(value));
     }
+
+    loadSession<T>(key:string):T|null{
+        var r=window.sessionStorage.getItem(this.prefix+'::'+key);
+        if(r){
+            return JSON.parse(r) as T;
+        }else{
+            return null;
+        }
+    }
+
+    loadOrDefaultSession<T>(key:string,defaultValue:T):T{
+        var r=window.sessionStorage.getItem(this.prefix+'::'+key);
+        if(r){
+            return JSON.parse(r) as T;
+        }else{
+            return defaultValue;
+        }
+    }
+
+    saveSession<T>(key:string, value:T):void{
+        window.sessionStorage.setItem(this.prefix+'::'+key,JSON.stringify(value));
+    }
 }
 
 export default ObjStore;

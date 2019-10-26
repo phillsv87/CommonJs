@@ -40,7 +40,14 @@ class Nav
         window.removeEventListener('popstate', this._onPop);
     }
 
-    push=(path:string)=>{
+    push=(path:string, ...parts:string[])=>{
+
+        if(parts){
+            for(let p of parts){
+                path+='/'+encodeURIComponent(p);
+            }
+        }
+
         this.history.push(path);
     }
 
@@ -272,14 +279,15 @@ interface LinkProps{
     disabled?:boolean,
     className?:string,
     btnType?:string,
-    [other:string]:any
+    [other:string]:any,
+    real?:boolean
 
 }
 
 function Link({
     children,to,back,forward,push,
     autoHide,nav:_nav,disabled,onClick,
-    className,tag,btnType,
+    className,tag,btnType,real,
     ...props}:LinkProps)
 {
 
@@ -300,7 +308,9 @@ function Link({
     }
 
     const _onClick=useCallback((e:any)=>{
-        e.preventDefault();
+        if(!real){
+            e.preventDefault();
+        }
 
         if(disabled){
             return;
@@ -314,6 +324,10 @@ function Link({
             onClick(e);
         }
 
+        if(real){
+            return;
+        }
+
         if(to){
             nav.push(to);
         }else if(push){
@@ -323,7 +337,7 @@ function Link({
         }else if(forward){
             nav.forward();
         }
-    },[to,tag,onClick,push,back,forward,nav,disabled]);
+    },[to,tag,onClick,push,back,forward,nav,disabled,real]);
 
     if(!href && autoHide){
         return null;

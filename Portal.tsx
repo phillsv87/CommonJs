@@ -5,11 +5,12 @@ interface PortalProps
 {
     targetId?:string;
     className?:string;
+    backgroundColor?:string;
     onClick?:EventListener;
     children?:any;
 }
 
-export default function Portal({targetId,className,onClick,children}:PortalProps){
+export default function Portal({targetId,className,backgroundColor,onClick,children}:PortalProps){
 
     const elem=useMemo(()=>document.createElement('div'),[]);
 
@@ -41,6 +42,12 @@ export default function Portal({targetId,className,onClick,children}:PortalProps
             }
         }
     },[targetId,elem]);
+
+    useLayoutEffect(()=>{
+        if(elem){
+            elem.style.backgroundColor=backgroundColor||null;
+        }
+    },[elem,backgroundColor]);
 
     useLayoutEffect(()=>{
         if(elem){
