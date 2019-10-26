@@ -1,0 +1,41 @@
+@import './transitions.scss';
+
+.slide-panel-default{
+    overflow: hidden;
+    >ul{
+        list-style: none;
+        margin:0;
+        padding:0;
+        display: flex;
+        transition: transform $vQuickTrans;
+        >li{
+            margin:0;
+            padding:0;
+
+        }
+    }
+
+    &.slide-panel-horizontal{
+        height:100%;
+        >ul{
+            height:100%;
+            flex-direction: row;
+            >li{
+                min-width: 100%;
+                max-width: 100%;
+            }
+        }
+    }
+
+    &.slide-panel-vertical{
+        width:100%;
+        >ul{
+            width:100%;
+            flex-direction: column;
+            >li{
+                min-height: 100%;
+                max-height: 100%;
+            }
+        }
+    }
+}
