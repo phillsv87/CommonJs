@@ -192,3 +192,9 @@ export function mergeClassNames(className1:string|null|undefined,className2:stri
     }
     
 }
+
+export function preventDefault(e:any){
+    if(e&& (typeof e.preventDefault === 'function')){
+        e.preventDefault();
+    }
+}
