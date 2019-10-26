@@ -1,11 +1,13 @@
 import EventEmitterEx from "../CommonJs/EventEmitterEx";
 import util from "../CommonJs/util";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useContext } from "react";
 import { useEmitter } from "./utilTs";
+import React from "react";
 
 export interface LockHandle
 {
     name:string;
+    description:any;
     unlock:()=>void;
 }
 
@@ -14,9 +16,9 @@ export default class LockScreen extends EventEmitterEx
 
     locks:LockHandle[]=[];
 
-    addLock(name:string):LockHandle{
+    addLock(name:string,description?:any):LockHandle{
         const self=this;
-        const handle:any={name:name};
+        const handle:any={name,description};
         handle.unlock=()=>{
             if(util.removeItem(self.locks,handle)){
                 self.emit('lock',self.locks);
@@ -35,14 +37,20 @@ export default class LockScreen extends EventEmitterEx
 
 }
 
-export const defaultLockScreen=new LockScreen();
+export const LockScreenContext=React.createContext<LockScreen|null>(null);
 
 export interface Lock{
     lock:(name:string)=>void;
     unlock:()=>void;
 }
-export function useLockScreen(lockScreen:LockScreen=defaultLockScreen):Lock{
+export function useLockScreen():Lock{
 
+    const lockScreen=useContext(LockScreenContext);
+
+    if(!lockScreen){
+        throw new Error('LockScreenContext value not set');
+    }
+    
     const [handles]=useState<LockHandle[]>([]);
 
     return useMemo(()=>({
@@ -59,8 +67,14 @@ export function useLockScreen(lockScreen:LockScreen=defaultLockScreen):Lock{
     }),[handles,lockScreen]);
 }
 
-export function useLockScreenState(lockScreen:LockScreen=defaultLockScreen)
+export function useLockScreenState()
 {
+    const lockScreen=useContext(LockScreenContext);
+
+    if(!lockScreen){
+        throw new Error('LockScreenContext value not set');
+    }
+
     useEmitter(lockScreen,'lock');
     return { isLocked:lockScreen.isLocked() }
 }

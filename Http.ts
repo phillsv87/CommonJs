@@ -1,12 +1,30 @@
 import http from 'axios';
 import Log from './Log';
+import EventEmitterEx from './EventEmitterEx';
 
 export const simpleAuthHeaderParam:string='SaToken';
 
 export const bearerAuthHeaderParam:string='Authorization';
 
+export const httpUiRequest=Symbol();
 
-export default class Http
+export enum HttpUiRequestEventStatus
+{
+    Waiting = 0,
+    Error = 1,
+    Success = 2
+}
+
+export interface HttpUiRequestEvent
+{
+    id:number;
+    description:any;
+    error:Error|null;
+    status:HttpUiRequestEventStatus;
+}
+
+
+export default class Http extends EventEmitterEx
 {
     private _baseUrl:string;
     private _authToken:string|null;
@@ -15,6 +33,7 @@ export default class Http
 
     constructor(baseUrl:string)
     {
+        super();
         this._baseUrl=baseUrl;
         this._authToken=null;
         this._authHeaderParam=null;
@@ -119,43 +138,59 @@ export default class Http
 
 
 
-    uiGetAsync<T>(path:string,data:any=null):Promise<T|null>
+    uiGetAsync<T>(description:any,path:string,data:any=null):Promise<T|null>
     {
-        return this.uiContext<T>(()=>(this.getAsync(path,data) as Promise<T>));
+        return this.uiContext<T>(description,()=>(this.getAsync(path,data) as Promise<T>));
     }
 
-    uiGetSingleAsync<T>(path:string,data:any=null):Promise<T|null>
+    uiGetSingleAsync<T>(description:any,path:string,data:any=null):Promise<T|null>
     {
-        return this.uiContext<T>(()=>(this.getSingleAsync(path,data) as Promise<T>));
+        return this.uiContext<T>(description,()=>(this.getSingleAsync(path,data) as Promise<T>));
     }
 
-    uiPostAsync<T>(path:string,data:any=null):Promise<T|null>
+    uiPostAsync<T>(description:any,path:string,data:any=null):Promise<T|null>
     {
-        return this.uiContext<T>(()=>(this.postAsync(path,data) as Promise<T>));
+        return this.uiContext<T>(description,()=>(this.postAsync(path,data) as Promise<T>));
     }
 
-    uiPutAsync<T>(path:string,data:any=null):Promise<T|null>
+    uiPutAsync<T>(description:any,path:string,data:any=null):Promise<T|null>
     {
-        return this.uiContext<T>(()=>(this.putAsync(path,data) as Promise<T>));
+        return this.uiContext<T>(description,()=>(this.putAsync(path,data) as Promise<T>));
     }
 
-    uiDeleteAsync<T>(path:string,data:any=null):Promise<T|null>
+    uiDeleteAsync<T>(description:any,path:string,data:any=null):Promise<T|null>
     {
-        return this.uiContext<T>(()=>(this.deleteAsync(path,data) as Promise<T>));
+        return this.uiContext<T>(description,()=>(this.deleteAsync(path,data) as Promise<T>));
     }
     
-    uiPostFormAsync<T>(path:string,formData:any):Promise<T|null>
+    uiPostFormAsync<T>(description:any,path:string,formData:any):Promise<T|null>
     {
-        return this.uiContext<T>(()=>(this.postFormAsync(path,formData) as Promise<T>));
+        return this.uiContext<T>(description,()=>(this.postFormAsync(path,formData) as Promise<T>));
     }
 
-    private async uiContext<T>(request:()=>Promise<T>):Promise<T|null>
+    private uiRequestId:number=0;
+
+    private async uiContext<T>(description:any,request:()=>Promise<T>):Promise<T|null>
     {
+        const id=this.uiRequestId++;
+        const evt:HttpUiRequestEvent={
+            id,
+            description,
+            error:null,
+            status:HttpUiRequestEventStatus.Waiting
+        };
         try{
-            return await request();
+            this.emit(httpUiRequest,evt);
+            const result = await request();
+            evt.status=HttpUiRequestEventStatus.Success;
+            return result;
         }catch(ex){
+            evt.error=ex;
+            evt.status=HttpUiRequestEventStatus.Error;
             Log.error('http error',ex);
             return null;
+        }finally{
+            this.emit(httpUiRequest,evt);
         }
     }
 }
