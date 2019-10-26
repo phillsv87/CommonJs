@@ -56,25 +56,75 @@ class Nav
 const defaultNav=new Nav();
 
 interface MatchResult{
-    success:boolean,
-    matches?:RegExpExecArray
+    success:boolean;
+    path:string;
+    matches?:RegExpExecArray;
+    stringMatch:(index:number)=>string|null;
+    numberMatch:(index:number)=>number|null;
 }
+
+function makeStringMatch(matches:RegExpExecArray|null):(index:number)=>string|null{
+
+    return (index:number)=>{
+        if(!matches || index>=matches.length){
+            return null;
+        }
+
+        return matches[index];
+    }
+
+}
+
+function makeNumberMatch(matches:RegExpExecArray|null):(index:number)=>number|null{
+
+    return (index:number)=>{
+        if(!matches || index>=matches.length){
+            return null;
+        }
+
+        const n=Number(matches[index]);
+        if(Number.isNaN(n)){
+            return null;
+        }else{
+            return n;
+        }
+    }
+
+}
+
+const emptyMatch=()=>null;
 
 
 function isMatch(path:string|undefined,match:RegExp|undefined,history:History):MatchResult{
     const pathname=history.location.pathname;
     if(path && pathname.toLowerCase()===path.toLowerCase()){
-        return {success:true};
+        return {
+            success:true,
+            path:path||'',
+            stringMatch:emptyMatch,
+            numberMatch:emptyMatch
+        };
     }
 
     if(match){
         const m=match.exec(pathname);
         if(m){
-            return {success:true,matches:m};
+            return {
+                success:true,
+                path:m[0]||'',
+                matches:m,
+                stringMatch:makeStringMatch(m),
+                numberMatch:makeNumberMatch(m)
+            };
         }
     }
 
-    return {success:false};
+    return {
+        success:false,
+        path:path||'',
+        stringMatch:emptyMatch,
+        numberMatch:emptyMatch
+    };
 }
 
 enum TransType
@@ -120,6 +170,7 @@ function NavRoute<Tcb>({
     const [conClass,setConClass]=useState<string|null>('');
     const [forceShow,setForceShow]=useState<boolean>(false);
     const isActive=matchResult.success;
+    const matchedPath=matchResult.path;
 
     // Triggers onChange for routes that start as active
     useLayoutEffect(()=>{
@@ -138,6 +189,16 @@ function NavRoute<Tcb>({
             iniMatchResult.disposed=true;
             const updateMatch=isMatch(path,match,history);
             if(updateMatch.success===isActive){
+                if(!updateMatch.success){
+                    return;
+                }
+                if(updateMatch.path===matchedPath){
+                    return;
+                }
+                if(onChange){
+                    onChange(updateMatch.success,cbData as Tcb);
+                }
+                setMatchResult(updateMatch);
                 return;
             }
 
@@ -164,7 +225,7 @@ function NavRoute<Tcb>({
             listener();
             effectActive=false;
         }
-    },[path,match,isActive,inClass,outClass,transDelay,onChange,cbData,iniMatchResult]);
+    },[path,match,isActive,inClass,outClass,transDelay,onChange,cbData,iniMatchResult,matchedPath]);
 
     let content:any;
 
