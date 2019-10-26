@@ -117,7 +117,12 @@ export default class Http extends EventEmitterEx
         const result=await http(request);
 
         if(result.data && result.data['@odata.context']){
-            return result.data.value;
+            if(Array.isArray(result.data.value)){
+                return result.data.value;
+            }else{
+                delete result.data['@odata.context'];
+                return result.data;
+            }
         }else{
             return result.data;
         }
