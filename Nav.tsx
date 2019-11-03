@@ -267,7 +267,7 @@ export function setLinkHook(callback:LinkHookCallback)
     defaultLinkHookCallback=callback;
 }
 
-interface LinkProps{
+export interface LinkProps{
     to?:string,
     onClick?:(e:any)=>void,
     tag?:string,
