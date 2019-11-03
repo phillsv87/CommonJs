@@ -220,3 +220,15 @@ export function useJsonOrDefault<T>(defaultValue:T,value:string|null|undefined):
     const result=useJson(value);
     return result===undefined?defaultValue:(result as T);
 }
+
+export interface EnumArrayItem
+{
+    name:string;
+    value:any;
+}
+export function enumToArray(enumType:any):EnumArrayItem[]
+{
+    return Object.keys(enumType)
+        .filter(k=>typeof enumType[k] === 'number')
+        .map(k=>({name:k,value:enumType[k]}));
+}
