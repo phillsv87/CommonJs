@@ -9,6 +9,7 @@ interface SlidePanelProps
     className?:string;
     defaultClassName?:string;
     direction?:'horizontal'|'vertical';
+    itemsFlex?:boolean;
     children:any;
 }
 
@@ -18,6 +19,7 @@ export default function SlidePanel({
     className,
     defaultClassName='slide-panel-default',
     direction='horizontal',
+    itemsFlex,
     children
 }:SlidePanelProps)
 {
@@ -27,6 +29,12 @@ export default function SlidePanel({
     const [divRef,setDivRef]=useState<HTMLDivElement|null>(null);
 
     const pos=(divRef?(hr?divRef.clientWidth:divRef.clientHeight):0)*index;
+
+    const itemStyle:any={};
+    if(itemsFlex){
+        itemStyle.display='flex';
+        itemStyle.flexDirection='column';
+    }
 
     const cn=mergeClassNames(
         defaultClassName+
@@ -38,7 +46,7 @@ export default function SlidePanel({
             <ul style={{transform:'translate'+(hr?'X':'Y')+'('+(-pos)+'px)'}}>
                 {React.Children.map(children,(slide:any,i:number)=>{
                     return (
-                        <li key={i}>{slide}</li>
+                        <li key={i} style={itemStyle}>{slide}</li>
                     )
                 })}
             </ul>
