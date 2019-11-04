@@ -258,6 +258,24 @@ function NavRoute<Tcb>({
     );
 }
 
+export function useHistory():History
+{
+    const [,setValue]=useState(0);
+    useEffect(()=>{
+        let m=true;
+        const listener=history.listen(()=>{
+            if(m){
+                setValue(i=>i+1);
+            }
+        });
+        return ()=>{
+            listener();
+            m=false;
+        }
+    },[]);
+    return history;
+}
+
 export type LinkHookCallback=(e:any,tag:string|undefined,to:string|undefined)=>void;
 
 let defaultLinkHookCallback:LinkHookCallback|null=null;
