@@ -470,6 +470,7 @@ const util = {
         const refData = {};
         if(!refs)
             return refData;
+        // eslint-disable-next-line
         for (const field in refs) {
             refData[field] = refs[field].value;
         }
