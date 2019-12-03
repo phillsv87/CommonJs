@@ -18,37 +18,84 @@ export default class EventEmitterEx extends EventEmitter
 
     }
 
+    emitProperty<T, K extends keyof T>(self:T,propertyName:K)
+    {
+        this.emit(propertyName as string);
+    }
+
+}
+
+export function useEmitter(emitter:EventEmitter,event:string|symbol):number{
+    const [count,setCount]=useState(0);
+
+    useEffect(()=>{
+
+        const listener=()=>{
+            setCount(p=>p+1);
+        }
+
+        emitter.on(event,listener);
+
+        return ()=>{
+            emitter.off(event,listener);
+        }
+
+    },[emitter,event])
+
+    return count;
 }
 
 export function useEvent(
-    emitter:EventEmitter|null,
+    emitter:EventEmitter,
     event:string|symbol,
     listener: (...args: any[]) => void,
-    deps?: DependencyList)
+    enabled:boolean=true)
 {
     useEffect(()=>{
-        if(emitter){
+        if(emitter && enabled){
             emitter.on(event,listener);
         }
         return ()=>{
-            if(emitter){
+            if(emitter && enabled){
                 emitter.off(event,listener);
             }
         }
-    },deps);
+    },[emitter,listener,enabled,event]);
 
 }
 
 export function useUpdateEvent(
-    emitter:EventEmitter|null,
-    event:string|symbol):number
+    emitter:EventEmitter,
+    event:string|symbol,
+    enabled:boolean=true):number
 {
     const [index,setIndex]=useState<number>(0);
 
     useEvent(emitter,event,()=>{
         setIndex(v=>v+1);
-    });
+    },enabled);
 
     return index;
 
+}
+
+export function useUpdateProperty<T extends EventEmitter>(
+    emitter:T,
+    key: keyof T,
+    enabled:boolean=true):number
+{
+    const [index,setIndex]=useState<number>(0);
+
+    useEvent(emitter,key as string,()=>{
+        setIndex(v=>v+1);
+    },enabled);
+
+    return index;
+
+}
+
+export function useProperty<T extends EventEmitter,V>(emitter:T,propertyName:keyof T,getValue:(emitter:T)=>V):V
+{
+    useUpdateEvent(emitter,propertyName as string);
+    return getValue(emitter);
 }
