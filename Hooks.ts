@@ -19,3 +19,25 @@ export function useMerged<T>(valueCb:()=>T,deps?:DependencyList):T
 
     return value;
 }
+
+export function useCached<T>(value:T,timeout:number=0):T{
+    const [v,setV]=useState<T>(value);
+
+    useEffect(()=>{
+        let iv=0;
+        if(value){
+            setV(value);
+        }else if(timeout){
+            iv=setTimeout(()=>{
+                setV(value);
+            },timeout);
+        }
+        return ()=>{
+            if(iv){
+                clearTimeout(iv);
+            }
+        }
+    },[value,timeout]);
+
+    return v;
+}
