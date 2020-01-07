@@ -1,6 +1,6 @@
-import EventEmitterEx from './EventEmitterEx';
+import EventEmitterEx from './EventEmitterEx-rn';
 import Http from './Http';
-import { SignIn, SignInRequest, SignInStatus, SignInOrError, RegisterRequest } from './AuthTypes';
+import { SignIn, SignInRequest, SignInStatus, SignInOrError, RegisterRequest, SignInIdentity, AccessCodeRequest } from './AuthTypes';
 import AsyncObjStore from './AsyncObjStore';
 import Log from './Log';
 import { delayAsync } from './utilTs';
@@ -242,6 +242,30 @@ export class AuthManager extends EventEmitterEx
             signIn,
             error:null
         }
+    }
+
+    async checkIfRegisteredAsync(identity:SignInIdentity):Promise<boolean>
+    {
+        try{
+            return await this.http.postAsync<boolean>(
+                this.config.apiBase+'Auth/IsRegistered',
+                identity);
+        }catch(ex){
+            Log.error('Check if user registered failed',ex);
+            return false;
+        }
+    }
+
+    async sendAccessCodeAsync(request:AccessCodeRequest):Promise<Date|null>
+    {
+        try{
+            const r=await this.http.postAsync<string>(this.config.apiBase+'Auth/AccessCode',request);
+            return new Date(r);
+        }catch(ex){
+            Log.error('Send access code failed',ex);
+            return null;
+        }
+
     }
 
     private async handleSignInAsync(signIn:SignIn|null):Promise<SignIn|null>

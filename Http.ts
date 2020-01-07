@@ -1,6 +1,6 @@
 import http from 'axios';
 import Log from './Log';
-import EventEmitterEx from './EventEmitterEx';
+import EventEmitterEx from './EventEmitterEx-rn';
 
 export const simpleAuthHeaderParam:string='SaToken';
 

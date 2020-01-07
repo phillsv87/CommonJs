@@ -77,7 +77,7 @@ export interface UserDataRequest
 
 export interface RegisterRequest extends UserDataRequest
 {
-    Type: string;
+    Type?: string;
 }
 
 export interface SignInOrError
@@ -94,4 +94,10 @@ export const SignInTypes =
     PhonePassword : 'PhonePassword',
     EmailAccessCode : 'EmailAccessCode',
     PhoneAccessCode : 'PhoneAccessCode',
+}
+
+export interface AccessCodeRequest
+{
+    Email?: string;
+    Phone?: string;
 }
