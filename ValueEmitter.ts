@@ -15,7 +15,7 @@ export default class ValueEmitter<T> extends EventEmitterEx
         this._value=value;
     }
 
-    public updateValue(update:(currentValue:T)=>void):T
+    public update(update:(currentValue:T)=>void):T
     {
         if(!update){
             return this._value;
