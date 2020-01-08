@@ -3,13 +3,14 @@ import { View, StyleSheet, GestureResponderEvent, StyleProp, ViewStyle } from 'r
 
 const swipeTolerance=50;
 const swipeTimeout=1000;
+const swipeSize=20;
 
 const leftSwipeCaptureStyle:StyleProp<ViewStyle>=
 {
     position:'absolute',
     left:0,
     top:0,
-    width:10,
+    width:swipeSize,
     height:'100%',
     backgroundColor:'#00000001'
 }
@@ -19,7 +20,7 @@ const rightSwipeCaptureStyle:StyleProp<ViewStyle>=
     position:'absolute',
     right:0,
     top:0,
-    width:10,
+    width:swipeSize,
     height:'100%',
     backgroundColor:'#00000001'
 }
