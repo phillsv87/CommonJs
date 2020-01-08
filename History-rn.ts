@@ -53,6 +53,23 @@ export default class History extends EventEmitterEx
         this._current=value;
     }
 
+    public get canGoBack():boolean{
+        const c=this.current;
+
+        if(c.index===0){
+            return false;
+        }
+
+        let i=c.index-1;
+        for(;i>=0;i--){
+            if(!this.stack[i].config.hidden){
+                break;
+            }
+        }
+
+        return i>=0;
+    }
+
     nextNodeId:number=0;
 
     constructor(){
@@ -127,21 +144,16 @@ export default class History extends EventEmitterEx
 
     reset(path:string)
     {
-        this.stack.splice(1,this.stack.length);
-        if(path==='/'){
-            this.setCurrent(this.stack[0]);
-            this.current.action='pop';
-        }else{
-            this.setCurrent({
-                path:path,
-                index:0,
-                data:null,
-                id:this.nextNodeId++,
-                action:'pop',
-                config:defaultHistoryNodeConfig()
-            });
-            this.stack.push(this.current);
-        }
+        this.stack.splice(0,this.stack.length);
+        this.setCurrent({
+            path:path,
+            index:0,
+            data:null,
+            id:this.nextNodeId++,
+            action:'pop',
+            config:defaultHistoryNodeConfig()
+        });
+        this.stack.push(this.current);
         this.emit('history',this);
     }
 
