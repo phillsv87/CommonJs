@@ -1,6 +1,7 @@
 import http from 'axios';
 import Log from './Log';
 import EventEmitterEx from './EventEmitterEx-rn';
+import { trimStrings } from './commonUtils';
 
 export const simpleAuthHeaderParam:string='SaToken';
 
@@ -30,13 +31,16 @@ export default class Http extends EventEmitterEx
     private _authToken:string|null;
     private _authHeaderParam:string|null;
 
+    public trimData:boolean;
 
-    constructor(baseUrl:string)
+
+    constructor(baseUrl:string,trimData:boolean=false)
     {
         super();
         this._baseUrl=baseUrl;
         this._authToken=null;
         this._authHeaderParam=null;
+        this.trimData=trimData;
     }
 
     setBaseUrl(baseUrl:string)
@@ -92,6 +96,10 @@ export default class Http extends EventEmitterEx
         const isRel=path.indexOf('http:')===-1 && path.indexOf('https:')===-1;
         if(isRel){
             path=this._baseUrl+path;
+        }
+
+        if(data && this.trimData){
+            data=trimStrings(data);
         }
 
         const request:any={
