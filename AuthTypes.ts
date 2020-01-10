@@ -100,4 +100,24 @@ export interface AccessCodeRequest
 {
     Email?: string;
     Phone?: string;
+    ReturnWaitToken?: boolean;
+}
+
+export interface AccessCodeInfo
+{
+    CaseInsensitive?: boolean | null;
+
+    Length?: number | null;
+
+    NumbersOnly?: boolean | null;
+
+    WaitMaxSeconds?: number | null;
+}
+
+export interface AccessCodeSendResult
+{
+    Expires: Date | string;
+
+    WaitToken: string | null;
+
 }

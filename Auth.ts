@@ -1,9 +1,10 @@
 import EventEmitterEx from './EventEmitterEx-rn';
 import Http from './Http';
-import { SignIn, SignInRequest, SignInStatus, SignInOrError, RegisterRequest, SignInIdentity, AccessCodeRequest } from './AuthTypes';
+import { SignIn, SignInRequest, SignInStatus, SignInOrError, RegisterRequest, SignInIdentity, AccessCodeRequest, AccessCodeInfo, AccessCodeSendResult } from './AuthTypes';
 import AsyncObjStore from './AsyncObjStore';
 import Log from './Log';
 import { delayAsync } from './utilTs';
+import CancelToken from './CancelToken';
 
 export const defaultStoreKey='Auth.SignIn';
 
@@ -74,6 +75,9 @@ export class AuthManager extends EventEmitterEx
 
     private _disposed:boolean=false;
 
+    private _accessCodeConfig:AccessCodeInfo={};
+    public get accessCodeConfig():AccessCodeInfo{return this._accessCodeConfig}
+
     constructor(
         http:Http,
         objStore:AsyncObjStore|null,
@@ -89,6 +93,11 @@ export class AuthManager extends EventEmitterEx
 
     async initAsync()
     {
+        try{
+            this._accessCodeConfig=(await this.http.getAsync('Auth/AccessCodeInfo'))||{};
+        }catch(ex){
+            Log.warn('Unable to get auth access code info');
+        }
         if(this.objStore){
             const signIn=await this.objStore.loadAsync<SignIn>(this.config.storeKey!);
             await this.handleSignInAsync(signIn);
@@ -256,16 +265,40 @@ export class AuthManager extends EventEmitterEx
         }
     }
 
-    async sendAccessCodeAsync(request:AccessCodeRequest):Promise<Date|null>
+    private _lastAccessCodeResult:AccessCodeSendResult|null=null;
+
+    async sendAccessCodeAsync(request:AccessCodeRequest):Promise<AccessCodeSendResult|null>
     {
         try{
-            const r=await this.http.postAsync<string>(this.config.apiBase+'Auth/AccessCode',request);
-            return new Date(r);
+            const r=await this.http.postAsync<AccessCodeSendResult>(this.config.apiBase+'Auth/AccessCode',request);
+            this._lastAccessCodeResult=r;
+            return r;
         }catch(ex){
             Log.error('Send access code failed',ex);
             return null;
         }
 
+    }
+
+    async waitForAccessCodeCompletionAsync(cancel?:CancelToken):Promise<SignIn|null>
+    {
+        while(true)
+        {
+            if(cancel?.canceled){
+                return null;
+            }
+            const code=this._lastAccessCodeResult;
+            if(!code || !code.WaitToken){
+                return null;
+            }
+            const r=await this.http.getAsync<SignIn|null>('Auth/WaitForAccessCodeCompletion',{waitToken:code.WaitToken});
+            if(!r){
+                continue;
+            }
+
+            return await this.handleSignInAsync(r);
+
+        }
     }
 
     private async handleSignInAsync(signIn:SignIn|null):Promise<SignIn|null>
