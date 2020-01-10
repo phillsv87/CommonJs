@@ -1,7 +1,6 @@
-import EventEmitterEx from "../CommonJs/EventEmitterEx";
+import EventEmitterEx, { useEmitter } from "../CommonJs/EventEmitterEx-rn";
 import util from "../CommonJs/util";
 import { useState, useMemo, useContext } from "react";
-import { useEmitter } from "./utilTs";
 import React from "react";
 
 export interface LockHandle
@@ -16,14 +15,24 @@ export default class LockScreen extends EventEmitterEx
 
     locks:LockHandle[]=[];
 
+    private _lastLockName:string|null=null;
+
+    public get lastLockName():string|null{
+        return this._lastLockName;
+    }
+
     addLock(name:string,description?:any):LockHandle{
         const self=this;
         const handle:any={name,description};
         handle.unlock=()=>{
             if(util.removeItem(self.locks,handle)){
+                if(self.locks.length){
+                    this._lastLockName=self.locks[self.locks.length-1].name;
+                }
                 self.emit('lock',self.locks);
             }
         };
+        this._lastLockName=name;
         self.locks.push(handle);
 
         self.emit('lock',self.locks);
