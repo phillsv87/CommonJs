@@ -26,6 +26,10 @@ export default class ValueEmitter<T> extends EventEmitterEx
         this.emit('value',this._value);
         return this._value;
     }
+
+    public onChange(listener:(value:T)=>void){
+        return this.addListener('value',listener);
+    }
 }
 
 export function useValueEmitter<T>(valueEmitter:ValueEmitter<T>):T{
