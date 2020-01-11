@@ -13,6 +13,7 @@ export const defaultLogUiTextColor='#ffffff';
 export const defaultLogUiCloseIcon='at:closecircle';
 export const defaultLogUiAutoDismiss=5000;
 export const defaultLogUiContentMargin=20;
+export const defaultLogUiLevel=LogLevel.error|LogLevel.warn;
 
 interface SharedProps
 {
@@ -31,12 +32,12 @@ interface SharedProps
 interface LogUIProps extends SharedProps
 {
     style?:StyleProp<ViewStyle>;
+    level?:LogLevel;
 }
 
 export default function LogUI({
     style,
-    itemStyle,
-    textStyle,
+    level=defaultLogUiLevel,
     ...sharedProps
 }:LogUIProps){
 
@@ -44,13 +45,15 @@ export default function LogUI({
 
     useEffect(()=>{
         const listener=(entry:LogEntry)=>{
-            setItems(v=>[...v,entry]);
+            if(entry.level&level){
+                setItems(v=>[...v,entry]);
+            }
         };
         addLogListener(listener);
         return ()=>{
             removeLogListener(listener);
         }
-    },[]);
+    },[level]);
 
     const remove=useCallback((entry:LogEntry)=>{
         setItems(v=>{
@@ -68,8 +71,6 @@ export default function LogUI({
             {items.map(i=>(
                 <LogUIItem
                     key={i.id}
-                    itemStyle={itemStyle}
-                    textStyle={textStyle}
                     entry={i}
                     remove={remove}
                     {...sharedProps} />
