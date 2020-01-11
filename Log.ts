@@ -6,7 +6,36 @@ export enum LogLevel{
     all=7
 }
 
+export interface LogEntry
+{
+    id:number;
+    level:LogLevel;
+    message:string;
+    error:Error|null;
+}
+
+export type LogListener=(entry:LogEntry)=>void;
+
+const listeners:LogListener[]=[];
+export function addLogListener(listener:LogListener)
+{
+    if(listener){
+        listeners.push(listener);
+    }
+}
+export function removeLogListener(listener:LogListener)
+{
+    const i=listeners.indexOf(listener);
+    if(i!==-1){
+        listeners.splice(i,1);
+        return true;
+    }else{
+        return false;
+    }
+}
+
 let _level=LogLevel.all;
+let nextId=1;
 
 function formatMessage(message:string,ex:Error|undefined){
     if(!ex && typeof(message)==='object'){
@@ -22,32 +51,43 @@ function formatMessage(message:string,ex:Error|undefined){
         return '(empty)';
     }
 }
+
+function report(level:LogLevel,message:string,ex:Error|undefined=undefined)
+{
+    if(_level&level){
+        console.log(formatMessage(message,ex));
+    }
+
+    nextId++;
+
+    if(listeners.length){
+        const entry:LogEntry={
+            id:nextId,
+            level,
+            message,
+            error:ex||null
+
+        };
+        for(let i=0;i<listeners.length;i++){
+            try{
+                listeners[i](entry);
+            }catch(ex){
+                console.warn('Log listener callback error',ex);
+            }
+        }
+    }
+
+    return message;
+}
+
 const Log={
     setLevel:(level:LogLevel)=>{
         _level=level&LogLevel.all;
     },
     getLevel:()=>_level,
 
-    info:(message:string,ex:Error|undefined=undefined)=>{
-        const msg=formatMessage(message,ex);
-        if(_level&LogLevel.info){
-            console.log(msg);
-        }
-        return msg;
-    },
-    warn:(message:string,ex:Error|undefined=undefined)=>{
-        const msg=formatMessage(message,ex);
-        if(_level&LogLevel.warn){
-            console.warn(msg);
-        }
-        return msg;
-    },
-    error:(message:string,ex:Error|undefined=undefined)=>{
-        const msg=formatMessage(message,ex);
-        if(_level&LogLevel.error){
-            console.error(msg);
-        }
-        return msg;
-    }
+    info:(message:string,ex:Error|undefined=undefined)=>report(LogLevel.info,message,ex),
+    warn:(message:string,ex:Error|undefined=undefined)=>report(LogLevel.warn,message,ex),
+    error:(message:string,ex:Error|undefined=undefined)=>report(LogLevel.error,message,ex)
 }
 export default Log;
