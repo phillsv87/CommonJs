@@ -144,6 +144,13 @@ export default class History extends EventEmitterEx
 
     reset(path:string)
     {
+        if(this._current && this._current.path===path && this._current.index===0)
+        {
+            if(this.stack.length>1){
+                this.stack.splice(1,this.stack.length);
+            }
+            return;
+        }
         this.stack.splice(0,this.stack.length);
         this.setCurrent({
             path:path,
