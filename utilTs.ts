@@ -137,22 +137,6 @@ export function getElementPageOffset(elem:HTMLElement|null|undefined):Point{
     return {x,y};
 }
 
-export interface Mounted
-{
-    mounted:boolean;
-}
-
-export function useMounted():Mounted
-{
-    const [clt]=useState<Mounted>({mounted:true});
-    useEffect(()=>{
-        return ()=>{
-            clt.mounted=false;
-        }
-    },[clt]);
-    return clt;
-}
-
 export function delayAsync(delayMs:number):Promise<void>
 {
     return new Promise((r)=>{

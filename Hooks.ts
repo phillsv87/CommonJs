@@ -41,3 +41,19 @@ export function useCached<T>(value:T,timeout:number=0):T{
 
     return v;
 }
+
+export interface Mounted
+{
+    mounted:boolean;
+}
+
+export function useMounted():Mounted
+{
+    const [clt]=useState<Mounted>({mounted:true});
+    useEffect(()=>{
+        return ()=>{
+            clt.mounted=false;
+        }
+    },[clt]);
+    return clt;
+}
