@@ -1,4 +1,4 @@
-import { useState, useEffect, DependencyList, useCallback, useMemo } from "react";
+import { useState, useEffect, DependencyList, useCallback, useMemo, useLayoutEffect } from "react";
 import { EventEmitter } from "events";
 import Log from "./Log";
 
@@ -23,7 +23,7 @@ export function useMerged<T>(value:T):T{
 export function useEmitter(emitter:EventEmitter,event:string|symbol):number{
     const [count,setCount]=useState(0);
 
-    useEffect(()=>{
+    useLayoutEffect(()=>{
 
         const listener=()=>{
             setCount(p=>p+1);
@@ -46,7 +46,7 @@ export function useEvent(
     listener: (...args: any[]) => void,
     enabled:boolean=true)
 {
-    useEffect(()=>{
+    useLayoutEffect(()=>{
         if(emitter && enabled){
             emitter.on(event,listener);
         }
@@ -100,7 +100,7 @@ export function useAsync<T,D>(defaultValue:D,asyncCallback:()=>Promise<T>,deps:D
     const [value,setValue]=useState<T|D>(defaultValue);
     const cb=useCallback(asyncCallback,deps);
 
-    useEffect(()=>{
+    useLayoutEffect(()=>{
         let active=true;
         const doCall=async ()=>{
             try{

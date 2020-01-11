@@ -1,5 +1,5 @@
 import EventEmitter from "eventemitter3";
-import { useEffect, useState, DependencyList } from "react";
+import { useState, useLayoutEffect } from "react";
 
 export default class EventEmitterEx extends EventEmitter
 {
@@ -28,7 +28,7 @@ export default class EventEmitterEx extends EventEmitter
 export function useEmitter(emitter:EventEmitter,event:string|symbol):number{
     const [count,setCount]=useState(0);
 
-    useEffect(()=>{
+    useLayoutEffect(()=>{
 
         const listener=()=>{
             setCount(p=>p+1);
@@ -51,7 +51,7 @@ export function useEvent(
     listener: (...args: any[]) => void,
     enabled:boolean=true)
 {
-    useEffect(()=>{
+    useLayoutEffect(()=>{
         if(emitter && enabled){
             emitter.on(event,listener);
         }
