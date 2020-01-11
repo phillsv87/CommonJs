@@ -1,5 +1,5 @@
 import http from 'axios';
-import Log from './Log';
+import Log, { LogLevel } from './Log';
 import EventEmitterEx from './EventEmitterEx-rn';
 import { trimStrings } from './commonUtils';
 
@@ -24,6 +24,35 @@ export interface HttpUiRequestEvent
     status:HttpUiRequestEventStatus;
 }
 
+export function getHttpErrorStatusCode(error:Error,fallbackMessage?:string):number|undefined
+{
+    const ex:any=error;
+    if(ex.httpError && ex.httpError.StatusCode){
+        return ex.httpError.StatusCode;
+    }else{
+        return undefined;
+    }
+}
+
+export function getHttpErrorMessage(error:Error,fallbackMessage?:string):string
+{
+    const ex:any=error;
+    if(ex.httpError && ex.httpError.Message){
+        return ex.httpError.Message;
+    }else{
+        return fallbackMessage||'Error';
+    }
+}
+
+export function logHttpError(error:Error,fallbackMessage?:string,logLevel?:LogLevel):string
+{
+    if(logLevel===undefined){
+        logLevel=LogLevel.error;
+    }
+    const msg=getHttpErrorMessage(error,fallbackMessage);
+    Log.add(logLevel,msg,error);
+    return msg;
+}
 
 export default class Http extends EventEmitterEx
 {
@@ -130,17 +159,31 @@ export default class Http extends EventEmitterEx
             configRequest(request);
         }
         
-        const result=await http(request);
+        try{
+            const result=await http(request);
 
-        if(result.data && result.data['@odata.context']){
-            if(Array.isArray(result.data.value)){
-                return result.data.value;
+            if(result.data && result.data['@odata.context']){
+                if(Array.isArray(result.data.value)){
+                    return result.data.value;
+                }else{
+                    delete result.data['@odata.context'];
+                    return result.data;
+                }
             }else{
-                delete result.data['@odata.context'];
                 return result.data;
             }
-        }else{
-            return result.data;
+        }catch(ex){
+
+            if( ex.response &&
+                ex.response.data &&
+                ex.response.data.Message!==undefined &&
+                ex.response.data.StatusCode!==undefined)
+            {
+                ex.httpError=ex.response.data;
+            }
+
+            throw ex;
+
         }
     }
 

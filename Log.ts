@@ -88,6 +88,7 @@ const Log={
 
     info:(message:string,ex:Error|undefined=undefined)=>report(LogLevel.info,message,ex),
     warn:(message:string,ex:Error|undefined=undefined)=>report(LogLevel.warn,message,ex),
-    error:(message:string,ex:Error|undefined=undefined)=>report(LogLevel.error,message,ex)
+    error:(message:string,ex:Error|undefined=undefined)=>report(LogLevel.error,message,ex),
+    add:(level:LogLevel,message:string,ex:Error|undefined=undefined)=>report(level,message,ex)
 }
 export default Log;
