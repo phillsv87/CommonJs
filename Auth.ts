@@ -1,6 +1,6 @@
 import EventEmitterEx from './EventEmitterEx-rn';
-import Http from './Http';
-import { SignIn, SignInRequest, SignInStatus, SignInOrError, RegisterRequest, SignInIdentity, AccessCodeRequest, AccessCodeInfo, AccessCodeSendResult } from './AuthTypes';
+import Http, { logHttpError, getHttpErrorStatusCode } from './Http';
+import { SignIn, SignInRequest, SignInStatus, SignInOrError, RegisterRequest, SignInIdentity, AccessCodeRequest, AccessCodeInfo, AccessCodeSendResult, SignInTypes } from './AuthTypes';
 import AsyncObjStore from './AsyncObjStore';
 import Log from './Log';
 import { delayAsync } from './utilTs';
@@ -174,7 +174,15 @@ export class AuthManager extends EventEmitterEx
                 signIn.LastRenew=new Date().getTime();
             }
         }catch(ex){
-            Log.error('Sign in failed ',ex);
+            if(getHttpErrorStatusCode(ex)===401){
+                if(request.Type===SignInTypes.EmailAccessCode || request.Type===SignInTypes.PhoneAccessCode){
+                    Log.error('Invalid Access Code',ex);
+                }else{
+                    Log.error('Sign in failed',ex);
+                }
+            }else{
+                logHttpError(ex,'Sign in failed');
+            }
             return {
                 signIn:null,
                 error:ex.message
@@ -207,7 +215,7 @@ export class AuthManager extends EventEmitterEx
                 signIn.LastRenew=new Date().getTime();
             }
         }catch(ex){
-            Log.error('Registration in failed ',ex);
+            logHttpError(ex,'Registration Failed');
             return {
                 signIn:null,
                 error:ex.message
@@ -239,10 +247,10 @@ export class AuthManager extends EventEmitterEx
             }
         }catch(ex){
             if(ex.response && ex.response.status===401){
-                Log.info('SignIn rejected',ex);
+                logHttpError(ex,'SignIn rejected');
                 signIn=null;
             }else{
-                Log.error('Error renewing sign in token',ex);
+                logHttpError(ex,'Error renewing sign in token');
                 return {error:ex.message};
             }
         }
@@ -253,15 +261,15 @@ export class AuthManager extends EventEmitterEx
         }
     }
 
-    async checkIfRegisteredAsync(identity:SignInIdentity):Promise<boolean>
+    async checkIfRegisteredAsync(identity:SignInIdentity):Promise<boolean|null>
     {
         try{
             return await this.http.postAsync<boolean>(
                 this.config.apiBase+'Auth/IsRegistered',
                 identity);
         }catch(ex){
-            Log.error('Check if user registered failed',ex);
-            return false;
+            logHttpError(ex,'Check if user registered failed');
+            return null;
         }
     }
 
