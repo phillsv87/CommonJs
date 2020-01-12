@@ -200,6 +200,17 @@ export default class Http extends EventEmitterEx
     }
 
 
+    uploadFileAsync<T>(path:string,file:string,paramName:string='File'):Promise<T>
+    {
+        const data = new FormData();
+        data.append(paramName,{
+            name:file,
+            uri:file.replace('file://','')
+        });
+        return this.callAsync('POST',path,data,(r:any)=>{
+            r.headers['Content-Type']='multipart/form-data';
+        });
+    }
 
 
     uiGetAsync<T>(description:any,path:string,data:any=null):Promise<T|null>
