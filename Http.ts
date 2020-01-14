@@ -193,6 +193,13 @@ export default class Http extends EventEmitterEx
         this._authHeaderParam=authHeaderParam;
     }
 
+    getAuthQueryParam():string|null{
+        if(this._authToken===null){
+            return null;
+        }
+        return this._authHeaderParam+'='+encodeURIComponent(this._authToken);
+    }
+
     setBearerAuthToken(token:string|null)
     {
         this._authToken=token?'bearer '+token:null;
