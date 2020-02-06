@@ -36,6 +36,8 @@ export default class History extends EventEmitterEx
 
     stack:HistoryNode[];
 
+    public logChanges:boolean=false;
+
     private _previous:HistoryNode|null=null;
     public get previous(){
         return this._previous;
@@ -51,6 +53,9 @@ export default class History extends EventEmitterEx
         }
         this._previous=this._current;
         this._current=value;
+        if(this.logChanges){
+            console.log('history',this._current);
+        }
     }
 
     public get canGoBack():boolean{
