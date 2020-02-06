@@ -28,3 +28,17 @@ export function trimStrings(obj:any,maxDepth:number=20){
     return obj;
 
 }
+
+export function aryRemoveItem<T>(ary:T[],item:T):boolean
+{
+    if(!ary){
+        return false;
+    }
+    for(let i=0;i<ary.length;i++){
+        if(ary[i]===item){
+            ary.splice(i,1);
+            return true;
+        }
+    }
+    return false;
+}
