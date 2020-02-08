@@ -147,7 +147,7 @@ export default class History extends EventEmitterEx
         return c;
     }
 
-    reset(path:string)
+    reset(path:string,config:HistoryNodeConfig|null=null)
     {
         if(this._current && this._current.path===path && this._current.index===0)
         {
@@ -163,7 +163,7 @@ export default class History extends EventEmitterEx
             data:null,
             id:this.nextNodeId++,
             action:'pop',
-            config:defaultHistoryNodeConfig()
+            config:config||defaultHistoryNodeConfig()
         });
         this.stack.push(this.current);
         this.emit('history',this);
