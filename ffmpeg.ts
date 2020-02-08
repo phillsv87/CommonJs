@@ -3,7 +3,7 @@
 // npm i react-native-ffmpeg
 // npm i react-native-fs
 
-import { LogLevel, RNFFmpeg } from 'react-native-ffmpeg';
+import { LogLevel, RNFFmpeg, RNFFprobe, MediaInformation } from 'react-native-ffmpeg';
 import * as fs from 'react-native-fs';
 
 const successCode=0;
@@ -28,18 +28,39 @@ export async function ffmpegGenerateThumbnailAsync(
        output=getTmpFilePath('jpg'); 
     }
 
-    console.log('. Output = '+output)
-
     const result=await RNFFmpeg.execute(
         `-i ${source} -vframes 1 -an `+
         ((width!==null && height!==null)?`-s ${width}x${height}`:'')+
         ` -ss ${atSecond} ${output}`);
-
-    console.log("FFmpeg process exited with rc " + result.rc+'. Output = '+output)
 
     if(result.rc!==successCode){
         throw new Error('ffmpegGenerateThumbnailAsync failed with code '+result.rc);
     }
 
     return output;
+}
+
+export interface MediaInfo
+{
+    full:MediaInformation;
+    width:number;
+    height:number;
+    length:number;
+}
+
+export async function ffmpegGetInfoAsync(path:string):Promise<MediaInfo>
+{
+    if(!path){
+        throw new Error("ffmpegGetInfoAsync requires a value path");
+    }
+    const info = await RNFFprobe.getMediaInformation(path);
+
+    const videoStream=info.streams?.find(s=>s.type=='video');
+
+    return {
+        full:info,
+        width:videoStream?.width||0,
+        height:videoStream?.height||0,
+        length:info.duration||0
+    };
 }
