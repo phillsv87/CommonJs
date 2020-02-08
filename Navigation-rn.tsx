@@ -115,10 +115,17 @@ interface NavigationProps
 {
     routes:ViewRoute[];
     routeChange?:(route:ViewRoute,routeSet:RouteSet)=>void;
+    transitionDuration?:number;
+    nativeDriver?:boolean;
 }
 
-export function Navigation({routes,routeChange}:NavigationProps)
-{
+export function Navigation({
+    routes,
+    routeChange,
+    transitionDuration=500,
+    nativeDriver=false,
+}:NavigationProps){
+
     const history=useHistory();
     useUpdateEvent(history,'history');
     const previous=history.previous;
@@ -174,8 +181,9 @@ export function Navigation({routes,routeChange}:NavigationProps)
 
         Animated.timing(animation,{
             toValue:to,
-            duration:500,
-            easing:Easing.elastic(0.9)
+            duration:transitionDuration,
+            easing:Easing.elastic(0.9),
+            useNativeDriver:nativeDriver
         }).start(()=>{
             setEndedRoute(id);
         });
