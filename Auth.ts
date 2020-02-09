@@ -237,6 +237,8 @@ export class AuthManager extends EventEmitterEx
             return {};
         }
 
+        Log.info('Renew SignIn')
+
         let signIn:SignIn|null;
 
         try{
@@ -245,6 +247,7 @@ export class AuthManager extends EventEmitterEx
             if(signIn){
                 signIn.LastRenew=new Date().getTime();
             }
+            Log.info('SignIn renewed');
         }catch(ex){
             if(ex.response && ex.response.status===401){
                 logHttpError(ex,'SignIn rejected');
