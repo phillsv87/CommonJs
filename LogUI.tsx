@@ -15,6 +15,16 @@ export const defaultLogUiAutoDismiss=5000;
 export const defaultLogUiContentMargin=20;
 export const defaultLogUiLevel=LogLevel.error|LogLevel.warn;
 
+function colorForLevel(level:LogLevel){
+    if(level&LogLevel.error){
+        return defaultLogUiErrorColor;
+    }else if(level&LogLevel.warn){
+        return defaultLogUiWarnColor;
+    }else{
+        return defaultLogUiInfoColor;
+    }
+}
+
 interface SharedProps
 {
     itemStyle?:StyleProp<ViewStyle>;
@@ -212,4 +222,66 @@ const styles=StyleSheet.create({
         backgroundColor:'#ffffff55',
         height:5
     }
-})
+});
+
+
+interface LogUIListProps
+{
+    style?:StyleProp<ViewStyle>;
+    level?:LogLevel;
+    renderClearButton?:(onPress:()=>void)=>any;
+}
+
+export function LogUIList({
+    style,
+    level=LogLevel.all,
+    renderClearButton
+}:LogUIListProps){
+
+    const [,render]=useState(0);
+    const items=useMemo<LogEntry[]>(()=>[],[]);
+
+
+    useEffect(()=>{
+        const listener=(entry:LogEntry)=>{
+            if(entry.level&level){
+                items.unshift(entry);
+                render(v=>v+1);
+            }
+        };
+        addLogListener(listener);
+        return ()=>{
+            removeLogListener(listener);
+        }
+    },[level]);
+
+    const clear=useCallback(()=>{
+        items.splice(0,items.length);
+        render(v=>v+1);
+    },[]);
+
+    return (
+        <>
+            {renderClearButton&&renderClearButton(clear)}
+            <View style={style}>
+                {items.map(entry=>(
+                    <Text
+                        selectable={true}
+                        style={[listStyles.text,{color:colorForLevel(entry.level)}]}
+                        key={entry.id}>{entry.timeString+': '+entry.message}</Text>
+                ))}
+            </View>
+            {renderClearButton&&items.length>30&&renderClearButton(clear)}
+        </>
+    )
+
+}
+
+const listStyles=StyleSheet.create({
+    text:{
+        color:'#000',
+        marginBottom:10,
+        marginHorizontal:5,
+        fontFamily:'Courier'
+    }
+});
