@@ -4,13 +4,13 @@ import History, { HistoryNodeConfig } from "./History-rn";
 
 export const defaultDebugWidth=100;
 export const defaultDebugHeight=100;
-export const defaultDebugTags=15;
+export const defaultDebugTaps=15;
 
 export function useDetectDebugGesture(
     onDetected:()=>void,
+    taps:number=defaultDebugTaps,
     width:number=defaultDebugWidth,
-    height:number=defaultDebugHeight,
-    taps:number=defaultDebugTags)
+    height:number=defaultDebugHeight)
     :(event: GestureResponderEvent) => void
 {
 
@@ -49,11 +49,11 @@ export function useDetectDebugGesture(
 export function usePushHistoryDebugGesture(
     history:History|null,
     path:string|null,
+    taps:number=defaultDebugTaps,
     data:any=null,
     config:HistoryNodeConfig|null=null,
     width:number=defaultDebugWidth,
-    height:number=defaultDebugHeight,
-    taps:number=defaultDebugTags):
+    height:number=defaultDebugHeight):
     (event: GestureResponderEvent) => void
 {
     const detect=useCallback(()=>{
@@ -62,5 +62,5 @@ export function usePushHistoryDebugGesture(
         }
     },[history,path,data,config]);
 
-    return useDetectDebugGesture(detect,width,height,taps);
+    return useDetectDebugGesture(detect,taps,width,height);
 }
