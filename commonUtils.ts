@@ -42,3 +42,17 @@ export function aryRemoveItem<T>(ary:T[],item:T):boolean
     }
     return false;
 }
+
+export function serializeWithRefs(obj:any,space:number){
+    const cache:any[] = [];
+    return JSON.stringify(obj, function(key, value) {
+        if (typeof value === 'object' && value !== null) {
+            const i=cache.indexOf(value);
+            if (i !== -1) {
+                return {objRef:i}
+            }
+            cache.push(value);
+        }
+        return value;
+    },space);
+}
