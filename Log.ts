@@ -12,6 +12,8 @@ export interface LogEntry
     level:LogLevel;
     message:string;
     error:Error|null;
+    time:Date;
+    timeString:string;
 }
 
 export type LogListener=(entry:LogEntry)=>void;
@@ -52,6 +54,14 @@ function formatMessage(message:string,ex:Error|undefined){
     }
 }
 
+function twoDigit(value:number){
+    if(value<10){
+        return '0'+value;
+    }else{
+        return value;
+    }
+}
+
 function report(level:LogLevel,message:string,ex:Error|undefined=undefined)
 {
     if(_level&level){
@@ -61,11 +71,20 @@ function report(level:LogLevel,message:string,ex:Error|undefined=undefined)
     nextId++;
 
     if(listeners.length){
+        const d=new Date();
         const entry:LogEntry={
             id:nextId,
             level,
             message,
-            error:ex||null
+            error:ex||null,
+            time:d,
+            timeString:
+                d.getFullYear()+'-'+
+                twoDigit(d.getMonth()+1)+'-'+
+                twoDigit(d.getDate())+'.'+
+                twoDigit(d.getHours())+'.'+
+                twoDigit(d.getMinutes())+'.'+
+                twoDigit(d.getSeconds())
 
         };
         for(let i=0;i<listeners.length;i++){
