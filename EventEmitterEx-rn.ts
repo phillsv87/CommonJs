@@ -25,10 +25,14 @@ export default class EventEmitterEx extends EventEmitter
 
 }
 
-export function useEmitter(emitter:EventEmitter,event:string|symbol):number{
+export function useEmitter(emitter:EventEmitter|null,event:string|symbol):number{
     const [count,setCount]=useState(0);
 
     useLayoutEffect(()=>{
+
+        if(!emitter){
+            return;
+        }
 
         const listener=()=>{
             setCount(p=>p+1);
