@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, StyleProp, ViewStyle, Animated, TouchableOpacity } from 'react-native';
-import { LogEntry, addLogListener, removeLogListener, LogLevel } from './Log';
+import { LogEntry, addLogListener, removeLogListener, LogLevel, logPrintMessage } from './Log';
 import { delayAsync } from './utilTs';
 import { useTween } from './Animations-rn';
 import { useSafeArea } from './SafeArea-rn';
@@ -55,7 +55,7 @@ export default function LogUI({
 
     useEffect(()=>{
         const listener=(entry:LogEntry)=>{
-            if(entry.level&level){
+            if(entry.level&level && !entry.noUi){
                 setItems(v=>[...v,entry]);
             }
         };
@@ -268,7 +268,7 @@ export function LogUIList({
                     <Text
                         selectable={true}
                         style={[listStyles.text,{color:colorForLevel(entry.level)}]}
-                        key={entry.id}>{entry.timeString+': '+entry.message}</Text>
+                        key={entry.id}>{entry.timeString+': '+logPrintMessage(entry.message,entry.error?[entry.error]:null)}</Text>
                 ))}
             </View>
             {renderClearButton&&items.length>30&&renderClearButton(clear)}
