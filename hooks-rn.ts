@@ -31,8 +31,10 @@ export function useDetectDebugGesture(
             setPoint(0);
             return;
         }
-
         if(point===taps){
+
+            console.log('Debug Gesture Detected');
+
             setPoint(0);
             if(onDetected){
                 onDetected();
