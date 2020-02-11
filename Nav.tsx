@@ -233,7 +233,7 @@ function Link({
     const nav:Nav=_nav||defaultNav;
     const cn=(className?className:'')+(disabled?' disabled':'')+(btnType?' btn btn-'+btnType:'');
 
-    let href;
+    let href:any;
     if(to){
         href=to;
     }else if(push){
@@ -243,7 +243,7 @@ function Link({
     }else if(forward){
         href='#forward';
     }else{
-        href=null;
+        href='#void';
     }
 
     const _onClick=useCallback((e:any)=>{
@@ -263,7 +263,7 @@ function Link({
             onClick(e);
         }
 
-        if(real){
+        if(real || href==="#void"){
             return;
         }
 
@@ -276,7 +276,7 @@ function Link({
         }else if(forward){
             nav.forward();
         }
-    },[to,tag,onClick,push,back,forward,nav,disabled,real]);
+    },[to,tag,onClick,push,back,forward,nav,disabled,real,href]);
 
     if(!href && autoHide){
         return null;
