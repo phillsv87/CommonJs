@@ -56,3 +56,38 @@ export function serializeWithRefs(obj:any,space:number){
         return value;
     },space);
 }
+
+
+export function getTimeAny(date:any):number
+{
+    const type=typeof date;
+
+    if(type==='string'){
+        let d=new Date(date as string).getTime();
+        if(Number.isNaN(d)){
+            return Number(date);
+        }else{
+            return d;
+        }
+    }
+
+    if(type==='number'){
+        return date as number;
+    }
+
+    if(date && (date as any).getTime){
+        try{
+            const d=(date as any).getTime();
+            if(typeof d === 'number'){
+                return d;
+            }
+        }catch{}
+    }
+
+    return Number.NaN;
+}
+
+export function getCurrentTime():number
+{
+    return new Date().getTime();
+}
