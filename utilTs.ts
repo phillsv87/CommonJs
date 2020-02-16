@@ -28,10 +28,14 @@ export function useEvent(emitter:EventEmitter,event:string|symbol,listener: (...
     },[emitter,event,listener]);
 }
 
-export function useEmitter(emitter:EventEmitter,event:string|symbol):number{
+export function useEmitter(emitter:EventEmitter|null,event:string|symbol):number{
     const [count,setCount]=useState(0);
 
     useEffect(()=>{
+
+        if(!emitter){
+            return;
+        }
 
         const listener=()=>{
             setCount(p=>p+1);
