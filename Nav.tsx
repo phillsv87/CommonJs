@@ -218,6 +218,7 @@ interface LinkProps{
     disabled?:boolean,
     className?:string,
     btnType?:string,
+    tabIndex?:number,
     [other:string]:any,
     real?:boolean
 
@@ -227,6 +228,7 @@ function Link({
     children,to,back,forward,push,
     autoHide,nav:_nav,disabled,onClick,
     className,tag,btnType,real,
+    tabIndex=0,
     ...props}:LinkProps)
 {
 
@@ -282,7 +284,7 @@ function Link({
         return null;
     }
 
-    return <a {...props} className={cn} href={href} onClick={_onClick}>{children}</a>
+    return <a {...props} tabIndex={tabIndex} className={cn} href={href} onClick={_onClick}>{children}</a>
 }
 
 export {NavRoute,Link,Nav,defaultNav}
