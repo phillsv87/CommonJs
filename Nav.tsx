@@ -1,5 +1,5 @@
 import {createBrowserHistory} from "history";
-import React,{ useEffect, useState, useCallback, useLayoutEffect } from "react";
+import React,{ useEffect, useState, useCallback, useLayoutEffect, CSSProperties } from "react";
 import { History } from "history";
 import util from "./util";
 
@@ -220,7 +220,8 @@ interface LinkProps{
     btnType?:string,
     tabIndex?:number,
     [other:string]:any,
-    real?:boolean
+    real?:boolean,
+    style?:CSSProperties
 
 }
 
