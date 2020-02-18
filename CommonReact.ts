@@ -20,7 +20,7 @@ export function getDefaultStyleSheetRule():CSSProperties
     }
 }
 
-export function createStyleSheet<T extends StyleSheetRules>(rules:T):T
+export function createStyleSheet<T extends StyleSheetRules>(rules:T|StyleSheetRules):T
 {
     if(rules.default===undefined){
         (rules as any).default=getDefaultStyleSheetRule() as T;
@@ -47,7 +47,7 @@ export function createStyleSheet<T extends StyleSheetRules>(rules:T):T
     return rules as T;
 }
 
-export function mergeStyles(...styles:(CSSProperties|undefined|null)[]):CSSProperties|undefined
+export function mergeStyles(...styles:(CSSProperties|undefined|null|false)[]):CSSProperties|undefined
 {
     let count=0;
     let a:CSSProperties|undefined=undefined;
@@ -86,7 +86,7 @@ export function mergeStyles(...styles:(CSSProperties|undefined|null)[]):CSSPrope
             continue;
         }
         for(let e in s){
-            [e]=(s as any)[e];
+            out[e]=(s as any)[e];
         }
     }
     return out;
