@@ -117,7 +117,7 @@ export function useAnimatedValues<T>(
                     waitHandles &&
                     !waitHandles[nextItem.waitFor])
                 {
-                    setTimeout(step,100);
+                    setTimeout(step,20);
                     return i-1;
                 }
 
