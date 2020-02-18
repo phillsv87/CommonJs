@@ -36,6 +36,7 @@ export interface WindowSize{
     breakpoint:WindowBreakpoint
     isMobile:boolean
     isTab:boolean
+    stack:boolean
 }
 
 export function useWindowSize():WindowSize{
@@ -63,7 +64,8 @@ export function useWindowSize():WindowSize{
         height,
         breakpoint,
         isMobile,
-        isTab
+        isTab,
+        stack:isMobile||isTab
     };
 
 }
