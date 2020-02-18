@@ -75,9 +75,15 @@ export interface AnimatedValue<T>
 {
     value:T;
     duration:number;
+    waitFor?:string;
 }
 
-export function useAnimatedValues<T>(values:AnimatedValue<T>[],deps:DependencyList=[]):T
+export type AnimatedWaitHandles={[key:string]:boolean}
+
+export function useAnimatedValues<T>(
+    values:AnimatedValue<T>[],
+    waitHandles:AnimatedWaitHandles|null=null,
+    deps:DependencyList=[]):T
 {
     // eslint-disable-next-line
     const _timings=useMemo(()=>values||[],deps);
@@ -103,10 +109,22 @@ export function useAnimatedValues<T>(values:AnimatedValue<T>[],deps:DependencyLi
                     return i;
                 }
                 i++;
+                let nextItem=_timings[i];
+                if(!nextItem){
+                    return i-1;
+                }
+                if( nextItem.waitFor!==undefined &&
+                    waitHandles &&
+                    !waitHandles[nextItem.waitFor])
+                {
+                    setTimeout(step,100);
+                    return i-1;
+                }
+
                 if(i>=_timings.length){
                     return i-1;
                 }
-                setTimeout(step,_timings[i].duration);
+                setTimeout(step,nextItem.duration);
                 return i;
             });
         }
@@ -117,7 +135,7 @@ export function useAnimatedValues<T>(values:AnimatedValue<T>[],deps:DependencyLi
             m=false;
         }
 
-    },[_timings]);
+    },[_timings,waitHandles]);
 
     return index<_timings.length?_timings[index].value:(undefined as any);
 }
