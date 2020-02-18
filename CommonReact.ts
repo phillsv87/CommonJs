@@ -1,4 +1,5 @@
 import { CSSProperties } from "react";
+import { PositionProperty } from 'csstype';
 
 export interface StyleSheetRules
 {
@@ -8,23 +9,23 @@ export interface StyleSheetRules
 export interface DefaultStyleSheetRule
 {
     display?:'flex'|'none';
+    position?:PositionProperty;
 }
 
-export function getDefaultStyleSheetRule():DefaultStyleSheetRule
+export function getDefaultStyleSheetRule():CSSProperties
 {
     return {
-        display:'flex'
+        display:'flex',
+        position:'relative'
     }
 }
 
-const _defaultRules=getDefaultStyleSheetRule();
-
-export function createStyleSheet(rules:StyleSheetRules,defaults?:DefaultStyleSheetRule|null):StyleSheetRules
+export function createStyleSheet<T extends StyleSheetRules>(rules:T):T
 {
-
-    if(defaults===undefined){
-        defaults=_defaultRules;
+    if(rules.default===undefined){
+        (rules as any).default=getDefaultStyleSheetRule() as T;
     }
+    const defaults=rules.default;
 
     if(defaults && rules){
         for(let name in rules){
@@ -43,7 +44,7 @@ export function createStyleSheet(rules:StyleSheetRules,defaults?:DefaultStyleShe
         }
     }
 
-    return rules;
+    return rules as T;
 }
 
 export function mergeStyles(...styles:(CSSProperties|undefined|null)[]):CSSProperties|undefined
