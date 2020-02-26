@@ -17,7 +17,7 @@ class Nav
     constructor()
     {
         this.history=history;
-        document.body.style.setProperty('--vNavTransTime',((defaultTransDelay-100)/1000)+'px');
+        document.body.style.setProperty('--vNavTransTime',((defaultTransDelay-100)/1000)+'s');
         
         window.addEventListener('popstate', this._onPop);
     }
@@ -63,25 +63,75 @@ class Nav
 const defaultNav=new Nav();
 
 interface MatchResult{
-    success:boolean,
-    matches?:RegExpExecArray
+    success:boolean;
+    path:string;
+    matches?:RegExpExecArray;
+    stringMatch:(index:number)=>string|undefined;
+    numberMatch:(index:number)=>number|undefined;
 }
+
+function makeStringMatch(matches:RegExpExecArray|null):(index:number)=>string|undefined{
+
+    return (index:number)=>{
+        if(!matches || index>=matches.length){
+            return undefined;
+        }
+
+        return matches[index];
+    }
+
+}
+
+function makeNumberMatch(matches:RegExpExecArray|null):(index:number)=>number|undefined{
+
+    return (index:number)=>{
+        if(!matches || index>=matches.length){
+            return undefined;
+        }
+
+        const n=Number(matches[index]);
+        if(Number.isNaN(n)){
+            return undefined;
+        }else{
+            return n;
+        }
+    }
+
+}
+
+const emptyMatch=()=>undefined;
 
 
 function isMatch(path:string|undefined,match:RegExp|undefined,history:History):MatchResult{
     const pathname=history.location.pathname;
     if(path && pathname.toLowerCase()===path.toLowerCase()){
-        return {success:true};
+        return {
+            success:true,
+            path:path||'',
+            stringMatch:emptyMatch,
+            numberMatch:emptyMatch
+        };
     }
 
     if(match){
         const m=match.exec(pathname);
         if(m){
-            return {success:true,matches:m};
+            return {
+                success:true,
+                path:m[0]||'',
+                matches:m,
+                stringMatch:makeStringMatch(m),
+                numberMatch:makeNumberMatch(m)
+            };
         }
     }
 
-    return {success:false};
+    return {
+        success:false,
+        path:path||'',
+        stringMatch:emptyMatch,
+        numberMatch:emptyMatch
+    };
 }
 
 enum TransType
@@ -127,6 +177,7 @@ function NavRoute<Tcb>({
     const [conClass,setConClass]=useState<string|null>('');
     const [forceShow,setForceShow]=useState<boolean>(false);
     const isActive=matchResult.success;
+    const matchedPath=matchResult.path;
 
     // Triggers onChange for routes that start as active
     useLayoutEffect(()=>{
@@ -145,6 +196,16 @@ function NavRoute<Tcb>({
             iniMatchResult.disposed=true;
             const updateMatch=isMatch(path,match,history);
             if(updateMatch.success===isActive){
+                if(!updateMatch.success){
+                    return;
+                }
+                if(updateMatch.path===matchedPath){
+                    return;
+                }
+                if(onChange){
+                    onChange(updateMatch.success,cbData as Tcb);
+                }
+                setMatchResult(updateMatch);
                 return;
             }
 
@@ -171,7 +232,7 @@ function NavRoute<Tcb>({
             listener();
             effectActive=false;
         }
-    },[path,match,isActive,inClass,outClass,transDelay,onChange,cbData,iniMatchResult]);
+    },[path,match,isActive,inClass,outClass,transDelay,onChange,cbData,iniMatchResult,matchedPath]);
 
     let content:any;
 
@@ -197,6 +258,24 @@ function NavRoute<Tcb>({
     );
 }
 
+export function useHistory():History
+{
+    const [,setValue]=useState(0);
+    useEffect(()=>{
+        let m=true;
+        const listener=history.listen(()=>{
+            if(m){
+                setValue(i=>i+1);
+            }
+        });
+        return ()=>{
+            listener();
+            m=false;
+        }
+    },[]);
+    return history;
+}
+
 export type LinkHookCallback=(e:any,tag:string|undefined,to:string|undefined)=>void;
 
 let defaultLinkHookCallback:LinkHookCallback|null=null;
@@ -206,7 +285,7 @@ export function setLinkHook(callback:LinkHookCallback)
     defaultLinkHookCallback=callback;
 }
 
-interface LinkProps{
+export interface LinkProps{
     to?:string,
     onClick?:(e:any)=>void,
     tag?:string,
