@@ -129,7 +129,15 @@ export function useAnimatedValues<T>(
             });
         }
 
-        setTimeout(step,_timings[0].duration);
+        setIndex(i=>{
+            if(!m || !_timings[i]){
+                return i;
+            }
+            setTimeout(step,_timings[i].duration);
+            return i;
+        })
+
+        
 
         return ()=>{
             m=false;
