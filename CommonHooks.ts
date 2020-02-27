@@ -147,3 +147,27 @@ export function useAnimatedValues<T>(
 
     return index<_timings.length?_timings[index].value:(undefined as any);
 }
+
+
+export function useQueued<T>(value:T,maxCount:number=4):(T|undefined)[]
+{
+
+    const [queue,setQueue]=useState<(T|undefined)[]>([value]);
+
+    useEffect(()=>{
+
+        setQueue(v=>{
+            if(value===v[0]){
+                return v;
+            }
+            v=[value,...v];
+            if(v.length>maxCount){
+                v.splice(maxCount,v.length);
+            }
+            return v;
+        });
+
+    },[value,maxCount]);
+
+    return queue;
+}
