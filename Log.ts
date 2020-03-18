@@ -68,7 +68,7 @@ function twoDigit(value:number){
 
 function _report(level:LogLevel,message:string,ex:Error|undefined=undefined)
 {
-    report(false,true,level,message,ex);
+    report(false,false,level,message,ex);
 }
 
 let ignoreSystemConsole=false;
