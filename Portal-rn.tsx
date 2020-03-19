@@ -8,7 +8,7 @@ export type PortalAlignment='fill'|'top'|'bottom'|'left'|'right';
 
 export interface PortalItem
 {
-    id:number;
+    key:number;
     item:any;
     align:PortalAlignment
     target:string;
@@ -37,7 +37,7 @@ export const defaultPortalStore=new PortalStore();
 
 export const PortalContext=React.createContext<PortalStore>(defaultPortalStore);
 
-let nextId=0;
+let nextKey=0;
 
 interface PortalProps
 {
@@ -55,13 +55,14 @@ export default function Portal({
 }:PortalProps){
 
     const store=useContext<PortalStore>(PortalContext);
+    const key=useMemo(()=>nextKey++,[]);
 
     useEffect(()=>{
         if(!children){
             return;
         }
         const item:PortalItem={
-            id:nextId++,
+            key,
             item:children,
             align,
             style,
@@ -72,7 +73,7 @@ export default function Portal({
             store.removeItem(item);
         }
 
-    },[children,style,store,align,target]);
+    },[children,style,store,align,target,key]);
 
     return null;
 }
@@ -90,7 +91,7 @@ export function PortalAnchor({target='default'}:PortalAnchorProps):any
             return null;
         }
         return (
-            <View key={item.id} style={[styles[item.align],item.style]}>
+            <View key={item.key} style={[styles[item.align],item.style]}>
                 {item.item}
             </View>
         );
