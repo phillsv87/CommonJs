@@ -91,3 +91,35 @@ export function getCurrentTime():number
 {
     return new Date().getTime();
 }
+
+export function aryOrderBy<T>(ary:T[],selectCompareValue:(item:T)=>number)
+{
+    if(!ary || !selectCompareValue)
+        return;
+
+    ary.sort((a,b)=>selectCompareValue(a)-selectCompareValue(b));
+}
+
+export function aryOrderByStr<T>(ary:T[],selectCompareValue:(item:T)=>string)
+{
+    if(!ary || !selectCompareValue)
+        return;
+
+    ary.sort((a,b)=>(selectCompareValue(a)||'').localeCompare(selectCompareValue(b)||''));
+}
+
+export function aryReverseOrderBy<T>(ary:T[],selectCompareValue:(item:T)=>number)
+{
+    if(!ary || !selectCompareValue)
+        return;
+
+    ary.sort((a,b)=>selectCompareValue(b)-selectCompareValue(a));
+}
+
+export function aryReverseOrderByStr<T>(ary:T[],selectCompareValue:(item:T)=>string)
+{
+    if(!ary || !selectCompareValue)
+        return;
+
+    ary.sort((a,b)=>(selectCompareValue(b)||'').localeCompare(selectCompareValue(a)||''));
+}
