@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Animated } from 'react-native';
+import { StyleSheet, Animated } from 'react-native';
 import Portal from './Portal-rn';
 import { useDimensions } from './Dimensions-rn';
 import { useTween } from './Animations-rn';
-import AppBg from '../components/AppBg';
+
+export type BgRender=()=>any;
+
+let defaultBgRender:BgRender|null=null;
+
+export function setDefaultBgRender(render:BgRender|null){
+    defaultBgRender=render;
+}
 
 interface ModalProps
 {
     isOpen:boolean;
     closeRequested?:(isOpen:boolean)=>void;
     hideTimeout?:number;
-    appBg?:boolean;
+    bg?:BgRender|null;
     children:any;
 }
 
@@ -18,7 +25,7 @@ export default function Modal({
     isOpen,
     closeRequested,
     hideTimeout=2000,
-    appBg=true,
+    bg,
     children
 }:ModalProps){
 
@@ -56,7 +63,7 @@ export default function Modal({
                 height,
                 transform:[{translateY:tween.map(0,-height)}]
             }}>
-                {appBg&&<AppBg/>}
+                {bg===undefined?(defaultBgRender&&defaultBgRender()):(bg&&bg())}
                 {children}
             </Animated.View>
         </Portal>
