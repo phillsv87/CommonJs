@@ -1,4 +1,4 @@
-import { DependencyList, useState, useEffect } from "react";
+import { DependencyList, useState, useEffect, useLayoutEffect } from "react";
 import util from "./util";
 
 export function useMerged<T>(valueCb:()=>T,deps?:DependencyList):T
@@ -50,7 +50,7 @@ export interface Mounted
 export function useMounted():Mounted
 {
     const [clt]=useState<Mounted>({mounted:true});
-    useEffect(()=>{
+    useLayoutEffect(()=>{
         return ()=>{
             clt.mounted=false;
         }
