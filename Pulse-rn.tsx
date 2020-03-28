@@ -6,7 +6,9 @@ interface PulseProps
 {
     isOn?:boolean;
     style?: StyleProp<ViewStyle>;
+    opacity?:number;
     lowOpacity?:number;
+    low?:boolean;
     duration?:number;
     children?:any;
 }
@@ -14,13 +16,15 @@ interface PulseProps
 export default function Pulse({
     style,
     isOn=true,
+    opacity=1,
     lowOpacity=0.4,
+    low,
     duration=1000,
     children
 }:PulseProps){
 
     const [_on,setOn]=useState(true);
-    const tw=useTween((_on || !isOn)?1:0,{duration});
+    const tw=useTween(low?0:((_on || !isOn)?1:0),{duration});
     
     useEffect(()=>{
 
@@ -46,7 +50,7 @@ export default function Pulse({
     },[isOn,duration]);
 
     return (
-        <Animated.View style={[{opacity:tw.map(lowOpacity,1)},style]}>
+        <Animated.View style={[{opacity:tw.map(lowOpacity,opacity)},style]}>
             {children}
         </Animated.View>
     )
