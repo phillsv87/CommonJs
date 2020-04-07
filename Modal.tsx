@@ -12,7 +12,7 @@ export function setDefaultBgRender(render:BgRender|null){
     defaultBgRender=render;
 }
 
-interface ModalProps
+export interface ModalProps
 {
     isOpen:boolean;
     closeRequested?:(isOpen:boolean)=>void;
