@@ -123,3 +123,40 @@ export function aryReverseOrderByStr<T>(ary:T[],selectCompareValue:(item:T)=>str
 
     ary.sort((a,b)=>(selectCompareValue(b)||'').localeCompare(selectCompareValue(a)||''));
 }
+
+export function joinPaths(... paths:string[]): string
+{
+    if(!paths){
+        return '';
+    }
+    let path=paths[0];
+    if(path.endsWith('/')){
+        path=path.substr(0,path.length-1);
+    }
+    for(let i=1;i<paths.length;i++){
+        var part=paths[i];
+        if(!part){
+            continue;
+        }
+        path+=(part[0]==='/'?'':'/')+part;
+        if(path.endsWith('/')){
+            path=path.substr(0,path.length-1);
+        }
+    }
+    return path;
+}
+
+export function getFileExt(path:string,includeDot:boolean=true):string
+{
+    if(!path){
+        return '';
+    }
+
+    let s=path.lastIndexOf('/');
+    let d=path.lastIndexOf('.');
+    if(s>d || d===-1){
+        return '';
+    }
+
+    return path.substr(d+(includeDot?0:1));
+}
