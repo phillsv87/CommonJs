@@ -14,7 +14,7 @@ export interface LogEntry
     id:number;
     level:LogLevel;
     message:string;
-    error:Error|null;
+    error:any;
     time:Date;
     timeString:string;
     noUi:boolean;
@@ -43,12 +43,16 @@ export function removeLogListener(listener:LogListener)
 let _level=LogLevel.all;
 let nextId=1;
 
-function formatMessage(message:string,ex:Error|undefined){
+function formatMessage(message:string,ex:any){
     if(!ex && typeof(message)==='object'){
         return message;
     }
     if(message && ex){
-        return message+': '+ex.message;
+        if(ex.message){
+            return message+': '+ex.message;
+        }else{
+            return message+': '+ex;
+        }
     }else if(message){
         return message;
     }else if(ex){
@@ -66,14 +70,14 @@ function twoDigit(value:number){
     }
 }
 
-function _report(level:LogLevel,message:string,ex:Error|undefined=undefined)
+function _report(level:LogLevel,message:string,ex:any=undefined)
 {
     report(false,false,level,message,ex);
 }
 
 let ignoreSystemConsole=false;
 
-function report(ignoreConsole:boolean,noUi:boolean,level:LogLevel,message:string,ex:Error|undefined=undefined)
+function report(ignoreConsole:boolean,noUi:boolean,level:LogLevel,message:string,ex:any=undefined)
 {
     if(!ignoreConsole && _level&level){
         try{
@@ -124,11 +128,11 @@ const Log={
     },
     getLevel:()=>_level,
 
-    info:(message:string,ex:Error|undefined=undefined)=>_report(LogLevel.info,message,ex),
-    warn:(message:string,ex:Error|undefined=undefined)=>_report(LogLevel.warn,message,ex),
-    error:(message:string,ex:Error|undefined=undefined)=>_report(LogLevel.error,message,ex),
-    debug:(message:string,ex:Error|undefined=undefined)=>_report(LogLevel.debug,message,ex),
-    add:(level:LogLevel,message:string,ex:Error|undefined=undefined)=>_report(level,message,ex)
+    info:(message:string,ex:any=undefined)=>_report(LogLevel.info,message,ex),
+    warn:(message:string,ex:any=undefined)=>_report(LogLevel.warn,message,ex),
+    error:(message:string,ex:any=undefined)=>_report(LogLevel.error,message,ex),
+    debug:(message:string,ex:any=undefined)=>_report(LogLevel.debug,message,ex),
+    add:(level:LogLevel,message:string,ex:any=undefined)=>_report(level,message,ex)
 }
 export default Log;
 
