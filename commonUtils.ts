@@ -146,7 +146,7 @@ export function joinPaths(... paths:string[]): string
     return path;
 }
 
-export function getFileExt(path:string,includeDot:boolean=true):string
+export function getFileExt(path:string|null|undefined,includeDot:boolean=false,toLower:boolean=true):string
 {
     if(!path){
         return '';
@@ -158,5 +158,7 @@ export function getFileExt(path:string,includeDot:boolean=true):string
         return '';
     }
 
-    return path.substr(d+(includeDot?0:1));
+    const ext=path.substr(d+(includeDot?0:1));
+
+    return toLower?ext.toLowerCase():ext;
 }
