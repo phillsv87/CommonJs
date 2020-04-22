@@ -55,7 +55,7 @@ export default function LogUI({
 
     useEffect(()=>{
         const listener=(entry:LogEntry)=>{
-            if(entry.level&level && !entry.noUi){
+            if((entry.level&level && !entry.noUi) || entry.forUi){
                 setItems(v=>[...v,entry]);
             }
         };
