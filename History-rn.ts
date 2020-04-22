@@ -38,6 +38,8 @@ export default class History extends EventEmitterEx
 
     public logChanges:boolean=false;
 
+    public defaultRoute:string|null=null;
+
     private _previous:HistoryNode|null=null;
     public get previous(){
         return this._previous;
@@ -125,6 +127,11 @@ export default class History extends EventEmitterEx
     pop():HistoryNode|null
     {
         const c=this.current;
+
+        if(this.defaultRoute && c.path!==this.defaultRoute && !this.canGoBack){
+            this.reset(this.defaultRoute);
+            return c;
+        }
 
         if(c.index===0){
             return null;
