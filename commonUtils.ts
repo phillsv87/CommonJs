@@ -162,3 +162,25 @@ export function getFileExt(path:string|null|undefined,includeDot:boolean=false,t
 
     return toLower?ext.toLowerCase():ext;
 }
+
+export function getFileName(path?:string|null): string
+{
+    if(!path){
+        return '';
+    }
+
+    let i=path.lastIndexOf('/');
+    return i===-1?path:path.substr(i+1);
+}
+
+export function getFileNameNoExt(path?:string|null): string
+{
+
+    path=getFileName(path);
+    if(!path){
+        return path;
+    }
+
+    let i=path.lastIndexOf('.');
+    return i===-1?path:path.substr(0,i);
+}
