@@ -124,6 +124,20 @@ export function aryReverseOrderByStr<T>(ary:T[],selectCompareValue:(item:T)=>str
     ary.sort((a,b)=>(selectCompareValue(b)||'').localeCompare(selectCompareValue(a)||''));
 }
 
+export function aryRandomize<T>(ary:T[]):T[]
+{
+    const newAry:T[]=[];
+    if(!ary || !ary.length){
+        return newAry;
+    }
+    newAry.push(ary[0]);
+    for(let i=1;i<ary.length;i++){
+        let index=Math.round(Math.random()*i);
+        newAry.splice(index,0,ary[i]);
+    }
+    return newAry;
+}
+
 export function joinPaths(... paths:string[]): string
 {
     if(!paths){
