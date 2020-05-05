@@ -5,11 +5,11 @@ import AsyncObjStore from './AsyncObjStore';
 import Log from './Log';
 import { delayAsync } from './utilTs';
 import CancelToken from './CancelToken';
-import { aryRemoveItem } from './commonUtils';
+import { aryRemoveItem, areShallowEqualT } from './commonUtils';
 
 export const defaultStoreKey='Auth.SignIn';
 
-export type SignInChangeHandler=(current:SignIn|null,next:SignIn|null)=>Promise<void>;
+export type SignInChangeHandler=(beforeChange:boolean,current:SignIn|null,next:SignIn|null)=>Promise<void>;
 
 export interface AuthManagerConfig
 {
@@ -309,7 +309,7 @@ export class AuthManager extends EventEmitterEx
             if(!r){
                 continue;
             }
-
+            r.LastRenew=new Date().getTime();
             return await this.handleSignInAsync(r);
 
         }
@@ -327,11 +327,14 @@ export class AuthManager extends EventEmitterEx
         return aryRemoveItem(this._handlers,handler);
     }
 
+    private handleIndex=0;
+
     private async handleSignInAsync(signIn:SignIn|null):Promise<SignIn|null>
     {
-        if(signIn===this.signIn){
+        if(areShallowEqualT(signIn,this.signIn,key=>key!=='LastRenew')){
             return signIn;
         }
+        const hid=++this.handleIndex;
         if(signIn){
             signIn.ExpiresDate=signIn.Expires?new Date(signIn.Expires).getTime():0;
             if(!signIn.LastRenew){
@@ -341,19 +344,29 @@ export class AuthManager extends EventEmitterEx
 
         for(let h of this._handlers){
             if(h){
-                await h(this.signIn,signIn);
+                await h(true,this.signIn,signIn);
             }
         }
 
         if(this.objStore!==null){
             await this.objStore.saveAsync(this.config.storeKey!,signIn);
         }
+
+        if(hid!==this.handleIndex){
+            return this.signIn;
+        }
+
         if(this.config.setHttpToken){
             this.http.setAuthToken(signIn?signIn.Token:null);
         }
         const currentSignIn=this.signIn;
         this._signIn=signIn;
         if(currentSignIn!==this.signIn){
+            for(let h of this._handlers){
+                if(h){
+                    await h(false,currentSignIn,signIn);
+                }
+            }
             this.emitProperty(this,'signIn');
         }
         return this._signIn;
