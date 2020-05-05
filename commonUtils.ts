@@ -138,6 +138,60 @@ export function aryRandomize<T>(ary:T[]):T[]
     return newAry;
 }
 
+export function areShallowEqual(a:any, b:any, shouldTestKey?:(key:string)=>boolean):boolean
+{
+    if(!a && !b)
+        return true;
+
+    if(!a || !b)
+        return false;
+
+    for(var key in a) {
+        if(shouldTestKey && !shouldTestKey(key)){
+            continue;
+        }
+        if(!(key in b) || a[key] !== b[key]) {
+            return false;
+        }
+    }
+    for(key in b) {
+        if(shouldTestKey && !shouldTestKey(key)){
+            continue;
+        }
+        if(!(key in a) || a[key] !== b[key]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+export function areShallowEqualT<T>(a:T|null|undefined, b:T|null|undefined, shouldTestKey?:(key:keyof T)=>boolean):boolean
+{
+    if(!a && !b)
+        return true;
+
+    if(!a || !b)
+        return false;
+
+    for(var key in a) {
+        if(shouldTestKey && !shouldTestKey(key)){
+            continue;
+        }
+        if(!(key in b) || a[key] !== b[key]) {
+            return false;
+        }
+    }
+    for(key in b) {
+        if(shouldTestKey && !shouldTestKey(key)){
+            continue;
+        }
+        if(!(key in a) || a[key] !== b[key]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 export function joinPaths(... paths:string[]): string
 {
     if(!paths){
