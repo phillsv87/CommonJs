@@ -5,8 +5,11 @@ import AsyncObjStore from './AsyncObjStore';
 import Log from './Log';
 import { delayAsync } from './utilTs';
 import CancelToken from './CancelToken';
+import { aryRemoveItem } from './commonUtils';
 
 export const defaultStoreKey='Auth.SignIn';
+
+export type SignInChangeHandler=(current:SignIn|null,next:SignIn|null)=>Promise<void>;
 
 export interface AuthManagerConfig
 {
@@ -312,6 +315,18 @@ export class AuthManager extends EventEmitterEx
         }
     }
 
+    private _handlers:SignInChangeHandler[]=[];
+
+    public addHandler(handler:SignInChangeHandler)
+    {
+        this._handlers.push(handler);
+    }
+
+    public removeHandler(handler:SignInChangeHandler):boolean
+    {
+        return aryRemoveItem(this._handlers,handler);
+    }
+
     private async handleSignInAsync(signIn:SignIn|null):Promise<SignIn|null>
     {
         if(signIn===this.signIn){
@@ -323,6 +338,13 @@ export class AuthManager extends EventEmitterEx
                 signIn.LastRenew=0;
             }
         }
+
+        for(let h of this._handlers){
+            if(h){
+                await h(this.signIn,signIn);
+            }
+        }
+
         if(this.objStore!==null){
             await this.objStore.saveAsync(this.config.storeKey!,signIn);
         }
