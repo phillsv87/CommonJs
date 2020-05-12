@@ -9,6 +9,7 @@ import util from './util';
 const defaultAnimationValue:Animated.Value=new Animated.Value(0);
 
 const nullParam=()=>null;
+const nullParamNumber=()=>undefined;
 
 export interface ViewMatch
 {
@@ -17,6 +18,7 @@ export interface ViewMatch
     success:boolean;
     matches:RegExpExecArray|null;
     param:(index:number)=>string|null;
+    paramNumber:(index:number)=>number|undefined;
 }
 
 export interface ViewRoute
@@ -36,7 +38,8 @@ function getMatch(node:HistoryNode, route:ViewRoute):ViewMatch
             match:route.match,
             success:true,
             matches:null,
-            param:nullParam
+            param:nullParam,
+            paramNumber:nullParamNumber
         }
     }
 
@@ -56,6 +59,16 @@ function getMatch(node:HistoryNode, route:ViewRoute):ViewMatch
                     return null;
                 }
                 return decodeURIComponent(v);
+            },
+            paramNumber:(index:number)=>{
+                if(!ary){
+                    return undefined;
+                }
+                const v=ary[index+1];
+                if(!v){
+                    return undefined;
+                }
+                return Number(decodeURIComponent(v));
             }
         }
     }
@@ -65,7 +78,8 @@ function getMatch(node:HistoryNode, route:ViewRoute):ViewMatch
         match:route.match,
         success:false,
         matches:null,
-        param:nullParam
+        param:nullParam,
+        paramNumber:nullParamNumber
     }
 }
 
