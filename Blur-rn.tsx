@@ -3,15 +3,19 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { BlurView } from "@react-native-community/blur";
 
+export const defaultBlurAmount=10;
+
 interface BlurProps
 {
     borderRadius?:number;
     invert?:boolean;
+    amount?:number;
 }
 
 export default function Blur({
     borderRadius=0,
-    invert
+    invert,
+    amount=defaultBlurAmount
 }:BlurProps)
 {
 
@@ -26,13 +30,7 @@ export default function Blur({
                     borderRadius
                 }}
                 blurType={invert?'light':'dark'}
-                blurAmount={10}
+                blurAmount={amount}
                 />
     )
 }
-
-const styles = StyleSheet.create({
-    absolute: {
-        
-    }
-});
