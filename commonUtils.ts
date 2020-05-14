@@ -252,3 +252,11 @@ export function getFileNameNoExt(path?:string|null): string
     let i=path.lastIndexOf('.');
     return i===-1?path:path.substr(0,i);
 }
+
+export function isValidEmail(email:string|undefined|null):boolean
+{
+    if(!email){
+        return false;
+    }
+    return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
+}
