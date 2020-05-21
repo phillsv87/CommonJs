@@ -1,6 +1,33 @@
 import { Dimensions, ScaledSize } from "react-native";
 import { useState, useEffect } from "react";
 
+export type Breakpoint='sm'|'md'|'lg'|'xl';
+const breakpoints={
+    sm:576,
+    md:768,
+    lg:992,
+    xl:1200
+}
+
+export interface ViewportInfo
+{
+    breakpoint:Breakpoint;
+    size:ScaledSize;
+    narrow:boolean;
+}
+
+export function getBreakpointForWidth(width:number)
+{
+    if(width<=breakpoints.sm){
+        return 'sm';
+    }else if(width<=breakpoints.md){
+        return 'md';
+    }else if(width<=breakpoints.lg){
+        return 'lg';
+    }else{
+        return 'xl';
+    }
+}
 
 export function useDimensions(dim:'window'|'screen'='window'):ScaledSize
 {
@@ -18,4 +45,22 @@ export function useDimensions(dim:'window'|'screen'='window'):ScaledSize
     },[dim]);
 
     return size;
+}
+
+export function useViewport(dim:'window'|'screen'='window'):ViewportInfo
+{
+    const size=useDimensions(dim);
+    const breakpoint=getBreakpointForWidth(size.width);
+
+    return {
+        breakpoint,
+        size,
+        narrow:breakpoint==='sm'
+    }
+}
+
+export function useBreakpoint(dim:'window'|'screen'='window'):Breakpoint
+{
+    const size=useDimensions(dim);
+    return getBreakpointForWidth(size.width);
 }
