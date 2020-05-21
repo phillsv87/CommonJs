@@ -260,3 +260,7 @@ export function isValidEmail(email:string|undefined|null):boolean
     }
     return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
 }
+
+export const toBool=(value:any):boolean=>{
+    return value?true:false;
+}
