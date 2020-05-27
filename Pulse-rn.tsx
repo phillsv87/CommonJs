@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleProp, ViewStyle, Animated } from 'react-native';
+import { StyleProp, ViewStyle, Animated, View } from 'react-native';
 import { useTween } from './Animations-rn';
 
 interface PulseProps
@@ -11,6 +11,7 @@ interface PulseProps
     low?:boolean;
     duration?:number;
     children?:any;
+    viewRef?:(view:View)=>void;
 }
 
 export default function Pulse({
@@ -20,7 +21,8 @@ export default function Pulse({
     lowOpacity=0.4,
     low,
     duration=1000,
-    children
+    children,
+    viewRef
 }:PulseProps){
 
     const [_on,setOn]=useState(true);
@@ -50,7 +52,7 @@ export default function Pulse({
     },[isOn,duration]);
 
     return (
-        <Animated.View style={[{opacity:tw.map(lowOpacity,opacity)},style]}>
+        <Animated.View ref={viewRef} style={[{opacity:tw.map(lowOpacity,opacity)},style]}>
             {children}
         </Animated.View>
     )
