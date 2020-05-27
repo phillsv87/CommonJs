@@ -94,12 +94,12 @@ export default function SelectApp({apps,appName}:SelectAppProps)
 
 class AppSelector{
 
-    port:Number;
+    port:number;
     name:string;
     load:(name:string)=>Promise<any>;
     isDefault:boolean;
 
-    constructor(name:string,port:Number,load:(name:string)=>Promise<any>,isDefault:boolean=false)
+    constructor(name:string,port:number,load:(name:string)=>Promise<any>,isDefault:boolean=false)
     {
 
         if(!name){

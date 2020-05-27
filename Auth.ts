@@ -342,7 +342,7 @@ export class AuthManager extends EventEmitterEx
             }
         }
 
-        for(let h of this._handlers){
+        for(const h of this._handlers){
             if(h){
                 await h(true,this.signIn,signIn);
             }
@@ -362,7 +362,7 @@ export class AuthManager extends EventEmitterEx
         const currentSignIn=this.signIn;
         this._signIn=signIn;
         if(currentSignIn!==this.signIn){
-            for(let h of this._handlers){
+            for(const h of this._handlers){
                 if(h){
                     await h(false,currentSignIn,signIn);
                 }

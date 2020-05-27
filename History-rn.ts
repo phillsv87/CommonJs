@@ -118,7 +118,7 @@ export default class History extends EventEmitterEx
 
     pushParts(pathBase:string, ...parts:string[]):HistoryNode|null
     {
-        for(let p of parts){
+        for(const p of parts){
             pathBase+='/'+encodeURIComponent(p);
         }
         return this.push(pathBase);

@@ -160,14 +160,14 @@ export function logPrintMessage(message:string,optional:any[]|null|undefined):st
         }
         return message+'\r'+serializeWithRefs(v,2);
     }else{
-        for(let o of optional){
+        for(const o of optional){
             message+=' '+o;
         }
         return message;
     }
 }
 
-let consoleIntercepted:boolean=false;
+const consoleIntercepted:boolean=false;
 export function interceptConsole()
 {
     if(consoleIntercepted){

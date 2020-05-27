@@ -43,7 +43,7 @@ class Nav
     push=(path:string, ...parts:string[])=>{
 
         if(parts){
-            for(let p of parts){
+            for(const p of parts){
                 path+='/'+encodeURIComponent(p);
             }
         }
@@ -153,7 +153,7 @@ interface NavRouteProps<Tcb>
     children?:any,
     inClass?:string|null,
     outClass?:string|null,
-    transDelay?:Number,
+    transDelay?:number,
     className?:string,
     includeDefaultClass?:boolean,
     transType?:TransType,

@@ -44,7 +44,7 @@ export default class LockScreenHttp
     {
         this.isDisposed=true;
         this.onHttpUiRequestListener();
-        for(let e in this.locks){
+        for(const e in this.locks){
             this.locks[e].unlock();
             delete this.locks[e];
         }

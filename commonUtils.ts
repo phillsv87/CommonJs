@@ -19,7 +19,7 @@ export function trimStrings(obj:any,maxDepth:number=20){
     }
 
     if(typeof obj === 'object'){
-        for(let e in obj){
+        for(const e in obj){
             obj[e]=trimStrings(obj[e],maxDepth);
         }
         return obj;
@@ -63,7 +63,7 @@ export function getTimeAny(date:any):number
     const type=typeof date;
 
     if(type==='string'){
-        let d=new Date(date as string).getTime();
+        const d=new Date(date as string).getTime();
         if(Number.isNaN(d)){
             return Number(date);
         }else{
@@ -132,7 +132,7 @@ export function aryRandomize<T>(ary:T[]):T[]
     }
     newAry.push(ary[0]);
     for(let i=1;i<ary.length;i++){
-        let index=Math.round(Math.random()*i);
+        const index=Math.round(Math.random()*i);
         newAry.splice(index,0,ary[i]);
     }
     return newAry;
@@ -202,7 +202,7 @@ export function joinPaths(... paths:string[]): string
         path=path.substr(0,path.length-1);
     }
     for(let i=1;i<paths.length;i++){
-        var part=paths[i];
+        const part=paths[i];
         if(!part){
             continue;
         }
@@ -220,8 +220,8 @@ export function getFileExt(path:string|null|undefined,includeDot:boolean=false,t
         return '';
     }
 
-    let s=path.lastIndexOf('/');
-    let d=path.lastIndexOf('.');
+    const s=path.lastIndexOf('/');
+    const d=path.lastIndexOf('.');
     if(s>d || d===-1){
         return '';
     }
@@ -237,7 +237,7 @@ export function getFileName(path?:string|null): string
         return '';
     }
 
-    let i=path.lastIndexOf('/');
+    const i=path.lastIndexOf('/');
     return i===-1?path:path.substr(i+1);
 }
 
@@ -249,7 +249,7 @@ export function getFileNameNoExt(path?:string|null): string
         return path;
     }
 
-    let i=path.lastIndexOf('.');
+    const i=path.lastIndexOf('.');
     return i===-1?path:path.substr(0,i);
 }
 

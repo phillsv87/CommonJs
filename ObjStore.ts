@@ -8,7 +8,7 @@ class ObjStore
     }
 
     load<T>(key:string):T|null{
-        var r=window.localStorage.getItem(this.prefix+'::'+key);
+        const r=window.localStorage.getItem(this.prefix+'::'+key);
         if(r){
             return JSON.parse(r) as T;
         }else{
@@ -17,7 +17,7 @@ class ObjStore
     }
 
     loadOrDefault<T>(key:string,defaultValue:T):T{
-        var r=window.localStorage.getItem(this.prefix+'::'+key);
+        const r=window.localStorage.getItem(this.prefix+'::'+key);
         if(r){
             return JSON.parse(r) as T;
         }else{
@@ -30,7 +30,7 @@ class ObjStore
     }
 
     loadSession<T>(key:string):T|null{
-        var r=window.sessionStorage.getItem(this.prefix+'::'+key);
+        const r=window.sessionStorage.getItem(this.prefix+'::'+key);
         if(r){
             return JSON.parse(r) as T;
         }else{
@@ -39,7 +39,7 @@ class ObjStore
     }
 
     loadOrDefaultSession<T>(key:string,defaultValue:T):T{
-        var r=window.sessionStorage.getItem(this.prefix+'::'+key);
+        const r=window.sessionStorage.getItem(this.prefix+'::'+key);
         if(r){
             return JSON.parse(r) as T;
         }else{
