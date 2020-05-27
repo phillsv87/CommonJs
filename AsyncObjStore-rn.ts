@@ -1,7 +1,6 @@
 import fs from 'react-native-fs';
-import { useCallback, useState } from 'react';
-import util from './util';
 import AsyncObjStore from './AsyncObjStore';
+
 const encoding='utf8';
 
 function getKeyPath(prefix:string,key:string){

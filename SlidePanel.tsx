@@ -15,7 +15,6 @@ interface SlidePanelProps
 
 export default function SlidePanel({
     index,
-    setIndex,
     className,
     defaultClassName='slide-panel-default',
     direction='horizontal',

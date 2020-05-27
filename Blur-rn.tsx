@@ -1,6 +1,5 @@
 // requires @react-native-community/blur package
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import { BlurView } from "@react-native-community/blur";
 
 export const defaultBlurAmount=10;

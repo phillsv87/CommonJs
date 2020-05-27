@@ -207,7 +207,7 @@ export function Navigation({
             routeChange(inRoute,routeSet);
         }
 
-    },[current,routes,routeSet,routeChange]);
+    },[current,routes,routeSet,routeChange,nativeDriver,previous,transitionDuration]);
 
     const onSwipe=useCallback((type:'left'|'right')=>{
         history.swipe(type);

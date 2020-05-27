@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, GestureResponderEvent, StyleProp, ViewStyle } from 'react-native';
+import { View, GestureResponderEvent, StyleProp, ViewStyle } from 'react-native';
 
 const swipeTolerance=50;
 const swipeTimeout=1000;
@@ -95,9 +95,9 @@ export default function EdgeSwipe({
             }
             
         }
-    },[swipeInfo,setSwiping,onSwipe]);
+    },[swipeInfo,onSwipe]);
 
-    const onTouchEnd=useCallback((event: GestureResponderEvent)=>{
+    const onTouchEnd=useCallback(()=>{
         swipeInfo.touchId=null;
         setSwiping(false);
     },[swipeInfo,setSwiping]);
@@ -110,9 +110,3 @@ export default function EdgeSwipe({
         </View>
     )
 }
-
-const styles=StyleSheet.create({
-    root:{
-
-    }
-});

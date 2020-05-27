@@ -3,7 +3,7 @@
 
 import 'react-native-get-random-values';
 
-const uuid=require('uuid');
+const uuid=require('uuid');// eslint-disable-line
 
 export function guid():string
 {

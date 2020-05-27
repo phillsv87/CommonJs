@@ -23,7 +23,6 @@ export interface ModalProps
 
 export default function Modal({
     isOpen,
-    closeRequested,
     hideTimeout=2000,
     bg,
     children
@@ -74,9 +73,6 @@ export default function Modal({
 }
 
 const styles=StyleSheet.create({
-    root:{
-        flex:1
-    },
     solidColor:{
         position:'absolute',
         left:0,

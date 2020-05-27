@@ -144,7 +144,7 @@ function LogUIItem({
         return ()=>{
             active=false;
         }
-    },[remove,autoDismiss,mutable]);
+    },[remove,autoDismiss,mutable,entry]);
 
     let bg:string;
     if(entry.level&LogLevel.error){
@@ -253,12 +253,12 @@ export function LogUIList({
         return ()=>{
             removeLogListener(listener);
         }
-    },[level]);
+    },[level,items]);
 
     const clear=useCallback(()=>{
         items.splice(0,items.length);
         render(v=>v+1);
-    },[]);
+    },[items]);
 
     return (
         <>

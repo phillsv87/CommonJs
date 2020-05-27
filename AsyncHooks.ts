@@ -3,7 +3,7 @@ import { useState, useEffect, DependencyList, useCallback } from "react";
 export function useAsync<T,D>(defaultValue:D,asyncCallback:()=>Promise<T>,deps:DependencyList):T|D
 {
     const [value,setValue]=useState<T|D>(defaultValue);
-    const cb=useCallback(asyncCallback,deps);
+    const cb=useCallback(asyncCallback,deps);// eslint-disable-line
 
     useEffect(()=>{
         let active=true;

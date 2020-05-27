@@ -3,7 +3,7 @@
 // npm i react-native-ffmpeg
 // npm i react-native-fs
 
-import { LogLevel, RNFFmpeg, RNFFprobe, MediaInformation } from 'react-native-ffmpeg';
+import { RNFFmpeg, RNFFprobe, MediaInformation } from 'react-native-ffmpeg';
 import * as fs from 'react-native-fs';
 
 const successCode=0;

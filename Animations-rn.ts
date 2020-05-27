@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, DependencyList } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Animated } from 'react-native';
 import { useMerged } from './Hooks';
 
@@ -76,7 +76,7 @@ export function useAnimation(initValue:number,config?:AnimationConfig):Animation
                 t.stop();
             }
         }
-    },[to,_config]);
+    },[to,_config,value]);
 
     const map=useCallback((from:any,to:any)=>{
         return value.interpolate({
@@ -113,12 +113,11 @@ export function useAnimation(initValue:number,config?:AnimationConfig):Animation
 export function useTween(value:number,config?:AnimationConfig):AnimationHandel
 {
     const an=useAnimation(value,config);
-    const {play}=an;
 
 
     useEffect(()=>{
-        play(value);
-    },[value])
+        an.play(value);
+    },[value,an])
 
     return an;
 }

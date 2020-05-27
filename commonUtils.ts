@@ -146,7 +146,7 @@ export function areShallowEqual(a:any, b:any, shouldTestKey?:(key:string)=>boole
     if(!a || !b)
         return false;
 
-    for(var key in a) {
+    for(const key in a) {
         if(shouldTestKey && !shouldTestKey(key)){
             continue;
         }
@@ -154,7 +154,7 @@ export function areShallowEqual(a:any, b:any, shouldTestKey?:(key:string)=>boole
             return false;
         }
     }
-    for(key in b) {
+    for(const key in b) {
         if(shouldTestKey && !shouldTestKey(key)){
             continue;
         }
@@ -173,7 +173,7 @@ export function areShallowEqualT<T>(a:T|null|undefined, b:T|null|undefined, shou
     if(!a || !b)
         return false;
 
-    for(var key in a) {
+    for(const key in a) {
         if(shouldTestKey && !shouldTestKey(key)){
             continue;
         }
@@ -181,7 +181,7 @@ export function areShallowEqualT<T>(a:T|null|undefined, b:T|null|undefined, shou
             return false;
         }
     }
-    for(key in b) {
+    for(const key in b) {
         if(shouldTestKey && !shouldTestKey(key)){
             continue;
         }
@@ -265,7 +265,4 @@ export const toBool=(value:any):boolean=>{
     return value?true:false;
 }
 
-export const unused=(unusedValue:any)=>
-{
-    //do nothing
-}
+export const unused=(unusedValue:any)=>{/* do nothing */} // eslint-disable-line

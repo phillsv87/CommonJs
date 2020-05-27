@@ -15,7 +15,7 @@ export function useMerged<T>(valueCb:()=>T,deps?:DependencyList):T
         if(!util.areEqualShallow(value,newValue)){
             setValue(newValue);
         }
-    },[...deps,value]);
+    },[...deps,value]);// eslint-disable-line
 
     return value;
 }

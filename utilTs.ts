@@ -1,4 +1,4 @@
-import { useState, useEffect, DependencyList, useCallback, useMemo, useLayoutEffect } from "react";
+import { useState, DependencyList, useCallback, useMemo, useLayoutEffect } from "react";
 import { EventEmitter } from "events";
 import Log from "./Log";
 
@@ -98,7 +98,7 @@ export function useProperty<T extends EventEmitter,V>(emitter:T,propertyName:key
 export function useAsync<T,D>(defaultValue:D,asyncCallback:()=>Promise<T>,deps:DependencyList):T|D
 {
     const [value,setValue]=useState<T|D>(defaultValue);
-    const cb=useCallback(asyncCallback,deps);
+    const cb=useCallback(asyncCallback,deps);// eslint-disable-line
 
     useLayoutEffect(()=>{
         let active=true;

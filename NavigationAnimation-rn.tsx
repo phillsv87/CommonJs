@@ -1,10 +1,6 @@
-import React, { useCallback } from 'react';
-import { View, ScrollView, Animated } from 'react-native';
-import { withSafeArea } from 'react-native-safe-area';
+import React from 'react';
+import { Animated } from 'react-native';
 import { useDimensions } from './Dimensions-rn';
-
-const SafeAreaScrollView = withSafeArea(ScrollView, 'contentInset', 'vertical');
-const SafeAreaView = withSafeArea(View,  'margin', 'all');
 
 const viewStyle:any={
     position:'absolute',

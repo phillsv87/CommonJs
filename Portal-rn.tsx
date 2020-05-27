@@ -1,8 +1,8 @@
-import { useLayoutEffect, useMemo, useContext, useEffect } from 'react';
+import { useMemo, useContext, useEffect } from 'react';
 import React from 'react';
 import EventEmitterEx from './EventEmitterEx-rn';
 import { useUpdateProperty } from './utilTs';
-import { View, ViewStyle, StyleProp, StyleSheet, NativeSegmentedControlIOSChangeEvent } from 'react-native';
+import { View, ViewStyle, StyleProp, StyleSheet } from 'react-native';
 
 export type PortalAlignment='fill'|'top'|'bottom'|'left'|'right';
 
@@ -98,6 +98,7 @@ export function PortalAnchor({target='default'}:PortalAnchorProps):any
     });
 }
 
+/* eslint react-native/no-unused-styles:0 */
 const styles=StyleSheet.create({
     fill:{
         position:'absolute',

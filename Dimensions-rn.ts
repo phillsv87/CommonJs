@@ -35,7 +35,7 @@ export function useDimensions(dim:'window'|'screen'='window'):ScaledSize
 
     useEffect(()=>{
         setSize(Dimensions.get(dim));
-        const listener=(e:any)=>{
+        const listener=()=>{
             setSize(Dimensions.get(dim));
         };
         Dimensions.addEventListener('change',listener);

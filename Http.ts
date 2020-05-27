@@ -24,13 +24,13 @@ export interface HttpUiRequestEvent
     status:HttpUiRequestEventStatus;
 }
 
-export function getHttpErrorStatusCode(error:Error,fallbackMessage?:string):number|undefined
+export function getHttpErrorStatusCode(error:Error,fallbackCode?:number):number|undefined
 {
     const ex:any=error;
     if(ex.httpError && ex.httpError.StatusCode){
         return ex.httpError.StatusCode;
     }else{
-        return undefined;
+        return fallbackCode;
     }
 }
 

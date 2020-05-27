@@ -24,7 +24,7 @@ class Nav
 
     _popIv:any=-1;
 
-    _onPop=(e:any)=>{
+    _onPop=()=>{
         clearTimeout(this._popIv);
 
         
