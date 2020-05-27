@@ -7,7 +7,8 @@ export interface AnimationHandel
     value:Animated.Value;
     play:(to:number|null)=>void;
     display:'flex'|'none',
-    map:(from:any,to:any)=>Animated.AnimatedInterpolation
+    map:(from:any,to:any)=>Animated.AnimatedInterpolation,
+    mapPairs:(pairs:number[])=>Animated.AnimatedInterpolation
 }
 
 export interface AnimationConfig
@@ -15,6 +16,7 @@ export interface AnimationConfig
     duration?:number;
     useDisplay?:boolean;
     useNativeDriver?:boolean;
+    jumpTo?:number;
 }
 
 const defaultAnimationConfig:AnimationConfig={
@@ -57,12 +59,16 @@ export function useAnimation(initValue:number,config?:AnimationConfig):Animation
         if(_config.useDisplay){
             setDisplay('flex');
         }
-        t.start(()=>{
-            running=false;
-            if(to===0 && active && _config.useDisplay){
-                setDisplay('none');
-            }
-        });
+        if(_config.jumpTo===to){
+            value.setValue(to);
+        }else{
+            t.start(()=>{
+                running=false;
+                if(to===0 && active && _config.useDisplay){
+                    setDisplay('none');
+                }
+            });
+        }
 
         return ()=>{
             active=false;
@@ -79,11 +85,27 @@ export function useAnimation(initValue:number,config?:AnimationConfig):Animation
         });
     },[value]);
 
+    const mapPairs=useCallback((pairs:any[])=>{
+        const inputRange:any[]=[];
+        const outputRange:any[]=[];
+        if(pairs){
+            for(let i=0;i<pairs.length;i+=2){
+                inputRange.push(pairs[i]);
+                outputRange.push(pairs[i+1]);
+            }
+        }
+        return value.interpolate({
+            inputRange,
+            outputRange
+        })
+    },[value]);
+
     return {
         value,
         play:setTo,
         display,
-        map
+        map,
+        mapPairs
     };
 }
 
