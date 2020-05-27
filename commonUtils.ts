@@ -264,3 +264,8 @@ export function isValidEmail(email:string|undefined|null):boolean
 export const toBool=(value:any):boolean=>{
     return value?true:false;
 }
+
+export const unused=(unusedValue:any)=>
+{
+    //do nothing
+}
