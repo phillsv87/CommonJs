@@ -1,6 +1,6 @@
 import EventEmitterEx from './EventEmitterEx-rn';
 import Http, { logHttpError, getHttpErrorStatusCode } from './Http';
-import { SignIn, SignInRequest, SignInStatus, SignInOrError, RegisterRequest, SignInIdentity, AccessCodeRequest, AccessCodeInfo, AccessCodeSendResult, SignInTypes } from './AuthTypes';
+import { SignIn, SignInRequest, SignInStatus, SignInOrError, RegisterRequest, SignInIdentity, AccessCodeRequest, AccessCodeInfo, AccessCodeSendResult, SignInTypes, UpdateRequest, AccessCodeSubmitRequest } from './AuthTypes';
 import AsyncObjStore from './AsyncObjStore';
 import Log from './Log';
 import { delayAsync } from './utilTs';
@@ -229,6 +229,31 @@ export class AuthManager extends EventEmitterEx
             signIn,
             error:null
         }
+    }
+
+    /**
+     * Sends an access code for updating either a phone or email. Do not set both
+     * email and phone.
+     */
+    sendAccessCodesForUpdateAsync(request:AccessCodeRequest):Promise<void>
+    {
+        return this.http.postAsync(this.config.apiBase+'Auth/AccessCodeForUpdate',request);
+    }
+
+    /**
+     * The returned string must be included in the VerificationTokens
+     * property of UpdateRequests that will use the phone or email.
+     */
+    submitAccessCodesForUpdateAsync(request:AccessCodeSubmitRequest):Promise<string>
+    {
+        return this.http.postAsync(this.config.apiBase+'Auth/SubmitAccessCodeForUpdate',request);
+    }
+
+    async updateAsync(request:UpdateRequest):Promise<SignIn|null>
+    {
+        await this.http.postAsync(this.config.apiBase+'Auth/Update',request);
+
+        return (await this.renewAsync()).signIn || null;
     }
 
     /**

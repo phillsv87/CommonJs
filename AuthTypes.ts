@@ -80,6 +80,11 @@ export interface RegisterRequest extends UserDataRequest
     Type?: string;
 }
 
+export interface UpdateRequest extends UserDataRequest
+{
+    VerificationTokens?:string[];
+}
+
 export interface SignInOrError
 {
     signIn?:SignIn|null;
@@ -101,6 +106,13 @@ export interface AccessCodeRequest
     Email?: string;
     Phone?: string;
     ReturnWaitToken?: boolean;
+}
+
+export interface AccessCodeSubmitRequest
+{
+    Target: string;
+
+    AccessCode: string;
 }
 
 export interface AccessCodeInfo
