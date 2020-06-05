@@ -1,4 +1,4 @@
-import http from 'axios';
+import http, { AxiosResponse } from 'axios';
 import Log, { LogLevel } from './Log';
 import EventEmitterEx from './EventEmitterEx-rn';
 import { trimStrings } from './commonUtils';
@@ -8,6 +8,18 @@ export const simpleAuthHeaderParam:string='SaToken';
 export const bearerAuthHeaderParam:string='Authorization';
 
 export const httpUiRequest=Symbol();
+
+export const httpErrorEvent=Symbol();
+
+export interface HttpError
+{
+    method:string;
+    path:string;
+    data:any;
+    statusCode:number;
+    message:string;
+    error:Error;
+}
 
 export enum HttpUiRequestEventStatus
 {
@@ -121,7 +133,7 @@ export default class Http extends EventEmitterEx
 
     async callAsync(method:string,path:string,data:any,configRequest:any=null):Promise<any>
     {
-
+        const oPath=path;
         const isRel=path.indexOf('http:')===-1 && path.indexOf('https:')===-1;
         if(isRel){
             path=this._baseUrl+path;
@@ -181,6 +193,19 @@ export default class Http extends EventEmitterEx
             {
                 ex.httpError=ex.response.data;
             }
+
+            const errorResponse:AxiosResponse<any>=ex.response;
+
+            const httpError:HttpError={
+                path:oPath,
+                data,
+                method,
+                statusCode:errorResponse.status,
+                message:getHttpErrorMessage(ex),
+                error:ex
+            }
+
+            this.emit(httpErrorEvent,httpError);
 
             throw ex;
 
