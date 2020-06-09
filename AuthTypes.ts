@@ -10,6 +10,8 @@ export interface SignInIdentity
     Type: string|null;
 
     Identity: string|null;
+
+    HandlerData?:any;
 }
 
 export enum SignInStatus
@@ -73,6 +75,8 @@ export interface UserDataRequest
     Password?: string;
 
     Props?: { [key: string]: string };
+
+    HandlerData?:any;
 }
 
 export interface RegisterRequest extends UserDataRequest
@@ -99,6 +103,7 @@ export const SignInTypes =
     PhonePassword : 'PhonePassword',
     EmailAccessCode : 'EmailAccessCode',
     PhoneAccessCode : 'PhoneAccessCode',
+    Apple : 'Apple'
 }
 
 export interface AccessCodeRequest
