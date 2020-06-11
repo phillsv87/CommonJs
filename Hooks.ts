@@ -1,4 +1,4 @@
-import { DependencyList, useState, useEffect, useLayoutEffect } from "react";
+import { DependencyList, useState, useEffect, useLayoutEffect, useCallback } from "react";
 import util from "./util";
 
 export function useMerged<T>(valueCb:()=>T,deps?:DependencyList):T
@@ -56,4 +56,13 @@ export function useMounted():Mounted
         }
     },[clt]);
     return clt;
+}
+
+export function useRender():[number,()=>void]
+{
+    const [r,setR]=useState(0);
+    const cb=useCallback(()=>{
+        setR(r=>r+1);
+    },[]);
+    return [r,cb];
 }
