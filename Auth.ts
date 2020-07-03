@@ -354,7 +354,7 @@ export class AuthManager extends EventEmitterEx
 
     private handleIndex=0;
 
-    private async handleSignInAsync(signIn:SignIn|null):Promise<SignIn|null>
+    public async handleSignInAsync(signIn:SignIn|null):Promise<SignIn|null>
     {
         if(areShallowEqualT(signIn,this.signIn,key=>key!=='LastRenew')){
             return signIn;
