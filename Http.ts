@@ -200,7 +200,7 @@ export default class Http extends EventEmitterEx
                 path:oPath,
                 data,
                 method,
-                statusCode:errorResponse.status,
+                statusCode:errorResponse?.status||0,
                 message:getHttpErrorMessage(ex),
                 error:ex
             }
