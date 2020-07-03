@@ -135,6 +135,7 @@ const Log={
     info:(message:string,ex:any=undefined)=>_report(LogLevel.info,false,message,ex),
     warn:(message:string,ex:any=undefined)=>_report(LogLevel.warn,false,message,ex),
     error:(message:string,ex:any=undefined)=>_report(LogLevel.error,false,message,ex),
+    errorNoUi:(message:string,ex:any=undefined)=>report(false,true,false,LogLevel.error,message,ex),
     debug:(message:string,ex:any=undefined)=>_report(LogLevel.debug,false,message,ex),
     add:(level:LogLevel,message:string,ex:any=undefined)=>_report(level,false,message,ex),
 
