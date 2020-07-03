@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import EventEmitterEx, { useUpdateEvent } from './EventEmitterEx-rn';
 import util from './util';
+import { StrDictionary } from './CommonType';
 
 export interface HistoryNodeConfig
 {
@@ -39,6 +40,8 @@ export default class History extends EventEmitterEx
     public logChanges:boolean=false;
 
     public defaultRoute:string|null=null;
+
+    public defaultNodeConfigs:StrDictionary<HistoryNodeConfig>={};
 
     private _previous:HistoryNode|null=null;
     public get previous(){
@@ -79,21 +82,36 @@ export default class History extends EventEmitterEx
 
     nextNodeId:number=0;
 
-    constructor(){
+    constructor(defaultRoute?:string,defaultRouteConfig?:HistoryNodeConfig){
         super();
         this._current={
-            path:'/',
+            path:defaultRoute||'/',
             data:null,
             index:0,
             id:this.nextNodeId++,
             action:'replace',
-            config:defaultHistoryNodeConfig()
+            config:defaultRouteConfig||defaultHistoryNodeConfig()
         };
+        if(defaultRouteConfig){
+            this.defaultNodeConfigs[defaultRoute||'/']=defaultRouteConfig;
+        }
+        if(defaultRoute){
+            this.defaultRoute=defaultRoute;
+        }
         this.stack=[this.current];
+    }
+
+    private getNodeConfig(path:string,config?:HistoryNodeConfig|null):HistoryNodeConfig|null
+    {
+        if(config){
+            return config;
+        }
+        return this.defaultNodeConfigs[path]||null;
     }
 
     push(path:string,data:any=null,config:HistoryNodeConfig|null=null):HistoryNode|null
     {
+        config=this.getNodeConfig(path,config);
         const c=this.current;
 
         if(c.path===path && util.areEqualShallow(c.data,data)){
@@ -156,6 +174,7 @@ export default class History extends EventEmitterEx
 
     reset(path:string,config:HistoryNodeConfig|null=null)
     {
+        config=this.getNodeConfig(path,config); 
         if(this._current && this._current.path===path && this._current.index===0)
         {
             if(this.stack.length>1){
