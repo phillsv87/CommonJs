@@ -44,4 +44,15 @@ export default class AsyncObjStoreRn implements AsyncObjStore
         const json=JSON.stringify(value);
         await fs.writeFile(getKeyPath(this.prefix,key),json);
     }
+
+    async CLEAR_ALL_DATA_FROM_STORE_ASYNC():Promise<void>
+    {
+        const prefix='key-'+encodeURIComponent(this.prefix+'-');
+        const files=(await fs.readdir(fs.LibraryDirectoryPath)).filter(p=>p.startsWith(prefix) && p.endsWith('.json'));
+        console.log('Clearing local store from '+fs.LibraryDirectoryPath,files);
+        for(const file of files){
+            console.log('Delete',file);
+            await fs.unlink(fs.LibraryDirectoryPath+'/'+file);
+        }
+    }
 }
