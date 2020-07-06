@@ -145,6 +145,9 @@ export function Navigation({
     const previous=history.previous;
     const current=history.current;
 
+    const disableGestureRefs=history.disableGestureRefs;
+    useUpdateEvent(history,'disableGestureRefs');
+
     const [routeSet,setRouteSet]=useState<RouteSet>(defaultRouteSet);
     const [endedRoute,setEndedRoute]=useState<number>(-1);
 
@@ -214,9 +217,10 @@ export function Navigation({
     },[history]);
 
     const outView=routeSet.id===endedRoute?null:routeSet.outView;
+    
 
     return (
-        <EdgeSwipe onSwipe={onSwipe}>
+        <EdgeSwipe onSwipe={onSwipe} disabled={disableGestureRefs>0}>
             {routeSet.reverse?routeSet.inView:outView}
             {routeSet.reverse?outView:routeSet.inView}
         </EdgeSwipe>

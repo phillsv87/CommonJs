@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import EventEmitterEx, { useUpdateEvent } from './EventEmitterEx-rn';
 import util from './util';
 import { StrDictionary } from './CommonType';
@@ -78,6 +78,13 @@ export default class History extends EventEmitterEx
         }
 
         return i>=0;
+    }
+
+    private _disableGestureRefs:number=0;
+    public get disableGestureRefs(){return this._disableGestureRefs}
+    public set disableGestureRefs(value:number){
+        this._disableGestureRefs=value;
+        this.emitProperty(this,'disableGestureRefs');
     }
 
     nextNodeId:number=0;
@@ -284,4 +291,16 @@ export function useHistory():History
     }
 
     return history;
+}
+
+export function useDisableHistoryGestures(enabled:boolean=true)
+{
+    const history = useContext(HistoryContext) as History;
+    useEffect(()=>{
+        if(!enabled){
+            return;
+        }
+        history.disableGestureRefs++;
+        return ()=>{history.disableGestureRefs--}
+    },[history,enabled]);
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { View, GestureResponderEvent, StyleProp, ViewStyle } from 'react-native';
 
 const swipeTolerance=50;
@@ -38,11 +38,13 @@ interface EdgeSwipeProps
 {
     children?:any;
     onSwipe?:(type:'left'|'right')=>void;
+    disabled?:boolean;
 }
 
 export default function EdgeSwipe({
     children,
-    onSwipe
+    onSwipe,
+    disabled
 }:EdgeSwipeProps){
 
     const [swipeInfo]=useState<SwipeState>({
@@ -53,6 +55,12 @@ export default function EdgeSwipe({
         time:0
     });
 
+    useEffect(()=>{
+        if(disabled){
+            swipeInfo.touchId=null;
+        }
+    },[swipeInfo,disabled]);
+
     const [swiping,_setSwiping]=useState<boolean>(false);
     const setSwiping=useCallback((value:boolean)=>{
         if(value!==swiping){
@@ -61,6 +69,9 @@ export default function EdgeSwipe({
     },[swiping]);
 
     const onTouchStart=useCallback((event: GestureResponderEvent, direction:string)=>{
+        if(disabled){
+            return;
+        }
         const evt=event.nativeEvent;
         event.preventDefault();
         swipeInfo.touchId=event.nativeEvent.identifier;
@@ -69,7 +80,7 @@ export default function EdgeSwipe({
         swipeInfo.y=evt.pageY;
         swipeInfo.time=new Date().getTime();
         setSwiping(true);
-    },[swipeInfo,setSwiping]);
+    },[swipeInfo,setSwiping,disabled]);
 
     const onTouchMove=useCallback((event: GestureResponderEvent)=>{
         const evt=event.nativeEvent;
@@ -105,8 +116,10 @@ export default function EdgeSwipe({
     return (
         <View style={{flex:1}} onTouchMove={onTouchMove} onTouchCancel={onTouchEnd} onTouchEnd={onTouchEnd}>
             {children}
-            <View style={leftSwipeCaptureStyle} onTouchStart={e=>onTouchStart(e,'right')} />
-            <View style={rightSwipeCaptureStyle} onTouchStart={e=>onTouchStart(e,'left')} />
+            {!disabled&&<>
+                <View style={leftSwipeCaptureStyle} onTouchStart={e=>onTouchStart(e,'right')} />
+                <View style={rightSwipeCaptureStyle} onTouchStart={e=>onTouchStart(e,'left')} />
+            </>}
         </View>
     )
 }
