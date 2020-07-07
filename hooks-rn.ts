@@ -1,4 +1,4 @@
-import { GestureResponderEvent } from "react-native";
+import { GestureResponderEvent, Keyboard, KeyboardEvent, Dimensions } from "react-native";
 import { useCallback, useState, useEffect } from "react";
 import History, { HistoryNodeConfig } from "./History-rn";
 
@@ -65,4 +65,30 @@ export function usePushHistoryDebugGesture(
     },[history,path,data,config]);
 
     return useDetectDebugGesture(detect,taps,width,height);
+}
+
+export function useKeyboardHeight():number
+{
+    const [height,setHeight]=useState(0);
+
+    useEffect(()=>{
+
+            const onKeyboardDidShow=(e: KeyboardEvent)=>{
+                setHeight(Dimensions.get('window').height-e.endCoordinates.screenY);
+            }
+
+            const onKeyboardDidHide=()=>{
+                setHeight(0);
+            }
+
+            Keyboard.addListener('keyboardDidShow',onKeyboardDidShow);
+            Keyboard.addListener('keyboardDidHide',onKeyboardDidHide);
+            return ()=>{
+                Keyboard.removeListener('keyboardDidShow', onKeyboardDidShow);
+                Keyboard.removeListener('keyboardDidHide', onKeyboardDidHide);
+            }
+
+    },[]);
+
+    return height;
 }
