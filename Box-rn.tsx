@@ -5,23 +5,31 @@ interface BoxProps
 {
     style?: StyleProp<ViewStyle>;
     boxStyle?: StyleProp<ViewStyle>;
+    noFlex?:boolean;
     children?:any;
+    onChangeSize?: (size:number) => void;
 }
 
 export default function Box({
     style,
     boxStyle,
-    children
+    noFlex,
+    children,
+    onChangeSize
 }:BoxProps){
 
     const [size,setSize]=useState<null|number>(null);
 
     const onLayout=useCallback((e:LayoutChangeEvent)=>{
-        setSize(Math.min(e.nativeEvent.layout.width,e.nativeEvent.layout.height));
-    },[]);
+        const size=Math.min(e.nativeEvent.layout.width,e.nativeEvent.layout.height);
+        setSize(size);
+        if(onChangeSize){
+            onChangeSize(size);
+        }
+    },[onChangeSize]);
 
     return (
-        <View style={[styles.root,style]} onLayout={onLayout}>
+        <View style={[noFlex?null:{flex:1},styles.root,style]} onLayout={onLayout}>
             <View style={[size===null?null:{
                 width:size,
                 height:size
@@ -35,7 +43,6 @@ export default function Box({
 
 const styles=StyleSheet.create({
     root:{
-        flex:1,
         justifyContent:'center',
         alignItems:'center'
     }
