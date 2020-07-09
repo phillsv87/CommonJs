@@ -179,10 +179,10 @@ export default class History extends EventEmitterEx
         return c;
     }
 
-    reset(path:string,config:HistoryNodeConfig|null=null)
+    reset(path:string,config:HistoryNodeConfig|null=null,hardReset:boolean=false)
     {
         config=this.getNodeConfig(path,config); 
-        if(this._current && this._current.path===path && this._current.index===0)
+        if(!hardReset && this._current && this._current.path===path && this._current.index===0)
         {
             if(this.stack.length>1){
                 this.stack.splice(1,this.stack.length);
