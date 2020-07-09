@@ -1,4 +1,4 @@
-import { DependencyList, useState, useEffect, useLayoutEffect, useCallback } from "react";
+import { DependencyList, useState, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
 import util from "./util";
 
 export function useMerged<T>(valueCb:()=>T,deps?:DependencyList):T
@@ -65,4 +65,9 @@ export function useRender():[number,()=>void]
         setR(r=>r+1);
     },[]);
     return [r,cb];
+}
+
+export function useBox<T>(defaultValue:T):{value:T}
+{
+    return useMemo(()=>({value:defaultValue}),[]);// eslint-disable-line
 }
