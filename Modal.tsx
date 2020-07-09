@@ -6,6 +6,8 @@ import { useTween } from './Animations-rn';
 
 export type BgRender=()=>any;
 
+export type ModalTransitionTypes='opacity'|'slide-up'|'opacity-slide-up'|null;
+
 let defaultBgRender:BgRender|null=null;
 
 export function setDefaultBgRender(render:BgRender|null){
@@ -18,18 +20,22 @@ export interface ModalProps
     closeRequested?:(isOpen:boolean)=>void;
     hideTimeout?:number;
     bg?:BgRender|string|null;
+    transitionType?:ModalTransitionTypes,
+    transitionDuration?:number;
     children:any;
 }
 
 export default function Modal({
     isOpen,
     hideTimeout=2000,
+    transitionType='slide-up',
+    transitionDuration=200,
     bg,
     children
 }:ModalProps){
 
     const {width,height}=useDimensions();
-    const tween=useTween(isOpen?1:0);
+    const tween=useTween(isOpen?1:0,{useNativeDriver:true,useDisplay:true,duration:transitionDuration});
 
     const [visible,setVisible]=useState(isOpen);
     useEffect(()=>{
@@ -49,6 +55,28 @@ export default function Modal({
         }
     },[isOpen,hideTimeout]);
 
+    let anStyle:any;
+    switch(transitionType){
+        case 'opacity':
+            anStyle={
+                opacity:tween.value,
+                transform:[{translateY:-height}]
+            }
+            break;
+        case 'slide-up':
+            anStyle={transform:[{translateY:tween.map(0,-height)}]};
+            break;
+        case 'opacity-slide-up':
+            anStyle={
+                opacity:tween.value,
+                transform:[{translateY:tween.map(0,-height)}]
+            }
+            break;
+        default:
+            anStyle=null;
+            break;
+
+    }
     
 
     if(!visible){
@@ -57,11 +85,11 @@ export default function Modal({
 
     return (
         <Portal align="bottom">
-            <Animated.View style={{
+            <Animated.View style={[anStyle,{
                 width,
                 height,
-                transform:[{translateY:tween.map(0,-height)}]
-            }}>
+                display:tween.display
+            }]}>
                 {(typeof bg === 'string')?
                     <View style={[styles.solidColor,{backgroundColor:bg}]}/>:
                     (bg===undefined?(defaultBgRender&&defaultBgRender()):(bg&&bg()))}
