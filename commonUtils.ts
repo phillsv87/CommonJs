@@ -214,6 +214,16 @@ export function joinPaths(... paths:string[]): string
     return path;
 }
 
+export type StringOrEmpty=string|null|undefined;
+
+export function addDefaultProtocol<T extends StringOrEmpty>(path:T, protocol:string='file://'):T
+{
+    if(path===null || path===undefined){
+        return path;
+    }
+    return (path.indexOf('://')===-1?protocol+path:path) as T;
+}
+
 export function getFileExt(path:string|null|undefined,includeDot:boolean=false,toLower:boolean=true):string
 {
     if(!path){
