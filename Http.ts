@@ -149,7 +149,7 @@ export default class Http extends EventEmitterEx
             headers:{}
         };
         if(data){
-            if(method==='GET'){
+            if(method==='GET' || method==='DELETE'){
                 request.params=data;
             }else{
                 request.data=data;
@@ -157,7 +157,7 @@ export default class Http extends EventEmitterEx
             
         }
         if(this._authToken && this._authHeaderParam && isRel){
-            if(method==='GET'){
+            if(method==='GET' || method==='DELETE'){
                 if(!request.params){
                     request.params={}
                 }
