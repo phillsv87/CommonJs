@@ -9,6 +9,7 @@ interface SlidePanelProps
     animationConfig?:AnimationConfig;
     style?:StyleProp<ViewStyle>
     children:any;
+    alpha?:boolean;
 }
 
 export default function SlidePanel({
@@ -16,9 +17,14 @@ export default function SlidePanel({
     animationConfig,
     style,
     direction='horizontal',
-    children
+    children,
+    alpha
 }:SlidePanelProps)
 {
+
+    if(!animationConfig){
+        animationConfig={useNativeDriver:true,useDisplay:true}
+    }
 
     const childCount=React.Children.count(children);
     const [size,setSize]=useState({w:0,h:0});
@@ -36,19 +42,42 @@ export default function SlidePanel({
         <View style={style||styles.root} onLayout={onLayout}>
             <Animated.View style={[styles.plane,{transform:[trans]}]}>
                 {React.Children.map(children,(slide:any,i:number)=>{
-                    return (
-                        <View key={i} style={{
-                            position:'absolute',
-                            width:'100%',
-                            height:'100%',
-                            left:hr?i*100+'%':0,
-                            top:hr?0:i*100+'%',
-                        }}>{slide}</View>
-                    )
+
+                    const style:StyleProp<ViewStyle>={
+                        position:'absolute',
+                        width:'100%',
+                        height:'100%',
+                        left:hr?i*100+'%':0,
+                        top:hr?0:i*100+'%',
+                    }
+
+                    return alpha?
+                        <Slide key={i} style={style} active={i===index} animationConfig={animationConfig}>{slide}</Slide>:
+                        <View key={i} style={style}>{slide}</View>;
                 })}
             </Animated.View>
         </View>
     )
+}
+interface SlideProps
+{
+    active:boolean;
+    children:any;
+    style:any;
+    animationConfig?:AnimationConfig;
+
+}
+function Slide({
+    active,
+    children,
+    style,
+    animationConfig
+}:SlideProps)
+{
+
+    const tw=useTween(active?1:0,animationConfig);
+
+    return <Animated.View style={[style,{opacity:tw.value,display:tw.display}]}>{children}</Animated.View>
 }
 
 const styles=StyleSheet.create({
