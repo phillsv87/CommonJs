@@ -36,6 +36,7 @@ export interface WindowSize{
     breakpoint:WindowBreakpoint
     isMobile:boolean
     isTab:boolean
+    stack:boolean
 }
 
 export function useWindowSize():WindowSize{
@@ -63,7 +64,8 @@ export function useWindowSize():WindowSize{
         height,
         breakpoint,
         isMobile,
-        isTab
+        isTab,
+        stack:isMobile||isTab
     };
 
 }
@@ -76,12 +78,9 @@ export function useBreakpointBodyClasses(logChangesToConsole?:boolean)
             console.log('Set breakpoint class to '+WindowBreakpoint[breakpoint]);
         }
         const body=window.document.body;
-        body.classList.remove('bp-xs','bp-sm','bp-md','bp-lg','bp-xl','bp-mobile','bp-tab','bp-stack','bp-desktop');
+        body.classList.remove('bp-xs','bp-sm','bp-md','bp-lg','bp-xl','bp-mobile','bp-tab','bp-desktop');
         body.classList.add('bp-'+WindowBreakpoint[breakpoint]);
         body.classList.add(isMobile?'bp-mobile':(isTab?'bp-tab':'bp-desktop'));
-        if(isMobile || isTab){
-            body.classList.add('bp-stack');
-        }
     },[breakpoint,isMobile,isTab,logChangesToConsole]);
 }
 
