@@ -3,6 +3,12 @@ import { EventEmitter } from "events";
 class EventEmitterEx extends EventEmitter
 {
 
+    constructor()
+    {
+        super()
+        this.setMaxListeners(100000);
+    }
+
     /**
      * Subscribes the listener to the given event and returns a
      * callback to unsubscribe from the event
