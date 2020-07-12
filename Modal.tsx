@@ -35,7 +35,18 @@ export default function Modal({
 }:ModalProps){
 
     const {width,height}=useDimensions();
-    const tween=useTween(isOpen?1:0,{useNativeDriver:true,useDisplay:true,duration:transitionDuration});
+
+    const [ready,setReady]=useState(false);
+    useEffect(()=>{
+        let m=true;
+        setTimeout(()=>{
+            if(m){
+                setReady(true);
+            }
+        },15);
+        return ()=>{m=false}
+    },[]);
+    const tween=useTween(isOpen&&ready?1:0,{useNativeDriver:true,useDisplay:true,duration:transitionDuration});
 
     const [visible,setVisible]=useState(isOpen);
     useEffect(()=>{
