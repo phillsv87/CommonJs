@@ -1,0 +1,52 @@
+import React from 'react';
+import { View, StyleProp, ViewStyle, FlexAlignType } from 'react-native';
+import { useSafeArea } from './SafeArea-rn';
+
+interface ContainerProps
+{
+    maxWidth?:number|null;
+    margin?:number;
+    marginVertical?:number;
+    noFlex?:boolean;
+    safeArea?:boolean;
+    style?: StyleProp<ViewStyle>;
+    innerStyle?: StyleProp<ViewStyle>;
+    alignment?: FlexAlignType;
+    children?:any;
+
+}
+
+export default function Container({
+    maxWidth=500,
+    margin=15,
+    marginVertical,
+    noFlex,
+    style,
+    safeArea,
+    innerStyle,
+    alignment='center',
+    children
+}:ContainerProps){
+
+    const {top,bottom}=useSafeArea();
+
+    return (
+        <View style={[{
+            flex:noFlex?undefined:1,
+            marginHorizontal:margin?margin:undefined,
+            alignItems:alignment,
+            paddingTop:safeArea?top:undefined,
+            paddingBottom:safeArea?bottom:undefined
+        },style]}>
+            <View style={[{
+                flex:noFlex?undefined:1,
+                maxWidth:maxWidth===null?undefined:maxWidth,
+                width:'100%',
+                marginVertical
+            },innerStyle]}>
+                {children}
+            </View>
+        </View>
+    )
+
+}
