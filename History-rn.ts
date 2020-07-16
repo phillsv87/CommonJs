@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState, useLayoutEffect } from 'react';
 import EventEmitterEx, { useUpdateEvent } from './EventEmitterEx-rn';
 import util from './util';
 import { StrDictionary } from './CommonType';
@@ -303,4 +303,27 @@ export function useDisableHistoryGestures(enabled:boolean=true)
         history.disableGestureRefs++;
         return ()=>{history.disableGestureRefs--}
     },[history,enabled]);
+}
+
+export interface MountedHistoryNode
+{
+    mounted:boolean;
+    node:HistoryNode;
+    history:History;
+}
+export function useMountedHistory()
+{
+    const history=useHistory();
+    const [clt]=useState<MountedHistoryNode>({mounted:true,node:history.current,history});
+    useLayoutEffect(()=>{
+        const listener=()=>{
+            clt.mounted=false;
+        };
+        history.addListener('history',listener);
+        return ()=>{
+            history.removeListener('history',listener);
+            clt.mounted=false;
+        }
+    },[clt,history]);
+    return clt;
 }
