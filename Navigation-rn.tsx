@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Animated, Easing } from 'react-native';
-import { HistoryNode, useHistory } from './History-rn';
+import { HistoryNode, useHistory, HistoryNodeContext } from './History-rn';
 import { useUpdateEvent } from './EventEmitterEx-rn';
 import EdgeSwipe from './EdgeSwipe-rn';
 import util from './util';
@@ -30,9 +30,9 @@ export interface ViewRoute
     render:(match:ViewMatch, direction:'in'|'out', animation:Animated.Value)=>any;
 }
 
-function getMatch(node:HistoryNode, route:ViewRoute):ViewMatch
+function getMatch(node:HistoryNode|null, route:ViewRoute):ViewMatch
 {
-    if(route.path && route.path.toLowerCase()===node.path.toLowerCase()){
+    if(route.path && node && route.path.toLowerCase()===node.path.toLowerCase()){
         return {
             path:route.path,
             match:route.match,
@@ -44,7 +44,7 @@ function getMatch(node:HistoryNode, route:ViewRoute):ViewMatch
     }
 
     if(route.match){
-        const ary=route.match.exec(node.path);
+        const ary=route.match.exec(node?.path||'');
         return {
             path:route.path,
             match:route.match,
@@ -169,14 +169,24 @@ export function Navigation({
 
         const inRoute=(util.first(routes,(r:ViewRoute)=>isMatch(current,r)) || routes[0]) as ViewRoute;
         const inMatch=inRoute?getMatch(current,inRoute):null;
-        let inView=(inRoute&&inMatch)?inRoute.render(inMatch,rev?'out':'in',animation):null;
+        let inView=(
+            <HistoryNodeContext.Provider value={current}>
+                {(inRoute&&inMatch)?inRoute.render(inMatch,rev?'out':'in',animation):null}
+            </HistoryNodeContext.Provider>
+        )
+        
+        
         if(inMatch && inRoute && inRoute.postRender){
             inView=inRoute.postRender(inView,inMatch,rev?'out':'in',animation);
         }
 
         const outRoute=routeSet.inRoute;
-        const outMatch=outRoute?getMatch(current,outRoute):null;
-        let outView=(outRoute&&outMatch)?outRoute.render(outMatch,rev?'in':'out',animation):null;
+        const outMatch=outRoute?getMatch(previous,outRoute):null;
+        let outView=(
+            <HistoryNodeContext.Provider value={previous}>
+                {(outRoute&&outMatch)?outRoute.render(outMatch,rev?'in':'out',animation):null}
+            </HistoryNodeContext.Provider>
+        )
         if(outMatch && outRoute && outRoute.postRender){
             outView=outRoute.postRender(outView,outMatch,rev?'in':'out',animation);
         }

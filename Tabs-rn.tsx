@@ -1,10 +1,14 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle, ScrollView, LayoutChangeEvent, Animated, Text, TextStyle, LayoutRectangle } from 'react-native';
+import { View, StyleSheet, StyleProp, ViewStyle, LayoutChangeEvent, Animated, Text, TextStyle, LayoutRectangle } from 'react-native';
 import { useTween } from './Animations-rn';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useRender } from './Hooks';
 import RnIcon from './RnIcon-rn';
+import { useHistoryNode } from './History-rn';
+import HistoryScrollView from './HistoryScrollView-rn';
 
+const indexNodeKey='Tabs.index';
+const scrollNodeKey='Tabs.scroll';
 
 export interface TabItem
 {
@@ -41,6 +45,7 @@ interface TabsProps
     iconColor?:string;
     activeIconColor?:string;
     iconSize?:number;
+    storeStateInRoute?:boolean;
 }
 
 export default function Tabs({
@@ -66,8 +71,11 @@ export default function Tabs({
     sliderStyle,
     iconColor,
     activeIconColor,
-    iconSize=18
+    iconSize=18,
+    storeStateInRoute
 }:TabsProps){
+
+    const historyNode=useHistoryNode();
 
     items=items?[...items]:[];
     for(let i=0;i<items.length;i++){
@@ -78,14 +86,24 @@ export default function Tabs({
     }
 
 
-    const [selfIndex,setSelfIndex]=useState(_index||0);
+    const [selfIndex,setSelfIndex]=useState(()=>{
+        if(storeStateInRoute && historyNode){
+            return historyNode.attachedData[indexNodeKey]||0;
+        }else{
+            return _index||0;
+        }
+    });
+    console.log('TAB INDEX ',selfIndex,historyNode?.index,historyNode?.path);
     const onTabPress=useCallback((i:number)=>{
         if(_setIndex){
             _setIndex(i);
         }else{
             setSelfIndex(i);
+            if(storeStateInRoute && historyNode){
+                historyNode.attachedData[indexNodeKey]=i;
+            }
         }
-    },[_setIndex]);
+    },[_setIndex,storeStateInRoute,historyNode]);
 
     const index=_setIndex===undefined?selfIndex:_index||0;
 
@@ -93,8 +111,6 @@ export default function Tabs({
     const onBodyLayout=useCallback((event:LayoutChangeEvent)=>{
         setWidth(event.nativeEvent.layout.width);
     },[]);
-
-    const indexTw=useTween(-index*width,{useNativeDriver:true,duration:transitionDuration});
 
     const [barHeight,setBarHeight]=useState(0);
 
@@ -104,6 +120,9 @@ export default function Tabs({
         setTimeout(()=>m&&setSlideAnEnabled(true),400);
         return ()=>{m=false}
     },[]);
+
+    const indexTwValue=-index*width;
+    const indexTw=useTween(indexTwValue,{useNativeDriver:true,duration:transitionDuration,jumpTo:slideAnEnabled?undefined:indexTwValue});
 
 
     const tabLayouts=useMemo<LayoutRectangle[]>(()=>[],[]);
@@ -173,11 +192,12 @@ export default function Tabs({
                             },contentStyle]}>
                                 {item.noScroll?
                                     content:
-                                    <ScrollView
+                                    <HistoryScrollView
+                                        historyKey={storeStateInRoute?scrollNodeKey+'.'+i:undefined}
                                         style={[styles.scroll,scrollStyle]}
                                         keyboardShouldPersistTaps="handled">
                                         {content}
-                                    </ScrollView>
+                                    </HistoryScrollView>
                                 }
                             </View>
                         )

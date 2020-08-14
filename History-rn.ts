@@ -28,6 +28,7 @@ export interface HistoryNode
     path:string;
     index:number;
     data:any;
+    attachedData:StrDictionary<any>;
     action:'push'|'pop'|'replace';
     config:HistoryNodeConfig;
 }
@@ -94,6 +95,7 @@ export default class History extends EventEmitterEx
         this._current={
             path:defaultRoute||'/',
             data:null,
+            attachedData:{},
             index:0,
             id:this.nextNodeId++,
             action:'replace',
@@ -131,6 +133,7 @@ export default class History extends EventEmitterEx
         this.setCurrent({
             path,
             data,
+            attachedData:{},
             index:c.index+1,
             id:this.nextNodeId++,
             action:'push',
@@ -194,6 +197,7 @@ export default class History extends EventEmitterEx
             path:path,
             index:0,
             data:null,
+            attachedData:{},
             id:this.nextNodeId++,
             action:'pop',
             config:config||defaultHistoryNodeConfig()
@@ -227,6 +231,7 @@ export default class History extends EventEmitterEx
             path:path,
             index:1,
             data:null,
+            attachedData:{},
             id:this.nextNodeId++,
             action:'pop',
             config:defaultHistoryNodeConfig()
@@ -326,4 +331,11 @@ export function useMountedHistory()
         }
     },[clt,history]);
     return clt;
+}
+
+export const HistoryNodeContext=React.createContext<HistoryNode|null>(null);
+export function useHistoryNode():HistoryNode|null
+{
+    const node = useContext(HistoryNodeContext) as HistoryNode;
+    return node||null;
 }
