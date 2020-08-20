@@ -276,3 +276,9 @@ export const toBool=(value:any):boolean=>{
 }
 
 export const unused=(unusedValue:any)=>{/* do nothing */} // eslint-disable-line
+
+
+export function getTimeZoneOffsetHours():number
+{
+    return new Date().getTimezoneOffset()/-60;
+}
