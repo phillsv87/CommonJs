@@ -93,7 +93,6 @@ export default function Tabs({
             return _index||0;
         }
     });
-    console.log('TAB INDEX ',selfIndex,historyNode?.index,historyNode?.path);
     const onTabPress=useCallback((i:number)=>{
         if(_setIndex){
             _setIndex(i);
