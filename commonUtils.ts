@@ -282,3 +282,12 @@ export function getTimeZoneOffsetHours():number
 {
     return new Date().getTimezoneOffset()/-60;
 }
+
+export function strFirstToUpper(str:string)
+{
+    if(!str){
+        return str;
+    }
+
+    return str.substr(0,1).toUpperCase()+str.substr(1);
+}
