@@ -39,7 +39,7 @@ export interface HttpUiRequestEvent
 export function getHttpErrorStatusCode(error:Error,fallbackCode?:number):number|undefined
 {
     const ex:any=error;
-    if(ex.httpError && ex.httpError.StatusCode){
+    if(ex && ex.httpError && ex.httpError.StatusCode){
         return ex.httpError.StatusCode;
     }else{
         return fallbackCode;
@@ -117,6 +117,11 @@ export default class Http extends EventEmitterEx
     putAsync<T>(path:string,data:any=null):Promise<T>
     {
         return this.callAsync('PUT',path,data);
+    }
+
+    patchAsync<T>(path:string,data:any=null):Promise<T>
+    {
+        return this.callAsync('PATCH',path,data);
     }
 
     deleteAsync<T>(path:string,data:any=null):Promise<T>
