@@ -1,5 +1,6 @@
 import { DependencyList, useState, useEffect, useLayoutEffect, useCallback, useMemo } from "react";
 import util from "./util";
+import Log from "./Log";
 
 export function useMerged<T>(valueCb:()=>T,deps?:DependencyList):T
 {
@@ -70,4 +71,30 @@ export function useRender():[number,()=>void]
 export function useBox<T>(defaultValue:T):{value:T}
 {
     return useMemo(()=>({value:defaultValue}),[]);// eslint-disable-line
+}
+
+export function useAsync<T,D>(defaultValue:D,asyncCallback:()=>Promise<T>,errorMessage:string,deps:DependencyList):T|D
+{
+    const [value,setValue]=useState<T|D>(defaultValue);
+    const cb=useCallback(asyncCallback,deps);// eslint-disable-line
+
+    useEffect(()=>{
+        let active=true;
+        const doCall=async ()=>{
+            try{
+                const r=await cb();
+                if(active){
+                    setValue(r);
+                }
+            }catch(ex){
+                Log.error(errorMessage,ex);
+            }
+        }
+        doCall();
+        return ()=>{
+            active=false;
+        }
+    },[cb,errorMessage])
+
+    return value;
 }
