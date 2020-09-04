@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useContext, useMemo, useLayoutEffect } from 'react';
 import EventEmitterEx, { useEmitter } from './EventEmitterEx-rn';
 
 export const scrollableEvt='scrollable';
@@ -22,7 +22,7 @@ export const ScrollContext=React.createContext<ScrollableContent|null>(null);
 export function useScrollable(scrollable:boolean=true)
 {
     const ctx=useContext(ScrollContext);
-    useEffect(()=>{
+    useLayoutEffect(()=>{
         if(ctx){
             ctx.scrollable=scrollable;
         }
