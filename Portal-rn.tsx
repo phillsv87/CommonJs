@@ -1,7 +1,6 @@
 import { useMemo, useContext, useEffect } from 'react';
 import React from 'react';
-import EventEmitterEx from './EventEmitterEx-rn';
-import { useUpdateProperty } from './utilTs';
+import EventEmitterEx, { useUpdateProperty } from './EventEmitterEx-rn';
 import { View, ViewStyle, StyleProp, StyleSheet } from 'react-native';
 
 export type PortalAlignment='fill'|'top'|'bottom'|'left'|'right';
