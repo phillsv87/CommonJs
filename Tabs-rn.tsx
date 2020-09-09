@@ -46,6 +46,7 @@ interface TabsProps
     activeIconColor?:string;
     iconSize?:number;
     storeStateInRoute?:boolean;
+    beforeTabs?:any;
 }
 
 export default function Tabs({
@@ -72,7 +73,8 @@ export default function Tabs({
     iconColor,
     activeIconColor,
     iconSize=18,
-    storeStateInRoute
+    storeStateInRoute,
+    beforeTabs
 }:TabsProps){
 
     const historyNode=useHistoryNode();
@@ -146,6 +148,7 @@ export default function Tabs({
     return (
         <View style={[{flex:flex?1:undefined},style]}>
             <View style={barContainerStyle}>
+                {beforeTabs}
                 <View style={[styles.bar,barStyle]} onLayout={(e)=>setBarHeight(e.nativeEvent.layout.height)}>
                     {enableSlider&&
                         <Animated.View style={[styles.slider,{
