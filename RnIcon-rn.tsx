@@ -19,12 +19,18 @@ import Md from 'react-native-vector-icons/MaterialIcons';
 import Ot from 'react-native-vector-icons/Octicons';
 import Sl from 'react-native-vector-icons/SimpleLineIcons';
 import Zo from 'react-native-vector-icons/Zocial';
+import { createIconSetFromIcoMoon } from 'react-native-vector-icons';
 import { TextProps } from 'react-native';
+import { StrDictionary } from './CommonType';
 
 export const defaultSet='fa';
 export const defaultIcon=defaultSet+':question';
 export const defaultSize=12;
 export const defaultColor='#000000';
+
+
+export type IconRenderer = (props:any, icon:string, size:number, color:string)=>any;
+const renderers:StrDictionary<IconRenderer>={}
 
 export interface RnIconProps extends TextProps
 {
@@ -33,6 +39,21 @@ export interface RnIconProps extends TextProps
     color?: string;
     size?: number;
 }
+
+
+export function addCustomIconFont(set:string, renderer:IconRenderer)
+{
+    renderers[set]=renderer;
+}
+
+export function addIcoMoonIconFont(set:string,config:any,fontName:string,fontFile:string)
+{
+    const IcoMoonIcon=createIconSetFromIcoMoon(config,fontName,fontFile);
+    renderers[set]=(props:any, icon:string, size:number, color:string)=>(
+        <IcoMoonIcon {...props} name={icon} size={size} color={color} />
+    );
+}
+
 
 export default function RnIcon({
     icon,
@@ -46,6 +67,8 @@ export default function RnIcon({
         icon=defaultIcon;
     }
 
+    let setDefined=set?true:false;
+
     if(!set){
         const parts=icon.split(':');
         if(parts.length===1){
@@ -53,6 +76,7 @@ export default function RnIcon({
         }else{
             set=parts[0] as any;
             icon=parts[1];
+            setDefined=true;
         }
     }
 
@@ -104,6 +128,13 @@ export default function RnIcon({
             return <Zo {...props} name={icon} size={size} color={color} />
 
         default:
+            if(setDefined){
+                const renderer=renderers[set as any];
+                if(renderer as any){
+                    return renderer(props,icon,size,color);
+                }
+            }
+            
             return <Fa {...props} name={icon} size={size} color={color} />
     }
 
