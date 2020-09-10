@@ -39,6 +39,7 @@ interface TabsProps
     scrollStyle?:StyleProp<ViewStyle>;
     transitionDuration?:number;
     contentTopSpacing?:number|'bar';
+    horizontalContentMargin?:number;
     contentBottomSpacing?:number;
     enableSlider?:boolean;
     sliderStyle?:StyleProp<ViewStyle>;
@@ -68,6 +69,7 @@ export default function Tabs({
     transitionDuration=300,
     contentTopSpacing,
     contentBottomSpacing,
+    horizontalContentMargin=0,
     enableSlider,
     sliderStyle,
     iconColor,
@@ -147,6 +149,44 @@ export default function Tabs({
 
     return (
         <View style={[{flex:flex?1:undefined},style]}>
+            <View style={[styles.body,bodyStyle]} onLayout={onBodyLayout}>
+                <Animated.View style={[styles.bodyPlane,{
+                    transform:[{translateX:indexTw.value}]
+                }]}>
+                    {items.map((item,i)=>{
+
+                        if(!item){
+                            return null;
+                        }
+
+                        const content=(
+                            <>
+                                <View style={{height:contentTopSpacing==='bar'?barHeight:contentTopSpacing||0}}/>
+                                {item.content}
+                                <View style={{height:contentBottomSpacing||0}}/>
+                            </>
+                        )
+
+                        return (
+                            <View key={i+':'+item.title+':'+item.icon} style={[styles.content,{
+                                width:width-horizontalContentMargin*2,
+                                left:width*i+horizontalContentMargin
+                            },contentStyle]}>
+                                {item.noScroll?
+                                    content:
+                                    <HistoryScrollView
+                                        showsVerticalScrollIndicator={false}
+                                        historyKey={storeStateInRoute?scrollNodeKey+'.'+i:undefined}
+                                        style={[styles.scroll,scrollStyle]}
+                                        keyboardShouldPersistTaps="handled">
+                                        {content}
+                                    </HistoryScrollView>
+                                }
+                            </View>
+                        )
+                    })}
+                </Animated.View>
+            </View>
             <View style={barContainerStyle}>
                 {beforeTabs}
                 <View style={[styles.bar,barStyle]} onLayout={(e)=>setBarHeight(e.nativeEvent.layout.height)}>
@@ -168,43 +208,6 @@ export default function Tabs({
                         </View>
                     ))}
                 </View>
-            </View>
-            <View style={[styles.body,bodyStyle]} onLayout={onBodyLayout}>
-                <Animated.View style={[styles.bodyPlane,{
-                    transform:[{translateX:indexTw.value}]
-                }]}>
-                    {items.map((item,i)=>{
-
-                        if(!item){
-                            return null;
-                        }
-
-                        const content=(
-                            <>
-                                <View style={{height:contentTopSpacing==='bar'?barHeight:contentTopSpacing||0}}/>
-                                {item.content}
-                                <View style={{height:contentBottomSpacing||0}}/>
-                            </>
-                        )
-
-                        return (
-                            <View key={i+':'+item.title+':'+item.icon} style={[styles.content,{
-                                width:width,
-                                left:width*i
-                            },contentStyle]}>
-                                {item.noScroll?
-                                    content:
-                                    <HistoryScrollView
-                                        historyKey={storeStateInRoute?scrollNodeKey+'.'+i:undefined}
-                                        style={[styles.scroll,scrollStyle]}
-                                        keyboardShouldPersistTaps="handled">
-                                        {content}
-                                    </HistoryScrollView>
-                                }
-                            </View>
-                        )
-                    })}
-                </Animated.View>
             </View>
         </View>
     )
