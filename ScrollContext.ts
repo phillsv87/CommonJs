@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useLayoutEffect } from 'react';
+import React, { useContext, useMemo, useLayoutEffect, useState } from 'react';
 import EventEmitterEx, { useEmitter } from './EventEmitterEx-rn';
 
 export const scrollableEvt='scrollable';
@@ -32,6 +32,23 @@ export function useScrollable(scrollable:boolean=true)
 export function useScrollableSource():ScrollableContent
 {
     const scrollableContent=useMemo(()=>new ScrollableContent(),[]);
+    const [,setCount]=useState(0);
+    useLayoutEffect(()=>{
+        let m=true;
+        const listener=()=>{
+            setCount(p=>p+1);
+        }
+        scrollableContent.on(scrollableEvt,listener);
+        setTimeout(()=>{
+            if(m && scrollableContent.scrollable){
+                setCount(p=>p+1);
+            }
+        },500);
+        return ()=>{
+            m=false;
+            scrollableContent.off(scrollableEvt,listener);
+        }
+    },[scrollableContent]);
     useEmitter(scrollableContent,scrollableEvt);
     return scrollableContent;
 }
