@@ -136,7 +136,7 @@ export default class Http extends EventEmitterEx
         });
     }
 
-    async callAsync(method:string,path:string,data:any,configRequest:any=null):Promise<any>
+    async callAsync(method:string,path:string,data:any,configRequest:any=null,emitErrors:boolean=true):Promise<any>
     {
         const oPath=path;
         const isRel=path.indexOf('http:')===-1 && path.indexOf('https:')===-1;
@@ -199,18 +199,20 @@ export default class Http extends EventEmitterEx
                 ex.httpError=ex.response.data;
             }
 
-            const errorResponse:AxiosResponse<any>=ex.response;
+            if(emitErrors){
+                const errorResponse:AxiosResponse<any>=ex.response;
 
-            const httpError:HttpError={
-                path:oPath,
-                data,
-                method,
-                statusCode:errorResponse?.status||0,
-                message:getHttpErrorMessage(ex),
-                error:ex
+                const httpError:HttpError={
+                    path:oPath,
+                    data,
+                    method,
+                    statusCode:errorResponse?.status||0,
+                    message:getHttpErrorMessage(ex),
+                    error:ex
+                }
+
+                this.emit(httpErrorEvent,httpError);
             }
-
-            this.emit(httpErrorEvent,httpError);
 
             throw ex;
 
