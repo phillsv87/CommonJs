@@ -1,5 +1,7 @@
 import { serializeWithRefs } from "./commonUtils";
 
+export const noTrackConsole=Symbol();
+
 export enum LogLevel{
     none=0,
     info=1,
@@ -113,11 +115,7 @@ function report(ignoreConsole:boolean,noUi:boolean,forUi:boolean,level:LogLevel,
         for(let i=0;i<listeners.length;i++){
             try{
                 listeners[i](entry);
-            }catch(ex){
-                if(!ignoreConsole){
-                    console.warn('Log listener callback error',ex);
-                }
-            }
+            }catch{}
         }
     }
 
@@ -162,6 +160,9 @@ export function logPrintMessage(message:string,optional:any[]|null|undefined):st
         return message+'\r'+serializeWithRefs(v,2);
     }else{
         for(const o of optional){
+            if(o===noTrackConsole){
+                continue;
+            }
             message+=' '+o;
         }
         return message;
@@ -173,6 +174,23 @@ export function interceptConsole()
 {
     if(consoleIntercepted){
         return;
+    }
+
+    const noTrack=(args:any[]|any)=>{
+        if(!args){
+            return false;
+        }
+        if(args===noTrackConsole){
+            return true;
+        }
+        if(Array.isArray(args)){
+            for(const a of args){
+                if(a===noTrackConsole){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     const defaultLog=console.log;
@@ -189,6 +207,9 @@ export function interceptConsole()
         if(defaultLog as any){
             defaultLog.call(console,message,optional);
         }
+        if(noTrack(optional)){
+            return;
+        }
         report(true,true,false,LogLevel.info,logPrintMessage(message,optional));
     }
 
@@ -199,6 +220,9 @@ export function interceptConsole()
         }
         if(defaultInfo as any){
             defaultInfo.call(console,message,optional);
+        }
+        if(noTrack(optional)){
+            return;
         }
         report(true,true,false,LogLevel.info,logPrintMessage(message,optional));
     }
@@ -211,6 +235,9 @@ export function interceptConsole()
         if(defaultDebug as any){
             defaultDebug.call(console,message,optional);
         }
+        if(noTrack(optional)){
+            return;
+        }
         report(true,true,false,LogLevel.debug,logPrintMessage(message,optional));
     }
 
@@ -222,6 +249,9 @@ export function interceptConsole()
         if(defaultWarn as any){
             defaultWarn.call(console,message,optional);
         }
+        if(noTrack(optional)){
+            return;
+        }
         report(true,true,false,LogLevel.warn,logPrintMessage(message,optional));
     }
 
@@ -232,6 +262,9 @@ export function interceptConsole()
         }
         if(defaultError as any){
             defaultError.call(console,message,optional);
+        }
+        if(noTrack(optional)){
+            return;
         }
         report(true,true,false,LogLevel.error,logPrintMessage(message,optional));
     }
