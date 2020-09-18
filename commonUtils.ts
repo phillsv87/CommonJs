@@ -291,3 +291,38 @@ export function strFirstToUpper(str:string)
 
     return str.substr(0,1).toUpperCase()+str.substr(1);
 }
+
+export function mapObj<T,R>(obj:{[key:string]:T},select:(key:string,value:T)=>R):R[]
+{
+    const ary:R[]=[];
+    if(!obj)
+        return ary;
+
+    for(const e in obj){
+        ary.push(select(e,obj[e]));
+    }
+
+    return ary;
+}
+
+export function addSpacesToCamelCase(value:string):string{
+    if(!value){
+        return value;
+    }
+
+    let i=0;
+    let wasUpper=true;
+    while(i<value.length){
+        const ch=value[i];
+        const upper=ch.toUpperCase()===ch;
+        if(!wasUpper && upper){
+            value=value.substr(0,i)+' '+value.substr(i);
+            i+=2;
+            wasUpper=true;
+        }else{
+            i++;
+            wasUpper=upper;
+        }
+    }
+    return value;
+}
