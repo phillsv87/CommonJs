@@ -16,6 +16,7 @@ export interface TabItem
     icon?:string;
     content:any;
     noScroll?:boolean;
+    noPadding?:boolean;
 }
 
 export type OptionalTabItem=TabItem|null|undefined;
@@ -167,10 +168,12 @@ export default function Tabs({
                             </>
                         )
 
+                        const cMargin=item.noPadding?0:horizontalContentMargin;
+
                         return (
                             <View key={i+':'+item.title+':'+item.icon} style={[styles.content,{
-                                width:width-horizontalContentMargin*2,
-                                left:width*i+horizontalContentMargin
+                                width:width-cMargin*2,
+                                left:width*i+cMargin
                             },contentStyle]}>
                                 {item.noScroll?
                                     content:
