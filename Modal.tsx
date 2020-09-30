@@ -22,6 +22,7 @@ export interface ModalProps
     bg?:BgRender|string|null;
     transitionType?:ModalTransitionTypes,
     transitionDuration?:number;
+    fill?:boolean;
     children:any;
 }
 
@@ -31,6 +32,7 @@ export default function Modal({
     transitionType='slide-up',
     transitionDuration=200,
     bg,
+    fill=true,
     children
 }:ModalProps){
 
@@ -96,11 +98,11 @@ export default function Modal({
 
     return (
         <Portal align="bottom">
-            <Animated.View style={[anStyle,{
-                width,
-                height,
-                display:tween.display
-            }]}>
+            <Animated.View style={[
+                anStyle,
+                fill?{width,height}:null,
+                {display:tween.display}
+            ]}>
                 {(typeof bg === 'string')?
                     <View style={[styles.solidColor,{backgroundColor:bg}]}/>:
                     (bg===undefined?(defaultBgRender&&defaultBgRender()):(bg&&bg()))}
