@@ -205,10 +205,10 @@ export function Navigation({
             animation,
             reverse:!routeSet.reverse
         };
-
+        
         Animated.timing(animation,{
             toValue:to,
-            duration:transitionDuration,
+            duration:outMatch?transitionDuration:0,
             easing:Easing.elastic(0.9),
             useNativeDriver:nativeDriver
         }).start(()=>{
