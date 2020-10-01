@@ -54,13 +54,15 @@ export default function LogUI({
     const [items,setItems]=useState<LogEntry[]>([]);
 
     useEffect(()=>{
+        let m=true;
         const listener=(entry:LogEntry)=>{
-            if((entry.level&level && !entry.noUi) || entry.forUi){
+            if(m && ((entry.level&level && !entry.noUi) || entry.forUi)){
                 setItems(v=>[...v,entry]);
             }
         };
         addLogListener(listener);
         return ()=>{
+            m=false;
             removeLogListener(listener);
         }
     },[level]);
