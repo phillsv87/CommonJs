@@ -16,7 +16,6 @@ export interface TabItem
     icon?:string;
     content:any;
     noScroll?:boolean;
-    noPadding?:boolean;
 }
 
 export type OptionalTabItem=TabItem|null|undefined;
@@ -40,7 +39,6 @@ interface TabsProps
     scrollStyle?:StyleProp<ViewStyle>;
     transitionDuration?:number;
     contentTopSpacing?:number|'bar';
-    horizontalContentMargin?:number;
     contentBottomSpacing?:number;
     enableSlider?:boolean;
     sliderStyle?:StyleProp<ViewStyle>;
@@ -71,7 +69,6 @@ export default function Tabs({
     transitionDuration=300,
     contentTopSpacing,
     contentBottomSpacing,
-    horizontalContentMargin=0,
     enableSlider,
     sliderStyle,
     slideChildren,
@@ -170,13 +167,10 @@ export default function Tabs({
                             </>
                         )
 
-                        const cMargin=item.noPadding?0:horizontalContentMargin;
-
                         return (
                             <View key={i+':'+item.title+':'+item.icon} style={[styles.content,{
                                 width:width,
-                                left:width*i,
-                                paddingHorizontal:item.noScroll?cMargin:undefined,
+                                left:width*i
                             },contentStyle]}>
                                 {item.noScroll?
                                     content:
@@ -185,9 +179,7 @@ export default function Tabs({
                                         historyKey={storeStateInRoute?scrollNodeKey+'.'+i:undefined}
                                         style={[styles.scroll,scrollStyle]}
                                         keyboardShouldPersistTaps="handled">
-                                        <View style={{paddingHorizontal:cMargin}}>
                                         {content}
-                                        </View>
                                     </HistoryScrollView>
                                 }
                             </View>
