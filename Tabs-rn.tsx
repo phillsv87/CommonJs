@@ -44,6 +44,7 @@ interface TabsProps
     contentBottomSpacing?:number;
     enableSlider?:boolean;
     sliderStyle?:StyleProp<ViewStyle>;
+    slideChildren?:any;
     iconColor?:string;
     activeIconColor?:string;
     iconSize?:number;
@@ -73,6 +74,7 @@ export default function Tabs({
     horizontalContentMargin=0,
     enableSlider,
     sliderStyle,
+    slideChildren,
     iconColor,
     activeIconColor,
     iconSize=18,
@@ -172,8 +174,9 @@ export default function Tabs({
 
                         return (
                             <View key={i+':'+item.title+':'+item.icon} style={[styles.content,{
-                                width:width-cMargin*2,
-                                left:width*i+cMargin
+                                width:width,
+                                left:width*i,
+                                paddingHorizontal:item.noScroll?cMargin:undefined,
                             },contentStyle]}>
                                 {item.noScroll?
                                     content:
@@ -182,7 +185,9 @@ export default function Tabs({
                                         historyKey={storeStateInRoute?scrollNodeKey+'.'+i:undefined}
                                         style={[styles.scroll,scrollStyle]}
                                         keyboardShouldPersistTaps="handled">
+                                        <View style={{paddingHorizontal:cMargin}}>
                                         {content}
+                                        </View>
                                     </HistoryScrollView>
                                 }
                             </View>
@@ -198,7 +203,9 @@ export default function Tabs({
                             transform:[{translateX:slideXTw.value},{translateY:slideYTw.value}],
                             width:slideWidthTw.value,
                             height:slideHeightTw.value
-                        },sliderStyle]}/>
+                        },sliderStyle]}>
+                            {slideChildren}
+                        </Animated.View>
                     }
                     {items.map((item,i)=>item&&(
                         <View key={i+':'+item.title+':'+item.icon} style={tabContainerStyle} onLayout={(e)=>setTabLayout(i,e.nativeEvent.layout)}>
