@@ -62,6 +62,7 @@ export default function HistoryScrollView({
             {...props}
             ref={setScrollView}
             onScroll={onScroll}
+            alwaysBounceVertical={false}
             onContentSizeChange={onContentSizeChange}
             scrollEventThrottle={10}>
             {children}
