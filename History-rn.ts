@@ -206,6 +206,11 @@ export default class History extends EventEmitterEx
         this.emit('history',this);
     }
 
+    resetDefault()
+    {
+        this.reset(this.defaultRoute||'/');
+    }
+
     popTo(path:string,clear:boolean=true):HistoryNode|null{
         const c=this.current;
         if(this.stack.length===1){
