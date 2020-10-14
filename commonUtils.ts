@@ -58,11 +58,14 @@ export function serializeWithRefs(obj:any,space:number){
 }
 
 
-export function getTimeAny(date:any):number
+export function getTimeAny(date:any,utc?:boolean):number
 {
     const type=typeof date;
 
     if(type==='string'){
+        if(utc && !(date as string).endsWith('Z') && !(date as string).endsWith('z')){
+            date+='Z';
+        }
         const d=new Date(date as string).getTime();
         if(Number.isNaN(d)){
             return Number(date);
