@@ -1,5 +1,5 @@
 import EventEmitter from "eventemitter3";
-import { useState, useLayoutEffect } from "react";
+import { useState, useLayoutEffect, useCallback } from "react";
 
 export default class EventEmitterEx extends EventEmitter
 {
@@ -75,9 +75,11 @@ export function useUpdateEvent(
 {
     const [index,setIndex]=useState<number>(0);
 
-    useEvent(emitter,event,()=>{
+    const increment=useCallback(()=>{
         setIndex(v=>v+1);
-    },enabled);
+    },[]);
+
+    useEvent(emitter,event,increment,enabled);
 
     return index;
 
@@ -90,9 +92,11 @@ export function useUpdateProperty<T extends EventEmitter>(
 {
     const [index,setIndex]=useState<number>(0);
 
-    useEvent(emitter,key as string,()=>{
+    const increment=useCallback(()=>{
         setIndex(v=>v+1);
-    },enabled);
+    },[]);
+
+    useEvent(emitter,key as string,increment,enabled);
 
     return index;
 
