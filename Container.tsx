@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleProp, ViewStyle, FlexAlignType } from 'react-native';
+import KeyboardHeight from './KeyboardHeight';
 import { useSafeArea } from './SafeArea-rn';
 
 interface ContainerProps
@@ -12,6 +13,7 @@ interface ContainerProps
     style?: StyleProp<ViewStyle>;
     innerStyle?: StyleProp<ViewStyle>;
     alignment?: FlexAlignType;
+    avoidKeyboard?:boolean;
     children?:any;
 
 }
@@ -25,6 +27,7 @@ export default function Container({
     safeArea,
     innerStyle,
     alignment='center',
+    avoidKeyboard,
     children
 }:ContainerProps){
 
@@ -46,6 +49,7 @@ export default function Container({
             },innerStyle]}>
                 {children}
             </View>
+            {avoidKeyboard&&<KeyboardHeight/>}
         </View>
     )
 
