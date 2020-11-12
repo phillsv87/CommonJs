@@ -8,12 +8,16 @@ export const defaultBlurAmount=10;
 interface BlurProps
 {
     invert?:boolean;
+    dark?:boolean;
+    light?:boolean;
     amount?:number;
     style?:StyleProp<ViewStyle>;
 }
 
 export default function Blur({
     invert,
+    dark,
+    light,
     amount=defaultBlurAmount,
     style
 }:BlurProps)
@@ -28,7 +32,7 @@ export default function Blur({
                     bottom: 0,
                     right: 0,
                 },style]}
-                blurType={invert?'light':'dark'}
+                blurType={dark?'dark':light?'light':invert?'dark':'light'}
                 blurAmount={amount}
                 />
     )
