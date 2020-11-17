@@ -41,6 +41,18 @@ export interface LayoutProps
     mh5?:boolean;
 
     mp?:boolean;
+
+    row?:boolean;
+
+    center?:boolean;
+    centerItems?:boolean;
+    centerContent?:boolean;
+
+    flexStartContent?:boolean;
+    flexEndContent?:boolean;
+    spaceBetweenContent?:boolean;
+    spaceAroundContent?:boolean;
+    spaceEvenlyContent?:boolean;
 }
 
 const layoutPropNames:(keyof LayoutProps)[]=[
@@ -81,6 +93,18 @@ const layoutPropNames:(keyof LayoutProps)[]=[
     'mh5',
 
     'mp',
+
+    'row',
+
+    'center',
+    'centerItems',
+    'centerContent',
+    
+    'flexStartContent',
+    'flexEndContent',
+    'spaceBetweenContent',
+    'spaceAroundContent',
+    'spaceEvenlyContent',
 ];
 
 
@@ -122,6 +146,18 @@ export const layoutStyles:{[key in (keyof LayoutProps)]:ViewStyle}={
     mh5:{marginHorizontal:70},
 
     mp:{marginHorizontal:20},
+
+    row:{flexDirection:'row'},
+
+    center:{justifyContent:'center',alignItems:'center'},
+    centerItems:{alignItems:'center'},
+    centerContent:{justifyContent:'center'},
+
+    flexStartContent:{justifyContent:'flex-start'},
+    flexEndContent:{justifyContent:'flex-end'},
+    spaceBetweenContent:{justifyContent:'space-between'},
+    spaceAroundContent:{justifyContent:'space-around'},
+    spaceEvenlyContent:{justifyContent:'space-evenly'},
 }
 
 export function useLayoutStyles(props:LayoutProps,style?:StyleProp<ViewStyle>):(StyleProp<ViewStyle>[])|StyleProp<ViewStyle>|null
