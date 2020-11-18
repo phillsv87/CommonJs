@@ -53,6 +53,8 @@ export interface LayoutProps
     spaceBetweenContent?:boolean;
     spaceAroundContent?:boolean;
     spaceEvenlyContent?:boolean;
+
+    flex1?:boolean;
 }
 
 const layoutPropNames:(keyof LayoutProps)[]=[
@@ -105,6 +107,8 @@ const layoutPropNames:(keyof LayoutProps)[]=[
     'spaceBetweenContent',
     'spaceAroundContent',
     'spaceEvenlyContent',
+
+    'flex1',
 ];
 
 
@@ -158,6 +162,8 @@ export const layoutStyles:{[key in (keyof LayoutProps)]:ViewStyle}={
     spaceBetweenContent:{justifyContent:'space-between'},
     spaceAroundContent:{justifyContent:'space-around'},
     spaceEvenlyContent:{justifyContent:'space-evenly'},
+
+    flex1:{flex:1}
 }
 
 export function useLayoutStyles(props:LayoutProps,style?:StyleProp<ViewStyle>):(StyleProp<ViewStyle>[])|StyleProp<ViewStyle>|null
