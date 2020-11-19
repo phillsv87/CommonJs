@@ -44,15 +44,15 @@ export interface LayoutProps
 
     row?:boolean;
 
-    center?:boolean;
     centerItems?:boolean;
-    centerContent?:boolean;
+    centerItemsContent?:boolean;
 
-    flexStartContent?:boolean;
-    flexEndContent?:boolean;
-    spaceBetweenContent?:boolean;
-    spaceAroundContent?:boolean;
-    spaceEvenlyContent?:boolean;
+    flexStart?:boolean;
+    flexEnd?:boolean;
+    center?:boolean;
+    spaceBetween?:boolean;
+    spaceAround?:boolean;
+    spaceEvenly?:boolean;
 
     flex1?:boolean;
 }
@@ -98,15 +98,15 @@ const layoutPropNames:(keyof LayoutProps)[]=[
 
     'row',
 
-    'center',
     'centerItems',
-    'centerContent',
+    'centerItemsContent',
     
-    'flexStartContent',
-    'flexEndContent',
-    'spaceBetweenContent',
-    'spaceAroundContent',
-    'spaceEvenlyContent',
+    'flexStart',
+    'flexEnd',
+    'center',
+    'spaceBetween',
+    'spaceAround',
+    'spaceEvenly',
 
     'flex1',
 ];
@@ -153,15 +153,15 @@ export const layoutStyles:{[key in (keyof LayoutProps)]:ViewStyle}={
 
     row:{flexDirection:'row'},
 
-    center:{justifyContent:'center',alignItems:'center'},
     centerItems:{alignItems:'center'},
-    centerContent:{justifyContent:'center'},
+    centerItemsContent:{justifyContent:'center',alignItems:'center'},
 
-    flexStartContent:{justifyContent:'flex-start'},
-    flexEndContent:{justifyContent:'flex-end'},
-    spaceBetweenContent:{justifyContent:'space-between'},
-    spaceAroundContent:{justifyContent:'space-around'},
-    spaceEvenlyContent:{justifyContent:'space-evenly'},
+    flexStart:{justifyContent:'flex-start'},
+    flexEnd:{justifyContent:'flex-end'},
+    center:{justifyContent:'center'},
+    spaceBetween:{justifyContent:'space-between'},
+    spaceAround:{justifyContent:'space-around'},
+    spaceEvenly:{justifyContent:'space-evenly'},
 
     flex1:{flex:1}
 }
