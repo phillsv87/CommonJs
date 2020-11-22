@@ -55,6 +55,8 @@ export interface LayoutProps
     spaceEvenly?:boolean;
 
     flex1?:boolean;
+    absFill?:boolean;
+    absPos?:boolean;
 }
 
 const layoutPropNames:(keyof LayoutProps)[]=[
@@ -109,6 +111,8 @@ const layoutPropNames:(keyof LayoutProps)[]=[
     'spaceEvenly',
 
     'flex1',
+    'absFill',
+    'absPos',
 ];
 
 
@@ -163,7 +167,9 @@ export const layoutStyles:{[key in (keyof LayoutProps)]:ViewStyle}={
     spaceAround:{justifyContent:'space-around'},
     spaceEvenly:{justifyContent:'space-evenly'},
 
-    flex1:{flex:1}
+    flex1:{flex:1},
+    absFill:{position:'absolute',width:'100%',height:'100%'},
+    absPos:{position:'absolute',left:0,right:0,top:0,bottom:0},
 }
 
 export function useLayoutStyles(props:LayoutProps,style?:StyleProp<ViewStyle>):(StyleProp<ViewStyle>[])|StyleProp<ViewStyle>|null
