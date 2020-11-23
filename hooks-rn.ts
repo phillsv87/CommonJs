@@ -1,5 +1,5 @@
 import { GestureResponderEvent, Keyboard, KeyboardEvent, Dimensions } from "react-native";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useLayoutEffect } from "react";
 import History, { HistoryNodeConfig } from "./History-rn";
 
 export const defaultDebugWidth=100;
@@ -82,13 +82,26 @@ export function useKeyboardHeight():number
             }
 
             Keyboard.addListener('keyboardDidShow',onKeyboardDidShow);
-            Keyboard.addListener('keyboardDidHide',onKeyboardDidHide);
+            Keyboard.addListener('keyboardWillHide',onKeyboardDidHide);
             return ()=>{
                 Keyboard.removeListener('keyboardDidShow', onKeyboardDidShow);
-                Keyboard.removeListener('keyboardDidHide', onKeyboardDidHide);
+                Keyboard.removeListener('keyboardWillHide', onKeyboardDidHide);
             }
 
     },[]);
 
     return height;
+}
+
+export function usePersistentKeyboardHeight():[number,boolean,number]
+{
+    const height=useKeyboardHeight();
+    const [pHeight,setPHeight]=useState(height);
+    useLayoutEffect(()=>{
+        if(height){
+            setPHeight(height);
+        }
+    },[height]);
+
+    return [pHeight,height?true:false,height];
 }
