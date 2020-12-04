@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Animated, View } from 'react-native';
+import { StyleSheet, Animated, View, ViewStyle, StyleProp } from 'react-native';
 import Portal from './Portal-rn';
 import { useDimensions } from './Dimensions-rn';
 import { useTween } from './Animations-rn';
@@ -24,6 +24,7 @@ export interface ModalProps
     transitionDuration?:number;
     fill?:boolean;
     children:any;
+    containerStyle?:StyleProp<ViewStyle>;
 }
 
 export default function Modal({
@@ -33,7 +34,9 @@ export default function Modal({
     transitionDuration=200,
     bg,
     fill=true,
-    children
+    children,
+    containerStyle,
+    closeRequested
 }:ModalProps){
 
     const {width,height}=useDimensions();
@@ -98,14 +101,25 @@ export default function Modal({
 
     return (
         <Portal align="bottom">
+            <Animated.View style={[styles.fill,{
+                width,
+                height,
+                top:-height,
+                opacity:tween.value,
+                display:tween.display
+            }]}>
+                {(typeof bg === 'string')?
+                    <View style={[styles.fill,{backgroundColor:bg}]}/>:
+                    (bg===undefined?(defaultBgRender&&defaultBgRender()):(bg&&bg()))
+                }
+            </Animated.View>
             <Animated.View style={[
                 anStyle,
                 fill?{width,height}:null,
-                {display:tween.display}
+                {display:tween.display},
+                containerStyle
             ]}>
-                {(typeof bg === 'string')?
-                    <View style={[styles.solidColor,{backgroundColor:bg}]}/>:
-                    (bg===undefined?(defaultBgRender&&defaultBgRender()):(bg&&bg()))}
+                <View style={styles.fill} onTouchEnd={()=>closeRequested&&closeRequested(false)}/>
                 {children}
             </Animated.View>
         </Portal>
@@ -114,11 +128,13 @@ export default function Modal({
 }
 
 const styles=StyleSheet.create({
-    solidColor:{
+    fill:{
         position:'absolute',
         left:0,
         top:0,
+        right:0,
+        bottom:0,
         width:'100%',
-        height:'100%'
+        height:'100%',
     }
 });
