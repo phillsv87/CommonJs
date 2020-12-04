@@ -249,9 +249,25 @@ export function getFileName(path?:string|null): string
     if(!path){
         return '';
     }
+    if(path.endsWith('/')){
+        path=path.substr(0,path.length-1);
+    }
 
     const i=path.lastIndexOf('/');
     return i===-1?path:path.substr(i+1);
+}
+
+export function getDirectoryName(path?:string|null): string
+{
+    if(!path){
+        return '';
+    }
+    if(path.endsWith('/')){
+        path=path.substr(0,path.length-1);
+    }
+
+    const i=path.lastIndexOf('/');
+    return i===-1?'/':path.substr(0,i);
 }
 
 export function getFileNameNoExt(path?:string|null): string
