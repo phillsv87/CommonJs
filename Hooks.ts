@@ -74,7 +74,7 @@ export function useBox<T>(defaultValue:T):{value:T}
     return useMemo(()=>({value:defaultValue}),[]);// eslint-disable-line
 }
 
-export function useAsync<T,D>(defaultValue:D,asyncCallback:(mt:Mounted)=>Promise<T>,errorMessage:string,deps:DependencyList):T|D
+export function useAsync<T,D>(defaultValue:D,asyncCallback:(mt:Mounted)=>Promise<T>,errorMessage:string,deps:DependencyList,resetValueOnUpdate?:boolean):T|D
 {
     const [value,setValue]=useState<T|D>(defaultValue);
     const cb=useCallback(asyncCallback,deps);// eslint-disable-line
@@ -86,6 +86,9 @@ export function useAsync<T,D>(defaultValue:D,asyncCallback:(mt:Mounted)=>Promise
     },[mt]);
 
     useEffect(()=>{
+        if(resetValueOnUpdate){
+            setValue(defaultValue);
+        }
         let active=true;
         const doCall=async ()=>{
             try{
@@ -101,7 +104,7 @@ export function useAsync<T,D>(defaultValue:D,asyncCallback:(mt:Mounted)=>Promise
         return ()=>{
             active=false;
         }
-    },[cb,mt,errorMessage])
+    },[cb,mt,errorMessage,resetValueOnUpdate,defaultValue])
 
     return value;
 }
