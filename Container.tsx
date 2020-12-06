@@ -10,6 +10,8 @@ interface ContainerProps
     marginVertical?:number;
     noFlex?:boolean;
     safeArea?:boolean;
+    safeAreaTop?:boolean,
+    safeAreaBottom?:boolean,
     style?: StyleProp<ViewStyle>;
     innerStyle?: StyleProp<ViewStyle>;
     alignment?: FlexAlignType;
@@ -25,6 +27,8 @@ export default function Container({
     noFlex,
     style,
     safeArea,
+    safeAreaTop,
+    safeAreaBottom,
     innerStyle,
     alignment='center',
     avoidKeyboard,
@@ -38,8 +42,8 @@ export default function Container({
             flex:noFlex?undefined:1,
             marginHorizontal:margin?margin:undefined,
             alignItems:alignment,
-            paddingTop:safeArea?top:undefined,
-            paddingBottom:safeArea?bottom:undefined
+            paddingTop:(safeArea || safeAreaTop)?top:undefined,
+            paddingBottom:(safeArea || safeAreaBottom)?bottom:undefined
         },style]}>
             <View style={[{
                 flex:noFlex?undefined:1,
