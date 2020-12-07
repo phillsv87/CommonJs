@@ -1,7 +1,15 @@
-import React, { useContext, useEffect, useState, useLayoutEffect } from 'react';
+import React, { useContext, useEffect, useState, useLayoutEffect, DependencyList, useCallback } from 'react';
 import EventEmitterEx, { useUpdateEvent } from './EventEmitterEx-rn';
 import util from './util';
 import { StrDictionary } from './CommonType';
+
+export const beforeHistoryChangeEvt=Symbol();
+
+export interface BeforeHistoryArg
+{
+    node:HistoryNode;
+    cancel:boolean;
+}
 
 export interface HistoryNodeConfig
 {
@@ -62,6 +70,21 @@ export default class History extends EventEmitterEx
         if(this.logChanges){
             console.log('history',this._current);
         }
+    }
+
+    private _beforeIndex=0;
+    private beforeChange(value:HistoryNode):boolean
+    {
+        const i=++this._beforeIndex;
+        const arg:BeforeHistoryArg={
+            node:value,
+            cancel:false
+        };
+        this.emit(beforeHistoryChangeEvt,arg);
+        if(i!==this._beforeIndex){
+            return false;
+        }
+        return !arg.cancel;
     }
 
     public get canGoBack():boolean{
@@ -126,11 +149,7 @@ export default class History extends EventEmitterEx
         if(c.path===path && util.areEqualShallow(c.data,data)){
             return null;
         }
-
-        if(c.index!=this.stack.length-1){
-            this.stack.splice(c.index+1,this.stack.length);
-        }
-        this.setCurrent({
+        const node:HistoryNode={
             path,
             data,
             attachedData:{},
@@ -138,7 +157,15 @@ export default class History extends EventEmitterEx
             id:this.nextNodeId++,
             action:'push',
             config:config||defaultHistoryNodeConfig()
-        });
+        }
+        if(!this.beforeChange(node)){
+            return null;
+        }
+
+        if(c.index!=this.stack.length-1){
+            this.stack.splice(c.index+1,this.stack.length);
+        }
+        this.setCurrent(node);
         this.stack.push(this.current);
         this.emit('history',this);
         return c;
@@ -176,7 +203,12 @@ export default class History extends EventEmitterEx
             return null;
         }
 
-        this.setCurrent(this.stack[i]);
+        const node=this.stack[i];
+        if(!this.beforeChange(node)){
+            return null;
+        }
+
+        this.setCurrent(node);
         this.current.action='pop';
         this.emit('history',this);
         return c;
@@ -192,8 +224,7 @@ export default class History extends EventEmitterEx
             }
             return;
         }
-        this.stack.splice(0,this.stack.length);
-        this.setCurrent({
+        const node:HistoryNode={
             path:path,
             index:0,
             data:null,
@@ -201,7 +232,12 @@ export default class History extends EventEmitterEx
             id:this.nextNodeId++,
             action:'pop',
             config:config||defaultHistoryNodeConfig()
-        });
+        }
+        if(!this.beforeChange(node)){
+            return;
+        }
+        this.stack.splice(0,this.stack.length);
+        this.setCurrent(node);
         this.stack.push(this.current);
         this.emit('history',this);
     }
@@ -261,7 +297,12 @@ export default class History extends EventEmitterEx
             return null;
         }
 
-        this.setCurrent(this.stack[i]);
+        const node=this.stack[i];
+        if(!this.beforeChange(node)){
+            return null;
+        }
+
+        this.setCurrent(node);
         this.current.action='push';
         this.emit('history',this);
         return c;
@@ -343,4 +384,19 @@ export function useHistoryNode():HistoryNode|null
 {
     const node = useContext(HistoryNodeContext) as HistoryNode;
     return node||null;
+}
+
+export function useBeforeHistoryChange(callback:(arg:BeforeHistoryArg)=>void,deps:DependencyList)
+{
+    
+    const cb=useCallback(callback,deps);// eslint-disable-line
+
+    const history=useHistory();
+
+    useEffect(()=>{
+        history.addListener(beforeHistoryChangeEvt,cb);
+        return ()=>{
+            history.removeListener(beforeHistoryChangeEvt,cb);
+        }
+    },[cb,history])
 }
