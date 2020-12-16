@@ -168,7 +168,7 @@ export class AuthManager extends EventEmitterEx
     /**
      * Attempts the sign in
      */
-    async signInAsync(request:SignInRequest):Promise<SignInOrError>
+    async signInAsync(request:SignInRequest,handle:boolean=true):Promise<SignInOrError>
     {
         let signIn:SignIn|null;
         try{
@@ -191,7 +191,9 @@ export class AuthManager extends EventEmitterEx
                 error:ex.message
             };
         }
-        signIn = await this.handleSignInAsync(signIn);
+        if(handle){
+            signIn = await this.handleSignInAsync(signIn);
+        }
         return {
             signIn,
             error:null

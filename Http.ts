@@ -11,6 +11,13 @@ export const httpUiRequest=Symbol();
 
 export const httpErrorEvent=Symbol();
 
+export interface HttpRequestConfig
+{
+    emitErrors?:boolean;
+    authToken?:string;
+    authHeaderParam?:string;
+}
+
 export interface HttpError
 {
     method:string;
@@ -101,11 +108,11 @@ export default class Http extends EventEmitterEx
 
     async getSingleAsync<T>(path:string,data:any=null):Promise<T>
     {
-        const r=await this.callAsync('GET',path,data);
+        const r=await this.callAsync<T[]>('GET',path,data);
         if(Array.isArray(r)){
             return r[0];
         }else{
-            return r;
+            return r as any;
         }
     }
 
@@ -136,7 +143,7 @@ export default class Http extends EventEmitterEx
         });
     }
 
-    async callAsync(method:string,path:string,data:any,configRequest:any=null,emitErrors:boolean=true):Promise<any>
+    async callAsync<T>(method:string,path:string,data:any,configRequest?:((request:any)=>void)|null,config?:HttpRequestConfig):Promise<T>
     {
         const oPath=path;
         const isRel=path.indexOf('http:')===-1 && path.indexOf('https:')===-1;
@@ -161,14 +168,24 @@ export default class Http extends EventEmitterEx
             }
             
         }
-        if(this._authToken && this._authHeaderParam && isRel){
+        let authToken:string|null=null;
+        let authHeaderParam:string|null=null;
+        if(config?.authToken){
+            authToken=config.authToken;
+            authHeaderParam=config.authHeaderParam||this._authHeaderParam||simpleAuthHeaderParam;
+        }else{
+            authToken=this._authToken;
+            authHeaderParam=this._authHeaderParam;
+        }
+
+        if(authToken && authHeaderParam && (isRel || config?.authToken)){
             if(method==='GET' || method==='DELETE'){
                 if(!request.params){
                     request.params={}
                 }
-                request.headers[this._authHeaderParam]=this._authToken;
+                request.headers[authHeaderParam]=authToken;
             }else{
-                request.headers[this._authHeaderParam]=this._authToken;
+                request.headers[authHeaderParam]=authToken;
             }
         }
 
@@ -199,7 +216,7 @@ export default class Http extends EventEmitterEx
                 ex.httpError=ex.response.data;
             }
 
-            if(emitErrors){
+            if(config?.emitErrors!==false){
                 const errorResponse:AxiosResponse<any>=ex.response;
 
                 const httpError:HttpError={
