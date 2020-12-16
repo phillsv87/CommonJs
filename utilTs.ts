@@ -25,18 +25,28 @@ export interface Point{
 
 export function delayAsync(delayMs:number):Promise<void>
 {
+    delayMs=Math.round(delayMs);
     return new Promise((r)=>{
-        setTimeout(()=>{
+        if(delayMs<=0){
             r();
-        },delayMs);
+        }else{
+            setTimeout(()=>{
+                r();
+            },delayMs);
+        }
     });
 }
 
 export function delayWithValueAsync<T>(delayMs:number,value:T):Promise<T>{
+    delayMs=Math.round(delayMs);
     return new Promise<T>((r)=>{
-        setTimeout(()=>{
+        if(delayMs<=0){
             r(value);
-        },delayMs);
+        }else{
+            setTimeout(()=>{
+                r(value);
+            },delayMs);
+        }
     });
 }
 
