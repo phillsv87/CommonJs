@@ -1,3 +1,5 @@
+import { aryRemoveItem } from "./commonUtils";
+
 /**
  * When returned from an action of a stack item it causes the flow to end.
  */
@@ -326,7 +328,21 @@ export default class Flow<TState,TTag>
         }
     }
 
+    public addListener(listener:FlowRenderListener)
+    {
+        if(!listener){
+            return;
+        }
+        this._listeners.push(listener);
+    }
 
+    public removeListener(listener:FlowRenderListener)
+    {
+        if(!listener){
+            return false;
+        }
+        return aryRemoveItem(this._listeners,listener);
+    }
 
     private _lock(actionName:string,action:()=>void|Promise<any>,ensureStarted:boolean=false)
     {
