@@ -19,6 +19,11 @@ export interface StackItem<TState,TTag>
     tag?:TTag;
 
     /**
+     * If returns false the flow will move to the next item.
+     */
+    filter?:(state:TState)=>boolean;
+
+    /**
      * If a tag is returned the stack pointer moves to the next stack item with a matching tag. If
      * not matching tag is found before reaching the end of the stack then the stack is searched
      * in reverse order starting from the position of this item.
@@ -540,6 +545,10 @@ export default class Flow<TState,TTag>
             if(!item){
                 this._end();
                 return;
+            }
+
+            if(item.filter && !item.filter(this.state)){
+                continue;
             }
 
             if(item.action){
