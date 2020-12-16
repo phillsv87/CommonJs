@@ -36,7 +36,6 @@ export default function Collapsible({
     const [height,setHeight]=useState(0);
     const tw=useTween(collapsed?0:height);
     const onLayout=useCallback((e:LayoutChangeEvent)=>{
-        console.log(e.nativeEvent.layout.height)
         setHeight(e.nativeEvent.layout.height);
     },[]);
 
