@@ -39,6 +39,8 @@ export interface FlowUIProps<TState,TTag>
     transition?:FlowReactTransition;
     spacing?:number;
     onEnd?:()=>void;
+    flowRef?:(flow:Flow<TState,TTag>)=>void;
+    onTagChange?:(tag:TTag|undefined)=>void;
 }
 
 export default function FlowUI<TState,TTag>({
@@ -53,7 +55,9 @@ export default function FlowUI<TState,TTag>({
     screenWrapperRender,
     transition='horizontal',
     spacing=0,
-    onEnd
+    onEnd,
+    flowRef,
+    onTagChange
 }:FlowUIProps<TState,TTag>){
 
     const init=useRef({
@@ -94,6 +98,32 @@ export default function FlowUI<TState,TTag>({
             }
         }
     },[flow,init]);
+
+    useEffect(()=>{
+        if(flowRef){
+            flowRef(flow);
+        }
+    },[flowRef,flow]);
+
+    useEffect(()=>{
+        if(!onTagChange){
+            return;
+        }
+        let tag:TTag|undefined=flow.currentScreen?.item.tag;
+        const listener=()=>{
+            const screen=flow.currentScreen;
+            if(!screen || screen.item.tag===tag){
+                return;
+            }
+            tag=screen.item.tag;
+            onTagChange(tag);
+        }
+        flow.addListener(listener);
+        onTagChange(tag);
+        return ()=>{
+            flow.removeListener(listener);
+        }
+    },[onTagChange,flow]);
 
     const [size,setSize]=useState(defaultSize);
     const onLayout=useCallback((e:LayoutChangeEvent)=>{
