@@ -8,17 +8,19 @@ interface KeyboardHeightProps
     enabled?:boolean;
     style?: StyleProp<ViewStyle>;
     children?:any;
+    extraSpace?:number;
 }
 
 export default function KeyboardHeight({
     enabled=true,
     style,
-    children
+    children,
+    extraSpace=0
 }:KeyboardHeightProps){
 
     const height=useKeyboardHeight();
 
-    const tw=useTween(enabled?height:0);
+    const tw=useTween(enabled?height?height+extraSpace:0:0);
 
     return (
         <Animated.View style={[
