@@ -57,6 +57,11 @@ export function serializeWithRefs(obj:any,space:number){
     },space);
 }
 
+export function toJsonPretty(obj:any):string
+{
+    return serializeWithRefs(obj,2);
+}
+
 
 export function getTimeAny(date:any,utc?:boolean):number
 {
