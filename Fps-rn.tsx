@@ -1,21 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ViewStyle, StyleProp, Text, TextStyle } from 'react-native';
+import { StyleProp, Text, TextStyle } from 'react-native';
+
+const defaultUpdateInterval=400;
 
 interface FpsProps
 {
-    style?:StyleProp<ViewStyle>;
-    textStyle?: StyleProp<TextStyle>;
+    style?: StyleProp<TextStyle>;
     suffix?:string;
     updateInterval?:number;
 }
 
 export default function Fps({
     style,
-    textStyle,
     suffix=' fps',
-    updateInterval=400
+    updateInterval=defaultUpdateInterval
 }:FpsProps){
 
+    const fps=useFps(updateInterval);
+
+    return (
+        <Text style={style}>{fps+suffix}</Text>
+    )
+
+}
+
+export function useFps(updateInterval:number=defaultUpdateInterval)
+{
     const [fps,setFps]=useState(0);
 
     useEffect(()=>{
@@ -42,22 +52,5 @@ export default function Fps({
         }
         
     },[updateInterval]);
-
-    return (
-        <View style={[styles.root,style]} pointerEvents="none">
-            <Text style={[styles.text,textStyle]}>{fps+suffix}</Text>
-        </View>
-    )
-
+    return fps;
 }
-
-const styles=StyleSheet.create({
-    root:{
-        backgroundColor:'#00000077',
-        borderRadius:10,
-        padding:10
-    },
-    text:{
-        color:'#ffffff'
-    }
-});
