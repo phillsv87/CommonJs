@@ -9,11 +9,14 @@ const breakpoints={
     xl:1200
 }
 
+export const shortHeight=600;
+
 export interface ViewportInfo
 {
     breakpoint:Breakpoint;
     size:ScaledSize;
     narrow:boolean;
+    short:boolean;
 }
 
 export function getBreakpointForWidth(width:number)
@@ -55,7 +58,8 @@ export function useViewport(dim:'window'|'screen'='window'):ViewportInfo
     return {
         breakpoint,
         size,
-        narrow:breakpoint==='sm'
+        narrow:breakpoint==='sm',
+        short:size.height<=shortHeight
     }
 }
 
