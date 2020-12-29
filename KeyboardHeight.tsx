@@ -9,16 +9,18 @@ interface KeyboardHeightProps
     style?: StyleProp<ViewStyle>;
     children?:any;
     extraSpace?:number;
+    minHeight?:number;
 }
 
 export default function KeyboardHeight({
     enabled=true,
     style,
     children,
-    extraSpace=0
+    extraSpace=0,
+    minHeight=0
 }:KeyboardHeightProps){
 
-    const height=useKeyboardHeight();
+    const height=Math.max(useKeyboardHeight(),minHeight);
 
     const tw=useTween(enabled?height?height+extraSpace:0:0);
 
