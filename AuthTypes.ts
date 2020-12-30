@@ -42,6 +42,8 @@ export interface SignIn
 
     Username: string|null;
 
+    DisplayName: string|null;
+
     FirstName: string|null;
 
     LastName: string|null;
@@ -63,6 +65,8 @@ export interface SignInRequest extends SignInIdentity
 export interface UserDataRequest
 {
     Username?: string;
+
+    DisplayName?: string;
 
     FirstName?: string;
 
