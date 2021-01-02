@@ -102,8 +102,8 @@ export function useUpdateProperty<T extends EventEmitter>(
 
 }
 
-export function useProperty<T extends EventEmitter,V>(emitter:T,propertyName:keyof T,getValue:(emitter:T)=>V):V
+export function useProperty<T extends EventEmitter,K extends keyof T>(emitter:T,propertyName:K)
 {
     useUpdateEvent(emitter,propertyName as string);
-    return getValue(emitter);
+    return emitter[propertyName];
 }
