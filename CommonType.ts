@@ -25,6 +25,14 @@ export interface LayoutRect
     height:number;
 }
 
+export interface RectSides
+{
+    left:number;
+    top:number;
+    right:number;
+    bottom:number;
+}
+
 export interface Size
 {
     width:number;
