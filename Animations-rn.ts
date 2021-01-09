@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Animated } from 'react-native';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Animated, Dimensions, Keyboard, KeyboardEvent } from 'react-native';
 import { useMerged } from './Hooks';
 
 export interface AnimationHandel
@@ -118,6 +118,65 @@ export function useTween(value:number,config?:AnimationConfig):AnimationHandel
     useEffect(()=>{
         an.play(value);
     },[value,an])
+
+    return an;
+}
+
+export interface KeyboardAnimationConfig
+{
+    invert?:boolean;
+    showOffset?:number;
+    hideOffset?:number;
+    duration?:number;
+    useNativeDriver?:boolean;
+}
+
+const defaultKeyboardAnimationConfig:KeyboardAnimationConfig={
+    invert:false,
+    showOffset:0,
+    hideOffset:0,
+    duration:300,
+    useNativeDriver:true
+}
+
+export function useAnimatedKeyboardHeight(config?:KeyboardAnimationConfig):Animated.Value
+{
+    const an=useRef(new Animated.Value(0)).current;
+    const _config=useMerged(()=>{
+        if(!config){
+            return defaultKeyboardAnimationConfig;
+        }else{
+            return {...defaultKeyboardAnimationConfig,...config};
+        }
+    },[config]);
+
+    useEffect(()=>{
+
+            const onKeyboardDidShow=(e: KeyboardEvent)=>{
+                const to=(Dimensions.get('window').height-e.endCoordinates.screenY)*(_config.invert?-1:1)+(_config.showOffset||0);
+                Animated.timing(an,{
+                    toValue:to,
+                    duration:_config.duration,
+                    useNativeDriver:_config.useNativeDriver
+                }).start();
+            }
+
+            const onKeyboardDidHide=()=>{
+                Animated.timing(an,{
+                    toValue:_config.hideOffset||0,
+                    duration:_config.duration,
+                    useNativeDriver:_config.useNativeDriver
+                }).start();
+            }
+
+            Keyboard.addListener('keyboardDidShow',onKeyboardDidShow);
+            Keyboard.addListener('keyboardWillHide',onKeyboardDidHide);
+            return ()=>{
+                Keyboard.removeListener('keyboardDidShow', onKeyboardDidShow);
+                Keyboard.removeListener('keyboardWillHide', onKeyboardDidHide);
+            }
+
+    },[an,_config]);
 
     return an;
 }
