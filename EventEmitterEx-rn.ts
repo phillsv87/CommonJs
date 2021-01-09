@@ -1,6 +1,8 @@
 import EventEmitter from "eventemitter3";
 import { useState, useLayoutEffect, useCallback } from "react";
 
+export const PropertyChangedEvt=Symbol();
+
 export default class EventEmitterEx extends EventEmitter
 {
 
@@ -18,9 +20,13 @@ export default class EventEmitterEx extends EventEmitter
 
     }
 
-    emitProperty<T, K extends keyof T>(self:T,propertyName:K)
+    emitProperty<T, K extends keyof T>(self:T,propertyName:K,evtType?:symbol|string)
     {
-        this.emit(propertyName as string);
+        if(evtType){
+            this.emit(evtType,propertyName as string);
+        }else{
+            this.emit(propertyName as string);
+        }
     }
 
 }
