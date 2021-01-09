@@ -1,4 +1,4 @@
-import { GestureResponderEvent, Keyboard, KeyboardEvent, Dimensions } from "react-native";
+import { GestureResponderEvent, Keyboard, KeyboardEvent, Dimensions, LayoutRectangle, LayoutChangeEvent } from "react-native";
 import { useCallback, useState, useEffect, useLayoutEffect } from "react";
 import History, { HistoryNodeConfig } from "./History-rn";
 
@@ -104,4 +104,14 @@ export function usePersistentKeyboardHeight():[number,boolean,number]
     },[height]);
 
     return [pHeight,height?true:false,height];
+}
+
+export function useViewLayout():[LayoutRectangle,(event: LayoutChangeEvent) => void]
+{
+    const [layout,setLayout]=useState<LayoutRectangle>({x:0,y:0,width:0,height:0});
+    const update=useCallback((event: LayoutChangeEvent)=>{
+        setLayout({...event.nativeEvent.layout});
+    },[]);
+    return [layout,update];
+
 }
