@@ -92,7 +92,7 @@ export function parseColorOption(value?:string|null):ColorOption{
     }
 }
 
-interface ColorPickerProps
+export interface ColorPickerProps
 {
     value?:string;
     pallet?:string[];
