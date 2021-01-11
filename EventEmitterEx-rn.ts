@@ -113,3 +113,19 @@ export function useProperty<T extends EventEmitter,K extends keyof T>(emitter:T,
     useUpdateEvent(emitter,propertyName as string);
     return emitter[propertyName];
 }
+
+export function usePropertyEvt<T extends EventEmitter,K extends keyof T>(emitter:T,propertyName:K,enabled:boolean=true)
+{
+    const [,setIndex]=useState<number>(0);
+
+    const increment=useCallback((p)=>{
+        if(propertyName===p){
+            setIndex(v=>v+1);
+        }
+    },[propertyName]);
+
+    useEvent(emitter,PropertyChangedEvt,increment,enabled);
+
+    return emitter[propertyName];
+
+}
