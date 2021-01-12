@@ -377,3 +377,11 @@ export function cloneObj<T>(obj:T, maxDepth=20):T
     
 
 }
+
+export function objHasValues(obj:any)
+{
+    if(!obj){
+        return false;
+    }
+    return Object.keys(obj).length!==0;
+}
