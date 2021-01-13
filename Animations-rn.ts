@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, DependencyList } from 'react';
 import { Animated, Dimensions, Keyboard, KeyboardEvent } from 'react-native';
 import { useMerged } from './Hooks';
+
+export type AnimationEndCallback=(value:number)=>void;
 
 export interface AnimationHandel
 {
@@ -25,7 +27,14 @@ const defaultAnimationConfig:AnimationConfig={
     useNativeDriver:false
 }
 
-export function useAnimation(initValue:number,config?:AnimationConfig):AnimationHandel
+const defaultOnEnd:AnimationEndCallback=()=>{/**/};
+const defaultDeps:DependencyList=[];
+
+export function useAnimation(
+    initValue:number,
+    config?:AnimationConfig,
+    onEnd?:AnimationEndCallback,
+    onEndDeps?:DependencyList):AnimationHandel
 {
     const _config=useMerged(()=>{
         if(!config){
@@ -34,6 +43,10 @@ export function useAnimation(initValue:number,config?:AnimationConfig):Animation
             return {...defaultAnimationConfig,...config};
         }
     },[config]);
+
+    const cb=useCallback(onEnd||defaultOnEnd,onEndDeps||defaultDeps);// eslint-disable-line
+    const cbRef=useRef(cb);
+    cbRef.current=cb;
     
 
     const [display,setDisplay]=useState<'flex'|'none'>(_config.useDisplay?(initValue?'flex':'none'):'flex');
@@ -67,6 +80,9 @@ export function useAnimation(initValue:number,config?:AnimationConfig):Animation
                 if(to===0 && active && _config.useDisplay){
                     setDisplay('none');
                 }
+                if(active){
+                    cbRef.current(to);
+                }
             });
         }
 
@@ -76,7 +92,7 @@ export function useAnimation(initValue:number,config?:AnimationConfig):Animation
                 t.stop();
             }
         }
-    },[to,_config,value]);
+    },[to,_config,value,cbRef]);
 
     const map=useCallback((from:any,to:any)=>{
         return value.interpolate({
@@ -110,9 +126,13 @@ export function useAnimation(initValue:number,config?:AnimationConfig):Animation
 }
 
 
-export function useTween(value:number,config?:AnimationConfig):AnimationHandel
+export function useTween(
+    value:number,
+    config?:AnimationConfig,
+    onEnd?:AnimationEndCallback,
+    onEndDeps?:DependencyList):AnimationHandel
 {
-    const an=useAnimation(value,config);
+    const an=useAnimation(value,config,onEnd,onEndDeps);
 
 
     useEffect(()=>{
