@@ -30,10 +30,10 @@ export default function FlagsSelector<T>({
             {values.map(v=>(!v.value && skipEmptyValue)?null:(
                 <View key={v.value} style={[styles.item,itemStyle]}>
                     <Text style={textStyle}>{v.name}</Text>
-                    <Switch  value={value===undefined?false:((value as any)&v.value?true:false)} onValueChange={(isOn)=>{
+                    <Switch value={value===undefined?false:((value as any)&v.value?true:false)} onValueChange={(isOn)=>{
                       if(onValueChange){
                           const nv=((value||0) as any);
-                          onValueChange((isOn?nv|v.value:nv^v.value) as any)
+                          onValueChange((isOn?nv|v.value:nv&~v.value) as any)
                       }  
                     }}/>
                 </View>
