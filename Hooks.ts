@@ -188,3 +188,33 @@ export function useLock(name:string, active:boolean=true ,delay:number=0):LockIn
     return loc;
 
 }
+
+export function useDelayValue<T>(currentValue:T,delayedValue:T,delayMs:number):T
+{
+    if(delayMs<1){
+        delayMs=1;
+    }
+
+    const [value,setValue]=useState(currentValue);
+    useEffect(()=>{
+        let m=true;
+
+        if(currentValue===delayedValue){
+            setTimeout(()=>{
+                if(m){
+                    setValue(currentValue);
+                }
+            },delayMs)
+        }else{
+            setValue(currentValue);
+        }
+
+        return ()=>{m=false}
+    },[currentValue,delayedValue,delayMs]);
+
+    return value;
+}
+
+export function useDelayFalse(currentValue:boolean,delayMs:number){
+    return useDelayValue(currentValue,false,delayMs);
+}
