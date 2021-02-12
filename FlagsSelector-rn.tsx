@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle, TextStyle, Text } from 'react-native';
-import Switch from './TmpSwitch-rn';
+import { View, StyleSheet, StyleProp, ViewStyle, TextStyle, Text, Switch } from 'react-native';
 import { enumToArray } from './utilTs';
 
 interface FlagsSelectorProps<T>
