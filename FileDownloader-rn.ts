@@ -21,6 +21,7 @@
 import RNBackgroundDownloader, { DownloadTask, DownloadOption } from 'react-native-background-downloader';
 import EventEmitterEx from './EventEmitterEx-rn';
 import { StrDictionary } from './CommonType';
+import fs from 'react-native-fs';
 
 export class Download extends EventEmitterEx
 {
@@ -170,12 +171,30 @@ export class Download extends EventEmitterEx
 
 const activeDownloads:StrDictionary<Download>={};
 
+export const libPrefix='@lib/';
+
+export function getFullPath(path:string){
+    if(path.startsWith(libPrefix)){
+        path=fs.LibraryDirectoryPath+'/'+path.substr(libPrefix.length);
+    }
+    return path;
+}
+
+export async function fileExistsAsync(path:string){
+    path=getFullPath(path);
+    const s=await fs.stat(path);
+    return s?s.isFile:false;
+}
+
 export function downloadAsync(
     url:string,
     dest:string,
     headers?:StrDictionary<string>|null,
     percentHandler?:(percent:number)=>void):Promise<Download>
 {
+
+    dest=getFullPath(dest);
+
     const existing=activeDownloads[url];
     let download:Download;
 
