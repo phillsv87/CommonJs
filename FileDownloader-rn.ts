@@ -180,10 +180,8 @@ export function getFullPath(path:string){
     return path;
 }
 
-export async function fileExistsAsync(path:string){
-    path=getFullPath(path);
-    const s=await fs.stat(path);
-    return s?s.isFile:false;
+export function fileExistsAsync(path:string):Promise<boolean>{
+    return fs.exists(getFullPath(path));
 }
 
 export function downloadAsync(
