@@ -1,5 +1,5 @@
-import { GestureResponderEvent, Keyboard, KeyboardEvent, Dimensions, LayoutRectangle, LayoutChangeEvent } from "react-native";
-import { useCallback, useState, useEffect, useLayoutEffect } from "react";
+import { GestureResponderEvent, Keyboard, KeyboardEvent, Dimensions, LayoutRectangle, LayoutChangeEvent, Animated, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import { useCallback, useState, useEffect, useLayoutEffect, useMemo } from "react";
 import History, { HistoryNodeConfig } from "./History-rn";
 
 export const defaultDebugWidth=100;
@@ -114,4 +114,52 @@ export function useViewLayout():[LayoutRectangle,(event: LayoutChangeEvent) => v
     },[]);
     return [layout,update];
 
+}
+
+export function useScrollShift(max:number=200,min:number=0,invert:boolean=true):
+    [
+        // Scroll Listener
+        (e:NativeSyntheticEvent<NativeScrollEvent>)=>void,
+        
+        // Animates with the up and down scrolling
+        Animated.Value,
+        
+        // Animates from 0 to 1 as the users scrolls for an offset of zero to an offset equal to max
+        Animated.Value
+    ]
+{
+    
+    const ctx=useMemo(()=>({
+        lastY:null as number|null,
+        value:0,
+        an:new Animated.Value(0),
+        an2:new Animated.Value(0),
+    }),[])
+
+    const onScroll=useCallback((e:NativeSyntheticEvent<NativeScrollEvent>)=>{
+        
+        const y=Math.max(0,e.nativeEvent.contentOffset.y);
+
+        if(ctx.lastY===null){
+            ctx.lastY=y;
+            return;
+        }
+
+        const diff=y-ctx.lastY;
+        ctx.lastY=y;
+
+        ctx.value+=diff;
+        if(ctx.value>max){
+            ctx.value=max;
+        }else if(ctx.value<min){
+            ctx.value=min;
+        }
+
+        ctx.an.setValue(invert?-ctx.value:ctx.value);
+
+        ctx.an2.setValue(Math.min(y,max)/max);
+
+    },[ctx,max,min,invert]);
+
+    return [onScroll,ctx.an,ctx.an2];
 }
