@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
 import { HistoryNode, useHistory, HistoryNodeContext } from './History-rn';
 import { useUpdateEvent } from './EventEmitterEx-rn';
 import EdgeSwipe from './EdgeSwipe-rn';
 import util from './util';
 
+let nextRouteId=0;
 
 const defaultAnimationValue:Animated.Value=new Animated.Value(0);
 
@@ -23,9 +24,11 @@ export interface ViewMatch
 
 export interface ViewRoute
 {
+    id?:string;
     path?:string;
     match?:RegExp;
     tabGroup?:string;
+    alwaysMounted?:boolean;
     postRender?:(view:any,match:ViewMatch, direction:'in'|'out', animation:Animated.Value)=>any;
     render:(match:ViewMatch, direction:'in'|'out', animation:Animated.Value)=>any;
 }
@@ -102,6 +105,8 @@ export interface RouteSet
 {
     id:number;
     node:HistoryNode|null;
+    inKey:string;
+    outKey:string;
     inRoute:ViewRoute|null;
     inMatch:ViewMatch|null;
     inView:any;
@@ -122,7 +127,9 @@ const defaultRouteSet:RouteSet={
     outMatch:null,
     outView:null,
     animation:defaultAnimationValue,
-    reverse:false
+    reverse:false,
+    inKey:'defaultIn_',
+    outKey:'defaultOut_'
 }
 
 interface NavigationProps
@@ -151,6 +158,8 @@ export function Navigation({
     const [routeSet,setRouteSet]=useState<RouteSet>(defaultRouteSet);
     const [endedRoute,setEndedRoute]=useState<number>(-1);
 
+    const routeCache=useRef<{[id:string]:any}>({});
+
     useEffect(()=>{
 
         if(current===routeSet.node){
@@ -166,8 +175,12 @@ export function Navigation({
         const to=rev?0:1;
         const from=rev?1:0;
         const animation=new Animated.Value(from);
+        const id=nextRouteSetId++;
 
         const inRoute=(util.first(routes,(r:ViewRoute)=>isMatch(current,r)) || routes[0]) as ViewRoute;
+        if(inRoute && !inRoute.id){
+            inRoute.id=(nextRouteId++)+'_';
+        }
         const inMatch=inRoute?getMatch(current,inRoute):null;
         let inView=(
             <HistoryNodeContext.Provider value={current}>
@@ -181,6 +194,9 @@ export function Navigation({
         }
 
         const outRoute=routeSet.inRoute;
+        if(outRoute && !outRoute.id){
+            outRoute.id=(nextRouteId++)+'_';
+        }
         const outMatch=outRoute?getMatch(previous,outRoute):null;
         let outView=(
             <HistoryNodeContext.Provider value={previous}>
@@ -191,7 +207,19 @@ export function Navigation({
             outView=outRoute.postRender(outView,outMatch,rev?'in':'out',animation);
         }
 
-        const id=nextRouteSetId++;
+        const inKey=getRouteKey(id,inRoute);
+        const outKey=getRouteKey(previous?.id,outRoute);
+        inView=<ViewWrapper key={inKey}>{inView}</ViewWrapper>;
+        outView=<ViewWrapper key={outKey}>{outView}</ViewWrapper>;
+
+        if(inRoute.alwaysMounted && inRoute.id){
+            routeCache.current[inRoute.id]=inView;
+        }
+        if(outRoute?.alwaysMounted && outRoute.id){
+            routeCache.current[outRoute.id]=outView;
+        }
+
+        
 
         const newSet:RouteSet={
             id,
@@ -202,6 +230,8 @@ export function Navigation({
             outRoute,
             outMatch,
             outView,
+            inKey,
+            outKey,
             animation,
             reverse:!routeSet.reverse
         };
@@ -226,13 +256,38 @@ export function Navigation({
         history.swipe(type);
     },[history]);
 
-    const outView=routeSet.id===endedRoute?null:routeSet.outView;
+    const outView=routeSet.outRoute?.alwaysMounted?null:routeSet.id===endedRoute?null:routeSet.outView;
+    const inView=routeSet.inRoute?.alwaysMounted?null:routeSet.inView;
+
+    const renderList:any[]=[
+        routeSet.reverse?inView:outView,
+        routeSet.reverse?outView:inView
+    ]
     
+    for(const e in routeCache.current){
+        renderList.push(routeCache.current[e]);
+    }
 
     return (
         <EdgeSwipe onSwipe={onSwipe} disabled={disableGestureRefs>0}>
-            {routeSet.reverse?routeSet.inView:outView}
-            {routeSet.reverse?outView:routeSet.inView}
+            {renderList}
         </EdgeSwipe>
     )
+}
+
+interface ViewWrapperProps
+{
+    children:any;
+}
+function ViewWrapper({children}:ViewWrapperProps)
+{
+    return children;
+}
+
+function getRouteKey(routeSetId:number|undefined,route:ViewRoute|null)
+{
+    if(route?.alwaysMounted && route.id){
+        return route.id;
+    }
+    return routeSetId+':'+(route?.id+'_');
 }
