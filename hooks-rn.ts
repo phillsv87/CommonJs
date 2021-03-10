@@ -116,7 +116,7 @@ export function useViewLayout():[LayoutRectangle,(event: LayoutChangeEvent) => v
 
 }
 
-export function useScrollShift(max:number=200,min:number=0,invert:boolean=true):
+export function useScrollShift(max:number=200,min:number=0,an2Max:number|undefined=undefined,invert:boolean=true):
     [
         // Scroll Listener
         (e:NativeSyntheticEvent<NativeScrollEvent>)=>void,
@@ -157,9 +157,10 @@ export function useScrollShift(max:number=200,min:number=0,invert:boolean=true):
 
         ctx.an.setValue(invert?-ctx.value:ctx.value);
 
-        ctx.an2.setValue(Math.min(y,max)/max);
+        const a2max=an2Max===undefined?max:an2Max;
+        ctx.an2.setValue(Math.min(y,a2max)/a2max);
 
-    },[ctx,max,min,invert]);
+    },[ctx,max,min,invert,an2Max]);
 
     return [onScroll,ctx.an,ctx.an2];
 }

@@ -9,6 +9,7 @@ interface ScrollViewWithHidingHeaderProps extends ScrollViewProps
     headerBg?:any;
     noFlex?:boolean;
     shiftMargin?:number;
+    an2Max?:number,
     wrapperStyle?:StyleProp<ViewStyle>;
     headerStyle?:StyleProp<ViewStyle>;
     bgStyle?:StyleProp<ViewStyle>;
@@ -24,6 +25,7 @@ export default function ScrollViewWithHidingHeader({
     topSafeArea=true,
     noFlex,
     shiftMargin=80,
+    an2Max,
     wrapperStyle,
     children,
     ...props
@@ -36,7 +38,7 @@ export default function ScrollViewWithHidingHeader({
         setHeaderHeight(e.nativeEvent.layout.height);
     },[]);
 
-    const [onScroll,shift,bgOpacity]=useScrollShift(headerHeight+shiftMargin);
+    const [onScroll,shift,bgOpacity]=useScrollShift(headerHeight+shiftMargin,0,an2Max);
 
     return (
         <View style={[!noFlex&&styles.flex,wrapperStyle]}>
