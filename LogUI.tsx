@@ -179,7 +179,7 @@ function LogUIItem({
                     },textStyle]}
                     selectable={true}
                     onPress={pause}>
-                    {entry.message}
+                    {entry?.message+''}
                 </Text>
                 <TouchableOpacity onPress={()=>setCloseNow(true)} style={{padding:contentMargin}}>
                     <RnIcon icon={closeIcon} color={textColor} size={20} />
