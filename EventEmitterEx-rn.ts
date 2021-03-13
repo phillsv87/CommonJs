@@ -62,10 +62,16 @@ export function useEvent(
     enabled:boolean=true)
 {
     useLayoutEffect(()=>{
+        let m=true;
         if(emitter && enabled){
-            emitter.on(event,listener);
+            emitter.on(event,(...args:any[])=>{
+                if(m){
+                    listener.call(undefined,...args);
+                }
+            });
         }
         return ()=>{
+            m=false;
             if(emitter && enabled){
                 emitter.off(event,listener);
             }
