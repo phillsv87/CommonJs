@@ -207,7 +207,7 @@ export function Navigation({
             outView=outRoute.postRender(outView,outMatch,rev?'in':'out',animation);
         }
 
-        const inKey=getRouteKey(id,inRoute);
+        const inKey=getRouteKey(current.id,inRoute);
         const outKey=getRouteKey(previous?.id,outRoute);
         inView=<ViewWrapper key={inKey}>{inView}</ViewWrapper>;
         outView=<ViewWrapper key={outKey}>{outView}</ViewWrapper>;
