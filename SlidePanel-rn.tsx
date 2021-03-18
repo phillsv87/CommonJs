@@ -26,7 +26,7 @@ export default function SlidePanel({
         animationConfig={useNativeDriver:true,useDisplay:true}
     }
 
-    const childCount=React.Children.count(children);
+    const childCount=React.Children.count(children)||1;
     const [size,setSize]=useState({w:0,h:0});
     const onLayout=useCallback((e:LayoutChangeEvent)=>{
         setSize({w:e.nativeEvent.layout.width,h:e.nativeEvent.layout.height});
