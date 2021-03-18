@@ -25,6 +25,8 @@ export interface ModalProps
     fill?:boolean;
     children:any;
     containerStyle?:StyleProp<ViewStyle>;
+    keepMounted?:boolean;
+
 }
 
 export default function Modal({
@@ -36,8 +38,13 @@ export default function Modal({
     fill=true,
     children,
     containerStyle,
-    closeRequested
+    closeRequested,
+    keepMounted
 }:ModalProps){
+
+    if(hideTimeout<transitionDuration+50){
+        hideTimeout=transitionDuration+50;
+    }
 
     const {width,height}=useDimensions();
 
@@ -71,6 +78,13 @@ export default function Modal({
         }
     },[isOpen,hideTimeout]);
 
+    const [beenVisible,setBeenVisible]=useState(visible);
+    useEffect(()=>{
+        if(visible){
+            setBeenVisible(true);
+        }
+    },[visible]);
+
     let anStyle:any;
     switch(transitionType){
         case 'opacity':
@@ -95,7 +109,7 @@ export default function Modal({
     }
     
 
-    if(!visible){
+    if(!visible && !(beenVisible && keepMounted)){
         return null;
     }
 
