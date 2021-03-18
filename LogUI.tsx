@@ -5,6 +5,8 @@ import { delayAsync } from './utilTs';
 import { useTween } from './Animations-rn';
 import { useSafeArea } from './SafeArea-rn';
 import RnIcon from './RnIcon-rn';
+import TouchFill from '../components/TouchFill';
+import History from './History-rn';
 
 export const defaultLogUiInfoColor='#2b8de0';
 export const defaultLogUiWarnColor='#f4921e';
@@ -36,6 +38,7 @@ interface SharedProps
     closeIcon?:string;
     autoDismiss?:number;
     contentMargin?:number;
+    history?:History;
 
 }
 
@@ -102,6 +105,7 @@ function LogUIItem({
     itemStyle,
     textStyle,
     remove,
+    history,
     infoColor=defaultLogUiInfoColor,
     warnColor=defaultLogUiWarnColor,
     errorColor=defaultLogUiErrorColor,
@@ -162,6 +166,11 @@ function LogUIItem({
         progressTween.value.stopAnimation();
     },[mutable,progressTween]);
 
+    let msg=entry?.message+'';
+    const parts=msg.split('||||');
+    msg=parts[0];
+    const link=parts[1];
+
     return (
         <Animated.View style={[styles.itemContainer,{
             transform:[{translateY:tween.map(-100,top+10)}],
@@ -179,8 +188,9 @@ function LogUIItem({
                     },textStyle]}
                     selectable={true}
                     onPress={pause}>
-                    {entry?.message+''}
+                    {msg}
                 </Text>
+                <TouchFill onPress={()=>{if(link){setCloseNow(true);history?.push(link)}}} />
                 <TouchableOpacity onPress={()=>setCloseNow(true)} style={{padding:contentMargin}}>
                     <RnIcon icon={closeIcon} color={textColor} size={20} />
                 </TouchableOpacity>
