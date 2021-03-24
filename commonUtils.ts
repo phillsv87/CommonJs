@@ -385,3 +385,25 @@ export function objHasValues(obj:any)
     }
     return Object.keys(obj).length!==0;
 }
+
+export function selectChunks<T>(ary:T[],chunkSize:number):T[][]
+{
+    if(!ary || !ary.length){
+        return [];
+    }
+    const chunks:T[][]=[[]];
+    let chunk=chunks[0];
+
+    let c=0;
+    for(const v of ary){
+        if(c>=chunkSize){
+            c=0;
+            chunk=[];
+            chunks.push(chunk);
+        }
+        chunk.push(v);
+        c++;
+    }
+
+    return chunks;
+}
