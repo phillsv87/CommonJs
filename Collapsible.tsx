@@ -6,6 +6,7 @@ export interface CollapsibleProps
 {
     collapsed:boolean;
     changeAfterMs?:number;
+    fade?:boolean;
     style?:StyleProp<ViewStyle>;
     children?:any;
 }
@@ -13,6 +14,7 @@ export interface CollapsibleProps
 export default function Collapsible({
     collapsed:_collapsed,
     changeAfterMs,
+    fade,
     style,
     children
 }:CollapsibleProps){
@@ -34,7 +36,7 @@ export default function Collapsible({
     },[changeAfterMs]);
 
     const [height,setHeight]=useState(0);
-    const tw=useTween(collapsed?0:height);
+    const tw=useTween(collapsed?0:1);
     const onLayout=useCallback((e:LayoutChangeEvent)=>{
         setHeight(e.nativeEvent.layout.height);
     },[]);
@@ -42,7 +44,8 @@ export default function Collapsible({
     return (
         <Animated.View style={[{
             overflow:'hidden',
-            height:tw.value
+            height:tw.map(0,height),
+            opacity:fade?tw.value:1
         },style]}>
             <View style={{position:'absolute',width:'100%'}}>
                 <View onLayout={onLayout}>
