@@ -1,4 +1,4 @@
-import { aryRemoveItem } from "./commonUtils";
+import EventEmitterEx from "./EventEmitterEx-rn";
 
 /**
  * When returned from an action of a stack item it causes the flow to end.
@@ -52,6 +52,16 @@ export interface StackItem<TState,TTag>
      * a promise.
      */
     renderBusy?:(props:ScreenProps<TState,TTag>,flow:Flow<TState,TTag>)=>any;
+
+    /**
+     * If true the item will be skipped when moving backwards through the stack.
+     */
+    skipBack?:boolean;
+
+    /**
+     * If true going back from the item is not allowed
+     */
+    disableBack?:boolean;
 }
 
 export interface ScreenProps<TState,TTag>
@@ -140,6 +150,8 @@ export interface RenderedScreen<TState,TTag>{
      * If true the item is being rendered for a item is busy calling an async callback.
      */
     busy:boolean;
+
+    stackIndex:number;
 }
 
 /**
@@ -253,9 +265,12 @@ export type FlowRenderer=(reason:RenderReason)=>void;
 
 export type FlowRenderListener=(reason:RenderReason)=>void;
 
+export const PostRenderEvt=Symbol();
+export const RenderScreenEvt=Symbol();
+
 let renderedScreenId=0;
 
-export default class Flow<TState,TTag>
+export default class Flow<TState,TTag> extends EventEmitterEx
 {
     private readonly _render:FlowRenderer;
 
@@ -284,8 +299,6 @@ export default class Flow<TState,TTag>
 
     private readonly _stack:StackItem<TState,TTag>[];
 
-    private readonly _listeners:FlowRenderListener[]=[];
-
     private _postRender:RenderReason|null=null;
 
     private _lockCount=0;
@@ -301,6 +314,7 @@ export default class Flow<TState,TTag>
         config:FlowConfig|null,
         stack:StackItem<TState,TTag>[])
     {
+        super();
         this.name=name;
         this._render=render;
         this.state=state;
@@ -328,22 +342,6 @@ export default class Flow<TState,TTag>
         }
     }
 
-    public addListener(listener:FlowRenderListener)
-    {
-        if(!listener){
-            return;
-        }
-        this._listeners.push(listener);
-    }
-
-    public removeListener(listener:FlowRenderListener)
-    {
-        if(!listener){
-            return false;
-        }
-        return aryRemoveItem(this._listeners,listener);
-    }
-
     private _lock(actionName:string,action:()=>void|Promise<any>,ensureStarted:boolean=false)
     {
         try{
@@ -365,7 +363,7 @@ export default class Flow<TState,TTag>
             this._postRender=null;
 
             const r=action() as Promise<any>;
-            if(r && r.then){
+            if(r && (r as any).then){
                 r.catch(err=>{
                     this.log(FlowLogLevel.error,actionName+' failed',err);
                     if(this._config.endOnError){
@@ -387,12 +385,10 @@ export default class Flow<TState,TTag>
         const pr=this._postRender;
         this._postRender=null;
         if(pr){
-            for(const listener of this._listeners){
-                try{
-                    listener(pr);
-                }catch(ex){
-                    this.log(FlowLogLevel.warning,"Listener throw an error");
-                }
+            try{
+                this.emit(PostRenderEvt,pr);
+            }catch(ex){
+                this.log(FlowLogLevel.warning,"PostRenderEvt Listener throw an error");
             }
         }
     }
@@ -455,6 +451,11 @@ export default class Flow<TState,TTag>
 
         this._render(reason);
         this._postRender=reason;
+        try{
+            this.emit(RenderScreenEvt)
+        }catch{
+            this.log(FlowLogLevel.warning,"RenderScreenEvt Listener throw an error");
+        }
     }
 
     private _screenNext=()=>{
@@ -613,13 +614,14 @@ export default class Flow<TState,TTag>
     private _renderItemForNext(reason:RenderReason,item:StackItem<TState,TTag>,busy:boolean)
     {
         if(this._screenIndex<this._screens.length-1){
-            this._screens.splice(this._stackIndex+1,this._screens.length);
+            this._screens.splice(this._screenIndex+1,this._screens.length);
         }
         this._screens.push({
             id:renderedScreenId++,
             item,
             result:null,
-            busy
+            busy,
+            stackIndex:this._stackIndex
         });
         this._screenIndex=this._screens.length-1;
         this.log(FlowLogLevel.info,`StackIndex:${this._stackIndex}, ScreenIndex:${this._screenIndex}, Tag:${item.tag}`);
@@ -642,7 +644,13 @@ export default class Flow<TState,TTag>
                 return;
             }
             this.log(FlowLogLevel.info,'Back');
-            this._screenIndex--;
+            while(this._screenIndex){
+                this._screenIndex--;
+                if(!this._screens[this._screenIndex].item.skipBack){
+                    break;
+                }
+            }
+            this._stackIndex=this._screens[this._screenIndex].stackIndex;
             this._renderScreens('back');
         });
     }
@@ -655,6 +663,7 @@ export default class Flow<TState,TTag>
             }
             this.log(FlowLogLevel.info,'Forward');
             this._screenIndex++;
+            this._stackIndex=this._screens[this._screenIndex].stackIndex;
             this._renderScreens('next');
         })
     }

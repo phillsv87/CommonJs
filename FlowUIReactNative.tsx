@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, StyleProp, ViewStyle, Animated, LayoutChangeEvent, Keyboard } from 'react-native';
 import { useTween } from './Animations-rn';
-import Flow, { FlowConfig, RenderedScreen, RenderReason, StackItem } from './Flow';
+import Flow, { FlowConfig, PostRenderEvt, RenderedScreen, RenderReason, StackItem } from './Flow';
 import Pretty from './Pretty-rn';
 
 const errorMsg='Flow stack modified';
@@ -118,10 +118,10 @@ export default function FlowUI<TState,TTag>({
             tag=screen.item.tag;
             onTagChange(tag);
         }
-        flow.addListener(listener);
+        flow.addListener(PostRenderEvt,listener);
         onTagChange(tag);
         return ()=>{
-            flow.removeListener(listener);
+            flow.removeListener(PostRenderEvt,listener);
         }
     },[onTagChange,flow]);
 
