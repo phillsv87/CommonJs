@@ -14,6 +14,7 @@ export interface TabItem
     icon?:string;
     content:any;
     noScroll?:boolean;
+    noPadding?:boolean;
 }
 
 export type OptionalTabItem=TabItem|null|undefined;
@@ -153,7 +154,7 @@ export default function Tabs({
                         return (
                             <View key={i+':'+item.title+':'+item.icon} style={[styles.content,{
                                 width:width,
-                            },contentStyle]}>
+                            },contentStyle,item.noPadding&&styles.noPadding]}>
                                 {item.noScroll?
                                     content:
                                     <HistoryScrollView
@@ -220,5 +221,11 @@ const styles=StyleSheet.create({
         flexDirection:'row',
         alignItems:'center',
         justifyContent:'center'
+    },
+    noPadding:{
+        paddingLeft:0,
+        paddingTop:0,
+        paddingRight:0,
+        paddingBottom:0,
     }
 });
