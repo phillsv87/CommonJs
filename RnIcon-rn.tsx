@@ -76,6 +76,9 @@ export default function RnIcon({
         }else{
             set=parts[0] as any;
             icon=parts[1];
+            if(parts.length>2){
+                size=Number(parts[2]);
+            }
             setDefined=true;
         }
     }
