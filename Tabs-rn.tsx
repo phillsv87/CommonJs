@@ -215,7 +215,8 @@ const styles=StyleSheet.create({
         height:'100%',
     },
     scroll:{
-        flex:1
+        flex:1,
+        overflow:'visible'
     },
     tabContent:{
         flexDirection:'row',
