@@ -29,7 +29,7 @@ export const defaultSize=12;
 export const defaultColor='#000000';
 
 
-export type IconRenderer = (props:any, icon:string, size:number, color:string)=>any;
+export type IconRenderer = (props:any, icon:string, size:number, color:string, rawIcon:string)=>any;
 const renderers:StrDictionary<IconRenderer>={}
 
 export interface RnIconProps extends TextProps
@@ -67,6 +67,8 @@ export default function RnIcon({
         icon=defaultIcon;
     }
 
+    const rawIcon=icon;
+
     let setDefined=set?true:false;
 
     if(!set){
@@ -77,7 +79,10 @@ export default function RnIcon({
             set=parts[0] as any;
             icon=parts[1];
             if(parts.length>2){
-                size=Number(parts[2]);
+                const n=Number(parts[2]);
+                if(!isNaN(n)){
+                    size=n;
+                }
             }
             setDefined=true;
         }
@@ -134,7 +139,7 @@ export default function RnIcon({
             if(setDefined){
                 const renderer=renderers[set as any];
                 if(renderer as any){
-                    return renderer(props,icon,size,color);
+                    return renderer(props,icon,size,color,rawIcon);
                 }
             }
             
