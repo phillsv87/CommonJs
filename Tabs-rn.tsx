@@ -4,6 +4,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import RnIcon from './RnIcon-rn';
 import { useHistoryNode } from './History-rn';
 import HistoryScrollView from './HistoryScrollView-rn';
+import ContainerView from './ContainerView';
 
 const indexNodeKey='Tabs.index';
 const scrollNodeKey='Tabs.scroll';
@@ -15,6 +16,8 @@ export interface TabItem
     content:any;
     noScroll?:boolean;
     noPadding?:boolean;
+    noContainer?:boolean;
+    containerWidth?:number;
 }
 
 export type OptionalTabItem=TabItem|null|undefined;
@@ -146,7 +149,13 @@ export default function Tabs({
                         const content=(
                             <>
                                 <View style={{height:contentTopSpacing==='bar'?barHeight:contentTopSpacing||0}}/>
-                                {item.content}
+                                {item.noContainer?
+                                    item.content
+                                :
+                                    <ContainerView maxWidth={item.containerWidth||500}>
+                                        {item.content}
+                                    </ContainerView>
+                                }
                                 <View style={{height:contentBottomSpacing||0}}/>
                             </>
                         )
