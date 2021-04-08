@@ -7,14 +7,11 @@ import { useSafeArea } from './SafeArea-rn';
 import RnIcon from './RnIcon-rn';
 import TouchFill from '../components/TouchFill';
 import History from './History-rn';
+import SwipeGestureHandler from './SwipGestureHandler';
 
 export const defaultLogUiInfoColor='#2b8de0';
 export const defaultLogUiWarnColor='#f4921e';
 export const defaultLogUiErrorColor='#ec2424';
-export const defaultLogUiTextColor='#ffffff';
-export const defaultLogUiCloseIcon='at:closecircle';
-export const defaultLogUiAutoDismiss=5000;
-export const defaultLogUiContentMargin=20;
 export const defaultLogUiLevel=LogLevel.error|LogLevel.warn;
 
 function colorForLevel(level:LogLevel){
@@ -27,17 +24,66 @@ function colorForLevel(level:LogLevel){
     }
 }
 
-interface SharedProps
+export interface LogUIStyle
 {
     itemStyle?:StyleProp<ViewStyle>;
+    containerStyle?:StyleProp<ViewStyle>;
     textStyle?:StyleProp<ViewStyle>;
-    infoColor?:string;
-    warnColor?:string;
-    errorColor?:string;
-    textColor?:string;
-    closeIcon?:string;
-    autoDismiss?:number;
+    infoBgColor?:string;
+    warnBgColor?:string;
+    errorBgColor?:string;
+    infoForegroundColor?:string;
+    warnForegroundColor?:string;
+    errorForegroundColor?:string;
     contentMargin?:number;
+    autoDismiss?:number;
+    closeIcon?:string|null;
+    infoIcon?:string|null;
+    warnIcon?:string|null;
+    errorIcon?:string|null;
+    infoIconColor?:string|null;
+    warnIconColor?:string|null;
+    errorIconColor?:string|null;
+    infoIconSize?:number;
+    warnIconSize?:number;
+    errorIconSize?:number;
+    fontFamily?:string;
+}
+
+const defaultLogUiStyle:LogUIStyle={
+    infoBgColor:'#2b8de0',
+    warnBgColor:'#f4921e',
+    errorBgColor:'#ec2424',
+    infoForegroundColor:'#ffffff',
+    warnForegroundColor:'#ffffff',
+    errorForegroundColor:'#ffffff',
+    contentMargin:20,
+    autoDismiss:5000,
+    closeIcon:'at:closecircle',
+    infoIconSize:16,
+    warnIconSize:16,
+    errorIconSize:16,
+
+}
+
+export function getDefaultLogUIStyle():LogUIStyle
+{
+    return {...defaultLogUiStyle}
+}
+
+let uiStyle:LogUIStyle=getDefaultLogUIStyle();
+
+export function setDefaultLogUIStyle(style:LogUIStyle)
+{
+    if(style){
+        uiStyle={...defaultLogUiStyle,...style};
+    }
+}
+
+
+
+interface SharedProps extends LogUIStyle
+{
     history?:History;
 
 }
@@ -103,16 +149,28 @@ interface LogUIItemProps extends SharedProps
 function LogUIItem({
     entry,
     itemStyle,
+    containerStyle,
     textStyle,
     remove,
     history,
-    infoColor=defaultLogUiInfoColor,
-    warnColor=defaultLogUiWarnColor,
-    errorColor=defaultLogUiErrorColor,
-    textColor=defaultLogUiTextColor,
-    closeIcon=defaultLogUiCloseIcon,
-    autoDismiss=defaultLogUiAutoDismiss,
-    contentMargin=defaultLogUiContentMargin}:LogUIItemProps)
+    infoBgColor=uiStyle.infoBgColor,
+    warnBgColor=uiStyle.warnBgColor,
+    errorBgColor=uiStyle.errorBgColor,
+    infoForegroundColor=uiStyle.infoForegroundColor,
+    warnForegroundColor=uiStyle.warnForegroundColor,
+    errorForegroundColor=uiStyle.errorForegroundColor,
+    infoIcon,
+    warnIcon,
+    errorIcon,
+    infoIconColor,
+    warnIconColor,
+    errorIconColor,
+    infoIconSize=uiStyle.infoIconSize,
+    warnIconSize=uiStyle.warnIconSize,
+    errorIconSize=uiStyle.errorIconSize,
+    closeIcon=uiStyle.closeIcon,
+    autoDismiss=uiStyle.autoDismiss||5000,
+    contentMargin=uiStyle.contentMargin}:LogUIItemProps)
 {
 
     const mutable=useMemo(()=>({paused:false}),[]);
@@ -140,7 +198,9 @@ function LogUIItem({
                 while(mutable.paused && active){
                     await delayAsync(3000);
                 }
-                setPos(0);
+                if(active){
+                    setPos(0);
+                }
                 await delayAsync(2000);
             }finally{
                 remove(entry);
@@ -153,12 +213,28 @@ function LogUIItem({
     },[remove,autoDismiss,mutable,entry]);
 
     let bg:string;
+    let color:string;
+    let statusIcon:string|undefined|null;
+    let iconSize:number|undefined;
+    let iconColor:string;
     if(entry.level&LogLevel.error){
-        bg=errorColor;
+        bg=errorBgColor||'#ffffff';
+        color=errorForegroundColor||'#000000';
+        statusIcon=errorIcon;
+        iconSize=errorIconSize||16;
+        iconColor=errorIconColor||color;
     }else if(entry.level&LogLevel.warn){
-        bg=warnColor;
+        bg=warnBgColor||'#ffffff';
+        color=warnForegroundColor||'#000000';
+        statusIcon=warnIcon;
+        iconSize=warnIconSize||16;
+        iconColor=warnIconColor||color;
     }else{
-        bg=infoColor;
+        bg=infoBgColor||'#ffffff';
+        color=infoForegroundColor||'#000000';
+        statusIcon=infoIcon;
+        iconSize=infoIconSize||16;
+        iconColor=infoIconColor||color;
     }
 
     const pause=useCallback(()=>{
@@ -175,26 +251,33 @@ function LogUIItem({
         <Animated.View style={[styles.itemContainer,{
             transform:[{translateY:tween.map(-100,top+10)}],
             opacity:tween.value
-        }]}>
-            <View style={[{backgroundColor:bg},styles.item,itemStyle]}>
-                <Animated.View style={[styles.progress,{
-                    width:progressTween.map('0%','100%')
-                }]}/>
-                <Text
-                    style={[{
-                        color:textColor,
+        },containerStyle]}>
+            <SwipeGestureHandler up onSwipe={()=>setCloseNow(true)}>
+                <View style={[{backgroundColor:bg},styles.item,itemStyle]}>
+                    <Animated.View style={[styles.progress,{
+                        width:progressTween.map('0%','100%')
+                    }]}/>
+                    <View style={[styles.copy,{
                         paddingVertical:contentMargin,
                         paddingLeft:contentMargin
-                    },textStyle]}
-                    selectable={true}
-                    onPress={pause}>
-                    {msg}
-                </Text>
-                <TouchFill onPress={()=>{if(link){setCloseNow(true);history?.push(link)}}} />
-                <TouchableOpacity onPress={()=>setCloseNow(true)} style={{padding:contentMargin}}>
-                    <RnIcon icon={closeIcon} color={textColor} size={20} />
-                </TouchableOpacity>
-            </View>
+                    }]}>
+                        {!!statusIcon&&<RnIcon icon={statusIcon} color={iconColor} size={iconSize}/>}
+                        <Text
+                            style={[{
+                                color:color,
+                                marginLeft:statusIcon?5:0
+                            },textStyle]}
+                            selectable={true}
+                            onPress={pause}>
+                            {msg}
+                        </Text>
+                    </View>
+                    <TouchFill onPress={()=>{if(link){setCloseNow(true);history?.push(link)}}} />
+                    {!!closeIcon&&<TouchableOpacity onPress={()=>setCloseNow(true)} style={{padding:contentMargin}}>
+                        <RnIcon icon={closeIcon} color={color} size={20} />
+                    </TouchableOpacity>}
+                </View>
+            </SwipeGestureHandler>
         </Animated.View>
     )
 }
@@ -205,6 +288,10 @@ const styles=StyleSheet.create({
         top:0,
         left:0,
         width:'100%'
+    },
+    copy:{
+        flexDirection:'row',
+        alignItems:'center'
     },
     itemContainer:{
         position:'absolute',
