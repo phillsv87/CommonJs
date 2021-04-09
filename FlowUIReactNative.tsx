@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { View, StyleProp, ViewStyle, Animated, LayoutChangeEvent, Keyboard } from 'react-native';
 import { useTween } from './Animations-rn';
 import Flow, { FlowConfig, PostRenderEvt, RenderedScreen, RenderReason, StackItem } from './Flow';
+import { useMounted } from './Hooks';
 import Pretty from './Pretty-rn';
 
 const errorMsg='Flow stack modified';
@@ -70,6 +71,7 @@ export default function FlowUI<TState,TTag>({
         count:0
     });
 
+    const mt=useMounted();
     const [reason,setReason]=useState(defaultRenderInfo);
 
     const flow=useMemo(()=>{
@@ -81,14 +83,14 @@ export default function FlowUI<TState,TTag>({
         }
         const flow=new Flow<TState,TTag>(
             it.name,
-            (reason)=>setReason({reason,count:++init.current.count}),
+            (reason)=>{if(mt.mounted){setReason({reason,count:++init.current.count})}},
             it.flow?{...it.flow.state}:it.copyInitState?{...it.initState}:it.initState,
             it.config||null,
             stack
         )
         it.flow=flow;
         return flow;
-    },[stack,init]);
+    },[stack,init,mt]);
 
     useEffect(()=>{
         if(flow){
@@ -109,6 +111,7 @@ export default function FlowUI<TState,TTag>({
         if(!onTagChange){
             return;
         }
+        let m=true;
         let tag:TTag|undefined=flow.currentScreen?.item.tag;
         const listener=()=>{
             const screen=flow.currentScreen;
@@ -116,11 +119,14 @@ export default function FlowUI<TState,TTag>({
                 return;
             }
             tag=screen.item.tag;
-            onTagChange(tag);
+            if(m){
+                onTagChange(tag);
+            }
         }
         flow.addListener(PostRenderEvt,listener);
         onTagChange(tag);
         return ()=>{
+            m=false;
             flow.removeListener(PostRenderEvt,listener);
         }
     },[onTagChange,flow]);
