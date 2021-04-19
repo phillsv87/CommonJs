@@ -22,6 +22,7 @@ import RNBackgroundDownloader, { DownloadTask, DownloadOption } from 'react-nati
 import EventEmitterEx from './EventEmitterEx-rn';
 import { StrDictionary } from './CommonType';
 import fs from 'react-native-fs';
+import { libraryDirectoryPath } from './common-rn';
 
 export class Download extends EventEmitterEx
 {
@@ -175,7 +176,7 @@ export const libPrefix='@lib/';
 
 export function getFullPath(path:string){
     if(path.startsWith(libPrefix)){
-        path=fs.LibraryDirectoryPath+'/'+path.substr(libPrefix.length);
+        path=libraryDirectoryPath+'/'+path.substr(libPrefix.length);
     }
     return path;
 }

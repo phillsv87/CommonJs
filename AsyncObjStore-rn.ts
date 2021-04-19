@@ -1,10 +1,12 @@
 import fs from 'react-native-fs';
 import AsyncObjStore from './AsyncObjStore';
+import { libraryDirectoryPath } from './common-rn';
 
 const encoding='utf8';
 
+
 function getKeyPath(prefix:string,key:string){
-    return fs.LibraryDirectoryPath+'/key-'+encodeURIComponent((prefix+'-')+key||'null')+'.json';
+    return libraryDirectoryPath+'/key-'+encodeURIComponent((prefix+'-')+key||'null')+'.json';
 }
 
 export default class AsyncObjStoreRn implements AsyncObjStore
@@ -48,11 +50,16 @@ export default class AsyncObjStoreRn implements AsyncObjStore
     async CLEAR_ALL_DATA_FROM_STORE_ASYNC():Promise<void>
     {
         const prefix='key-'+encodeURIComponent(this.prefix+'-');
-        const files=(await fs.readdir(fs.LibraryDirectoryPath)).filter(p=>p.startsWith(prefix) && p.endsWith('.json'));
-        console.log('Clearing local store from '+fs.LibraryDirectoryPath,files);
+        const files=(await fs.readdir(libraryDirectoryPath)).filter(p=>p.startsWith(prefix) && p.endsWith('.json'));
+        console.log('Clearing local store from '+libraryDirectoryPath,files);
         for(const file of files){
             console.log('Delete',file);
-            await fs.unlink(fs.LibraryDirectoryPath+'/'+file);
+            await fs.unlink(libraryDirectoryPath+'/'+file);
         }
+    }
+
+    getLibraryDirectoryPath()
+    {
+        return libraryDirectoryPath;
     }
 }
