@@ -38,10 +38,18 @@ export default function SlidePanel({
         {translateX:tween.map(0,-size.w*childCount)}:
         {translateY:tween.map(0,-size.h*childCount)}
 
+    let i=-1;
+
     return (
         <View style={style||styles.root} onLayout={onLayout}>
             <Animated.View style={[styles.plane,{transform:[trans]}]}>
-                {React.Children.map(children,(slide:any,i:number)=>{
+                {React.Children.map(children,(slide:any)=>{
+
+                    if(!slide){
+                        return null;
+                    }
+
+                    i++;
 
                     const style:StyleProp<ViewStyle>={
                         position:'absolute',
