@@ -2,6 +2,7 @@ import http, { AxiosResponse } from 'axios';
 import Log, { LogLevel } from './Log';
 import EventEmitterEx from './EventEmitterEx-rn';
 import { trimStrings } from './commonUtils';
+import { delayAsync } from './utilTs';
 
 export const simpleAuthHeaderParam:string='SaToken';
 
@@ -143,6 +144,8 @@ export default class Http extends EventEmitterEx
         });
     }
 
+    public retryDelays:number[]=[1000,2000,3000,3000,3000,5000,5000,10000];
+
     async callAsync<T>(method:string,path:string,data:any,configRequest?:((request:any)=>void)|null,config?:HttpRequestConfig):Promise<T>
     {
         const oPath=path;
@@ -192,47 +195,62 @@ export default class Http extends EventEmitterEx
         if(configRequest){
             configRequest(request);
         }
-        
-        try{
-            const result=await http(request);
 
-            if(result.data && result.data['@odata.context']){
-                if(Array.isArray(result.data.value)){
-                    return result.data.value;
+        let attempt=0;
+        
+        while(true){
+            try{
+                const result=await http(request);
+
+                if(result.data && result.data['@odata.context']){
+                    if(Array.isArray(result.data.value)){
+                        return result.data.value;
+                    }else{
+                        delete result.data['@odata.context'];
+                        return result.data;
+                    }
                 }else{
-                    delete result.data['@odata.context'];
                     return result.data;
                 }
-            }else{
-                return result.data;
-            }
-        }catch(ex){
+            }catch(ex){
 
-            if( ex.response &&
-                ex.response.data &&
-                ex.response.data.Message!==undefined &&
-                ex.response.data.StatusCode!==undefined)
-            {
-                ex.httpError=ex.response.data;
-            }
+                const hasStatusCode=(
+                    ex.response &&
+                    ex.response.data &&
+                    ex.response.data.Message!==undefined &&
+                    ex.response.data.StatusCode!==undefined
+                )
 
-            if(config?.emitErrors!==false){
-                const errorResponse:AxiosResponse<any>=ex.response;
+                if(hasStatusCode)
+                {
+                    ex.httpError=ex.response.data;
+                }
+                const errorResponse:AxiosResponse<any>=ex?.response;
+                const statusCode=errorResponse?.status||0
 
-                const httpError:HttpError={
-                    path:oPath,
-                    data,
-                    method,
-                    statusCode:errorResponse?.status||0,
-                    message:getHttpErrorMessage(ex),
-                    error:ex
+                if(config?.emitErrors!==false){
+
+                    const httpError:HttpError={
+                        path:oPath,
+                        data,
+                        method,
+                        statusCode,
+                        message:getHttpErrorMessage(ex)+'\n[HttpCallIndex:'+attempt+']',
+                        error:ex
+                    }
+
+                    this.emit(httpErrorEvent,httpError);
                 }
 
-                this.emit(httpErrorEvent,httpError);
+                if(attempt>=this.retryDelays.length || (hasStatusCode && (statusCode<500 || statusCode>599))){
+                    throw ex;
+                }
+
+                await delayAsync(this.retryDelays[attempt]);
+
+                attempt++;
+
             }
-
-            throw ex;
-
         }
     }
 
