@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, StyleSheet, StyleProp, ViewStyle, LayoutChangeEvent, Text, TextStyle, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import RnIcon from './RnIcon-rn';
@@ -101,6 +101,17 @@ export default function Tabs({
     const [scrollView,setScrollView]=useState<ScrollView|null>(null);
     const [width,setWidth]=useState(0);
     const index=_setIndex===undefined?selfIndex:_index||0;
+
+    const startIndex=useRef(_index||0);
+    const scrollInited=useRef(false);
+    useEffect(()=>{
+        if(scrollView && !scrollInited.current && width){
+            scrollInited.current=true;
+            if(startIndex.current){
+                scrollView.scrollTo({x:width*startIndex.current,animated:false});
+            }
+        }
+    },[scrollView,width]);
 
     const onTabPress=useCallback((i:number,animateBody:boolean)=>{
         if(i===index){
