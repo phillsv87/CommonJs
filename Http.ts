@@ -219,7 +219,7 @@ export default class Http extends EventEmitterEx
                 const hasStatusCode=statusCode?true:false
 
                 if(statusCode===404){
-                    return null as any;
+                    return undefined as any;
                 }
 
                 if(hasStatusCode)
