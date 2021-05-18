@@ -102,18 +102,15 @@ export default function Tabs({
     const [width,setWidth]=useState(0);
     const index=_setIndex===undefined?selfIndex:_index||0;
 
-    const startIndex=useRef(_index||0);
     const scrollInited=useRef(false);
     useEffect(()=>{
-        if(scrollView && !scrollInited.current && width){
+        if(scrollView && width){
+            scrollView.scrollTo({x:width*index,animated:scrollInited.current});
             scrollInited.current=true;
-            if(startIndex.current){
-                scrollView.scrollTo({x:width*startIndex.current,animated:false});
-            }
         }
-    },[scrollView,width]);
+    },[index,scrollView,width]);
 
-    const onTabPress=useCallback((i:number,animateBody:boolean)=>{
+    const onTabPress=useCallback((i:number)=>{
         if(i===index){
             return;
         }
@@ -125,17 +122,14 @@ export default function Tabs({
                 historyNode.attachedData[indexNodeKey]=i;
             }
         }
-        if(animateBody && scrollView){
-            scrollView.scrollTo({x:width*i,animated:true});
-        }
-    },[_setIndex,storeStateInRoute,historyNode,scrollView,width,index]);
+    },[_setIndex,storeStateInRoute,historyNode,index]);
 
     const onBodyLayout=useCallback((event:LayoutChangeEvent)=>{
         setWidth(event.nativeEvent.layout.width);
     },[]);
 
     const onEndScroll=useCallback((e:NativeSyntheticEvent<NativeScrollEvent>)=>{
-        onTabPress(Math.round(e.nativeEvent.contentOffset.x/width),false)
+        onTabPress(Math.round(e.nativeEvent.contentOffset.x/width))
     },[width,onTabPress]);
 
     const [barHeight,setBarHeight]=useState(0);
@@ -197,7 +191,7 @@ export default function Tabs({
                         <View key={i+':'+item.title+':'+item.icon} style={[tabContainerStyle,i===index&&tabContainerActiveStyle]}>
                             <TouchableOpacity
                                 style={[styles.tab,tabStyle,i===index?activeTabStyle:null]}
-                                onPress={()=>onTabPress(i,true)}>
+                                onPress={()=>onTabPress(i)}>
                                 <View style={[styles.tabContent,tabContentStyle,i===index?activeTabContentStyle:null]}>
                                     <Text style={[tabTextStyle,i===index?activeTabTextStyle:null]}>{item.title}</Text>
                                     {item.icon?<RnIcon size={iconSize} color={i===index?activeIconColor||iconColor:iconColor} icon={item.icon}/>:null}
