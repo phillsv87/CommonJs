@@ -214,19 +214,18 @@ export default class Http extends EventEmitterEx
                 }
             }catch(ex){
 
-                const hasStatusCode=(
-                    ex.response &&
-                    ex.response.data &&
-                    ex.response.data.Message!==undefined &&
-                    ex.response.data.StatusCode!==undefined
-                )
+                const errorResponse:AxiosResponse<any>=ex?.response;
+                const statusCode=errorResponse?.status||0
+                const hasStatusCode=statusCode?true:false
+
+                if(statusCode===404){
+                    return null as any;
+                }
 
                 if(hasStatusCode)
                 {
                     ex.httpError=ex.response.data;
                 }
-                const errorResponse:AxiosResponse<any>=ex?.response;
-                const statusCode=errorResponse?.status||0
 
                 if(config?.emitErrors!==false){
 
