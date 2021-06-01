@@ -1,19 +1,27 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { View, StyleSheet, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
-import { useDimensions } from './Dimensions-rn';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, StyleSheet, NativeSyntheticEvent, NativeScrollEvent, StyleProp, ViewStyle } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { useDimensions } from './common-hooks-rn';
 
 interface CarouselProps
 {
     children:any;
     dots?:boolean;
+    onIndexChange?:(index:number)=>void;
+    style?:StyleProp<ViewStyle>;
 }
 
 export default function Carousel({
     children,
-    dots
+    dots,
+    onIndexChange,
+    style
 }:CarouselProps){
 
     const [index,setIndex]=useState(0);
+    useEffect(()=>{
+        onIndexChange?.(index);
+    },[index,onIndexChange])
 
     const {width:defaultWidth}=useDimensions();
     const [width,setWidth]=useState(defaultWidth);
@@ -29,20 +37,16 @@ export default function Carousel({
             values.push(i);
         }
         return values;
-    },[count])
-
-    //const [scrollView,setScrollView]=useState<ScrollView|null>(null);
-    // const scrollTo=useCallback((index:number)=>{
-    //     if(scrollView){
-    //         scrollView.scrollTo({x:width*index,animated:true});
-    //     }
-    //     setIndex(index);
-    // },[width,scrollView]);
+    },[count]);
 
 
     return (
-        <View style={styles.root} onLayout={e=>setWidth(e.nativeEvent.layout.width)}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} pagingEnabled={true} onMomentumScrollEnd={onEndScroll}>
+        <View style={style} onLayout={e=>setWidth(e.nativeEvent.layout.width)}>
+            <ScrollView
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                onMomentumScrollEnd={onEndScroll}>
                 {React.Children.map(children,(c,i)=>(
                     <View key={i} style={{width:width}}>
                         {c}
@@ -60,9 +64,6 @@ export default function Carousel({
 }
 
 const styles=StyleSheet.create({
-    root:{
-        
-    },
     dots:{
         marginTop:12,
         flexDirection:'row',

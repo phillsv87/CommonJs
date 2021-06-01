@@ -1,67 +1,138 @@
-import { useLayoutEffect, useMemo } from 'react';
-import ReactDOM from 'react-dom';
+import { useMemo, useContext, useEffect } from 'react';
+import React from 'react';
+import EventEmitter from 'eventemitter3';
+import { View, ViewStyle, StyleProp, StyleSheet } from 'react-native';
+import { useProperty } from './common-hooks';
+
+export type PortalAlignment='fill'|'top'|'bottom'|'left'|'right';
+
+export interface PortalItem
+{
+    key:number;
+    item:any;
+    align:PortalAlignment
+    target:string;
+    style?: StyleProp<ViewStyle>;
+}
+
+export class PortalStore extends EventEmitter
+{
+    items:PortalItem[]=[];
+
+    addItem(item:PortalItem){
+        this.items.push(item);
+        this.emit('items');
+    }
+    removeItem(item:any)
+    {
+        const i=this.items.indexOf(item);
+        if(i!==-1){
+            this.items.splice(i,1);
+        }
+        this.emit('items');
+    }
+}
+
+export const defaultPortalStore=new PortalStore();
+
+export const PortalContext=React.createContext<PortalStore>(defaultPortalStore);
+
+let nextKey=0;
 
 interface PortalProps
 {
-    targetId?:string;
-    className?:string;
-    backgroundColor?:string;
-    onClick?:EventListener;
     children?:any;
+    style?: StyleProp<ViewStyle>;
+    align?:PortalAlignment,
+    target?:string;
 }
 
-export default function Portal({targetId,className,backgroundColor,onClick,children}:PortalProps){
+export default function Portal({
+    children,
+    style,
+    target,
+    align='fill'
+}:PortalProps){
 
-    const elem=useMemo(()=>document.createElement('div'),[]);
+    const store=useContext<PortalStore>(PortalContext);
+    const key=useMemo(()=>nextKey++,[]);
 
-    useLayoutEffect(()=>{
-        let parent:HTMLElement|null=null;
-        let active=true;
-        const mount=()=>{
-            if(targetId){
-                parent=document.getElementById(targetId);
-                if(parent){
-                    parent.appendChild(elem);
-                }else{
-                    setTimeout(()=>{
-                        if(active){
-                            mount();
-                        }
-                    },20);
-                }
-            }else{
-                parent=document.body;
-                parent.appendChild(elem);
-            }
+    useEffect(()=>{
+        if(!children){
+            return;
         }
-        mount();
+        const item:PortalItem={
+            key,
+            item:children,
+            align,
+            style,
+            target:target||'default'
+        };
+        store.addItem(item);
         return ()=>{
-            active=false;
-            if(parent){
-                parent.removeChild(elem);
-            }
+            store.removeItem(item);
         }
-    },[targetId,elem]);
 
-    useLayoutEffect(()=>{
-        if(elem){
-            elem.style.backgroundColor=backgroundColor||null;
-        }
-    },[elem,backgroundColor]);
+    },[children,style,store,align,target,key]);
 
-    useLayoutEffect(()=>{
-        if(elem){
-            elem.className=className||'';
-            if(onClick){
-                elem.addEventListener('click',onClick);
-            }
-        }
-        return ()=>{
-            if(elem && onClick){
-                elem.removeEventListener('click',onClick);
-            }
-        }
-    },[elem,className,onClick]);
-
-    return ReactDOM.createPortal(children,elem);
+    return null;
 }
+
+interface PortalAnchorProps
+{
+    target?:string;
+}
+export function PortalAnchor({target='default'}:PortalAnchorProps):any
+{
+    const store=useContext<PortalStore>(PortalContext);
+    const items=useProperty(store,'items');
+    return items.map(item=>{
+        if(!target || target!==item.target){
+            return null;
+        }
+        return (
+            <View key={item.key} style={[styles[item.align],item.style]}>
+                {item.item}
+            </View>
+        );
+    });
+}
+
+/* eslint react-native/no-unused-styles:0 */
+const styles=StyleSheet.create({
+    fill:{
+        position:'absolute',
+        left:0,
+        top:0,
+        width:'100%',
+        height:'100%'
+    },
+    top:{
+        position:'absolute',
+        left:0,
+        top:0,
+        width:'100%',
+        height:0
+    },
+    bottom:{
+        position:'absolute',
+        left:0,
+        bottom:0,
+        width:'100%',
+        height:0
+    },
+    left:{
+        position:'absolute',
+        left:0,
+        top:0,
+        width:0,
+        height:'100%'
+    },
+    right:{
+        position:'absolute',
+        right:0,
+        top:0,
+        width:0,
+        height:'100%'
+    }
+});

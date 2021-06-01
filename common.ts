@@ -1,3 +1,4 @@
+import EventEmitter from "eventemitter3";
 
 export function trimStrings(obj:any,maxDepth:number=20){
 
@@ -374,7 +375,7 @@ export function cloneObj<T>(obj:T, maxDepth=20):T
         }
         return clone;
     }
-    
+
 
 }
 
@@ -386,24 +387,83 @@ export function objHasValues(obj:any)
     return Object.keys(obj).length!==0;
 }
 
-export function selectChunks<T>(ary:T[],chunkSize:number):T[][]
+export interface EnumArrayItem
 {
-    if(!ary || !ary.length){
-        return [];
-    }
-    const chunks:T[][]=[[]];
-    let chunk=chunks[0];
+    name:string;
+    value:any;
+}
 
-    let c=0;
-    for(const v of ary){
-        if(c>=chunkSize){
-            c=0;
-            chunk=[];
-            chunks.push(chunk);
+export function enumToArray(enumType:any):EnumArrayItem[]
+{
+    return Object.keys(enumType)
+        .filter(k=>typeof enumType[k] === 'number')
+        .map(k=>({name:k,value:enumType[k]}));
+}
+
+export class Lock
+{
+
+    private _count=0;
+    private _queue:(()=>void)[]=[];
+
+    private _maxConcurrent:number;
+
+    constructor(maxConcurrent:number=1)
+    {
+        this._maxConcurrent=maxConcurrent;
+    }
+
+    public waitAsync():Promise<()=>void>
+    {
+        let released=false;
+        const release=()=>{
+            if(released){
+                return;
+            }
+            released=true;
+            this.release();
         }
-        chunk.push(v);
-        c++;
+        if(this._count<this._maxConcurrent){
+            this._count++;
+            return new Promise(r=>r(release));
+        }else{
+            return new Promise(r=>{
+                this._queue.push(()=>{
+                    this._count++;
+                    r(release);
+                });
+            })
+        }
     }
 
-    return chunks;
+    private release()
+    {
+        this._count--;
+        if(this._count<0){
+            throw new Error('Lock out of sync. release has be called too many times.')
+        }
+        if(this._count<this._maxConcurrent && this._queue.length){
+            const next=this._queue[0];
+            this._queue.shift();
+            next();
+        }
+    }
+}
+
+export const CancelEvt=Symbol();
+
+export default class CancelToken extends EventEmitter
+{
+    private _canceled:boolean=false;
+    public get canceled():boolean{return this._canceled}
+
+    public tokenCancel=()=> // define as an arrow function so that cancel can be pass as a parameter without
+    {
+
+        if(this._canceled){
+            return;
+        }
+        this._canceled=true;
+        this.emit(CancelEvt);
+    }
 }

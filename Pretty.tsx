@@ -1,19 +1,16 @@
-import React, { useMemo, CSSProperties } from 'react';
-import util from './util';
+import React, { useMemo } from 'react';
+import { StyleProp, Text, TextProps, TextStyle } from 'react-native';
+import { serializeWithRefs } from './common';
 
-export interface PrettyProps
+export interface PrettyProps extends TextProps
 {
     data:any;
-    [other:string]:any;
+    style?:StyleProp<TextStyle>;
 }
 
-const style:CSSProperties={
-    whiteSpace:'pre'
-}
+export default function Pretty({data,style,...props}:PrettyProps){
 
-export default function Pretty({data,...props}:PrettyProps){
+    const json=useMemo(()=>serializeWithRefs(data,2),[data]);
 
-    const json=useMemo(()=>util.serializeWithRefs(data,2),[data]);
-
-    return <code style={style} {...props}>{json}</code>
+    return <Text {...props} style={[{backgroundColor:'#fff',padding:15},style]}>{json}</Text>
 }

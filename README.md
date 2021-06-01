@@ -1,2 +1,0 @@
-# CommonJs
-Common Javascript

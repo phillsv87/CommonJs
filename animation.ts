@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, DependencyList } from 'react';
 import { Animated, Dimensions, Keyboard, KeyboardEvent } from 'react-native';
-import { useMerged } from './Hooks';
+import { areShallowEqual } from './common';
 
 export type AnimationEndCallback=(value:number)=>void;
 
@@ -47,7 +47,7 @@ export function useAnimation(
     const cb=useCallback(onEnd||defaultOnEnd,onEndDeps||defaultDeps);// eslint-disable-line
     const cbRef=useRef(cb);
     cbRef.current=cb;
-    
+
 
     const [display,setDisplay]=useState<'flex'|'none'>(_config.useDisplay?(initValue?'flex':'none'):'flex');
 
@@ -63,7 +63,7 @@ export function useAnimation(
         const t=Animated.timing(value,{
             toValue:to,
             duration:_config.duration,
-            useNativeDriver:_config.useNativeDriver
+            useNativeDriver:_config.useNativeDriver||false
         });
 
         let running=true;
@@ -173,11 +173,11 @@ export function useAnimatedKeyboardHeight(config?:KeyboardAnimationConfig):Anima
     useEffect(()=>{
 
             const onKeyboardDidShow=(e: KeyboardEvent)=>{
-                const to=(Dimensions.get('window').height-e.endCoordinates.screenY)*(_config.invert?-1:1)+(_config.showOffset||0);
+                const to=(Dimensions.get('screen').height-e.endCoordinates.screenY)*(_config.invert?-1:1)+(_config.showOffset||0);
                 Animated.timing(an,{
                     toValue:to,
                     duration:_config.duration,
-                    useNativeDriver:_config.useNativeDriver
+                    useNativeDriver:_config.useNativeDriver||false
                 }).start();
             }
 
@@ -185,7 +185,7 @@ export function useAnimatedKeyboardHeight(config?:KeyboardAnimationConfig):Anima
                 Animated.timing(an,{
                     toValue:_config.hideOffset||0,
                     duration:_config.duration,
-                    useNativeDriver:_config.useNativeDriver
+                    useNativeDriver:_config.useNativeDriver||false
                 }).start();
             }
 
@@ -199,4 +199,23 @@ export function useAnimatedKeyboardHeight(config?:KeyboardAnimationConfig):Anima
     },[an,_config]);
 
     return an;
+}
+
+function useMerged<T>(valueCb:()=>T,deps?:DependencyList):T
+{
+
+    if(!deps){
+        deps=[];
+    }
+
+    const [value,setValue]=useState<T>(valueCb);
+
+    useEffect(()=>{
+        const newValue=valueCb();
+        if(!areShallowEqual(value,newValue)){
+            setValue(newValue);
+        }
+    },[...deps,value]);// eslint-disable-line
+
+    return value;
 }
