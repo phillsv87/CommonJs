@@ -138,7 +138,7 @@ export function useMerged<T>(value:T):T{
 
     const [store]=useState<T>(()=>value?{...value}:{} as T);
 
-    for(let e in value){
+    for(const e in value){
         store[e]=value[e];
     }
 

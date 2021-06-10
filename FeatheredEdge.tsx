@@ -49,9 +49,6 @@ const styles=StyleSheet.create({
     root:{
         flex:1
     },
-    mask:{
-        flex:1
-    },
     fill:{
         backgroundColor:'#fff',
         flex:1
