@@ -9,13 +9,15 @@ interface CarouselProps
     dots?:boolean;
     onIndexChange?:(index:number)=>void;
     style?:StyleProp<ViewStyle>;
+    flex1?:boolean;
 }
 
 export default function Carousel({
     children,
     dots,
     onIndexChange,
-    style
+    style,
+    flex1
 }:CarouselProps){
 
     const [index,setIndex]=useState(0);
@@ -41,7 +43,7 @@ export default function Carousel({
 
 
     return (
-        <View style={style} onLayout={e=>setWidth(e.nativeEvent.layout.width)}>
+        <View style={[style,flex1&&styles.flex]} onLayout={e=>setWidth(e.nativeEvent.layout.width)}>
             <ScrollView
                 horizontal
                 pagingEnabled
@@ -79,6 +81,9 @@ const styles=StyleSheet.create({
     dotActive:{
         backgroundColor:'#C8C4D9'
 
+    },
+    flex:{
+        flex:1
     }
 });
 
