@@ -8,6 +8,7 @@ interface BoxProps
     noFlex?:boolean;
     sizeToWidth?:boolean;
     children?:any;
+    overflow?:boolean;
     onChangeSize?: (size:number) => void;
 }
 
@@ -17,6 +18,7 @@ export default function Box({
     noFlex,
     sizeToWidth,
     children,
+    overflow,
     onChangeSize
 }:BoxProps){
 
@@ -27,12 +29,16 @@ export default function Box({
     const [size,setSize]=useState<null|number>(null);
 
     const onLayout=useCallback((e:LayoutChangeEvent)=>{
-        const size=sizeToWidth?e.nativeEvent.layout.width:Math.min(e.nativeEvent.layout.width,e.nativeEvent.layout.height);
+        const size=sizeToWidth?
+            e.nativeEvent.layout.width:
+            overflow?
+                Math.max(e.nativeEvent.layout.width,e.nativeEvent.layout.height):
+                Math.min(e.nativeEvent.layout.width,e.nativeEvent.layout.height);
         setSize(size);
         if(onChangeSize){
             onChangeSize(size);
         }
-    },[onChangeSize,sizeToWidth]);
+    },[onChangeSize,sizeToWidth,overflow]);
 
     return (
         <View style={[noFlex?null:{flex:1},styles.root,style]} onLayout={onLayout}>
