@@ -28,6 +28,19 @@ export function useRender():(cb?:()=>void)=>void{
 }
 
 
+export function useJsonStringify(value:any,pretty:boolean):string
+{
+    const result=useMemo(()=>{
+        try{
+            return JSON.stringify(value,undefined,pretty?4:undefined);
+        }catch{
+            return '';
+        }
+    },[value,pretty]);
+
+    return result;
+}
+
 export function useJson<T>(value:string|null|undefined):T|undefined
 {
     const result=useMemo(()=>{
