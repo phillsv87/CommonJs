@@ -117,6 +117,27 @@ export function useMounted():Mounted
     return m;
 }
 
+export function useTimeoutValue<T>(value:T,delayMs:number):T|undefined
+{
+    if(delayMs<1){
+        delayMs=1;
+    }
+
+    const [v,setValue]=useState<T|undefined>(undefined);
+    useEffect(()=>{
+        let m=true;
+        setTimeout(()=>{
+            if(m){
+                setValue(value);
+            }
+        },delayMs);
+
+        return ()=>{m=false}
+    },[value,delayMs]);
+
+    return v;
+}
+
 export function useDelayValue<T>(currentValue:T,delayedValue:T,delayMs:number):T
 {
     if(delayMs<1){
