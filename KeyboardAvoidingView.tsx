@@ -8,6 +8,8 @@ const duration=400;
 export interface KeyboardAvoidContext
 {
     add:(view:View)=>()=>void;
+    enable:()=>void;
+    disable:()=>void;
 }
 
 export const ReactKeyboardAvoidContext=React.createContext<KeyboardAvoidContext|null>(null);
@@ -29,6 +31,21 @@ export function useAvoidKeyboard(enabled:boolean):[(view:View|null|undefined)=>v
     },[view,enabled,ctx]);
 
     return [setView,view];
+}
+
+export function useDisableAvoidKeyboard(enabled:boolean=true)
+{
+    const ctx=useContext(ReactKeyboardAvoidContext);
+    useEffect(()=>{
+
+        if(!enabled || !ctx){
+            return;
+        }
+
+        ctx.disable();
+        return ()=>{ctx.enable()}
+
+    },[enabled,ctx]);
 }
 
 interface CapturedView
@@ -75,6 +92,7 @@ export default function KeyboardAvoidingView({
         let m=true;
         const views:CapturedView[]=[];
         const an=new Animated.Value(0);
+        let disabled:number=0;
 
         const ctx:KeyboardAvoidContext={
             add:(view:View)=>{
@@ -88,6 +106,14 @@ export default function KeyboardAvoidingView({
                     aryRemoveItem(views,cv);
                 }
             },
+            enable:()=>{
+                disabled--;
+                update();
+            },
+            disable:()=>{
+                disabled++;
+                update();
+            }
         }
 
         setCtx(ctx);
@@ -124,7 +150,7 @@ export default function KeyboardAvoidingView({
         let updateId=0;
         const update=()=>{
             const id=++updateId;
-            if(height==0 || views.length==0){
+            if(height==0 || views.length==0 || disabled){
                 animateTo(0);
                 return;
             }
