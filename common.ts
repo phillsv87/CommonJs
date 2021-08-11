@@ -1,4 +1,5 @@
 import EventEmitter from "eventemitter3";
+import uuid from 'uuid';
 
 export function trimStrings(obj:any,maxDepth:number=20){
 
@@ -466,4 +467,9 @@ export default class CancelToken extends EventEmitter
         this._canceled=true;
         this.emit(CancelEvt);
     }
+}
+
+export function newUuid()
+{
+    return uuid.v4();
 }
