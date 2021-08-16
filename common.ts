@@ -240,6 +240,11 @@ export function getFileExt(path:string|null|undefined,includeDot:boolean=false,t
         return '';
     }
 
+    const q=path.indexOf('?');
+    if(q!==-1){
+        path=path.substr(0,q);
+    }
+
     const s=path.lastIndexOf('/');
     const d=path.lastIndexOf('.');
     if(s>d || d===-1){
