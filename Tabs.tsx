@@ -27,6 +27,7 @@ interface TabsProps
     tabStyle?:StyleProp<ViewStyle>;
     tabContentStyle?:StyleProp<ViewStyle>,
     activeTabContentStyle?:StyleProp<ViewStyle>,
+    tabScrollContainerStyle?:StyleProp<ViewStyle>;
     tabContainerStyle?:StyleProp<ViewStyle>;
     tabContainerActiveStyle?:StyleProp<ViewStyle>;
     tabTextStyle?:StyleProp<TextStyle>;
@@ -56,6 +57,7 @@ export default function Tabs({
     tabContentStyle,
     activeTabContentStyle,
     tabContainerStyle,
+    tabScrollContainerStyle,
     tabContainerActiveStyle,
     tabTextStyle,
     activeTabStyle,
@@ -70,7 +72,7 @@ export default function Tabs({
     iconColor,
     activeIconColor,
     iconSize=18,
-    beforeTabs
+    beforeTabs,
 }:TabsProps){
 
     items=items?[...items]:[];
@@ -156,6 +158,7 @@ export default function Tabs({
                                     <ScrollView
                                         showsVerticalScrollIndicator={false}
                                         style={[styles.scroll,scrollStyle]}
+                                        contentContainerStyle={tabScrollContainerStyle}
                                         keyboardShouldPersistTaps="handled">
                                         {content}
                                     </ScrollView>
