@@ -44,6 +44,20 @@ export function aryRemoveItem<T>(ary:T[],item:T):boolean
     }
     return false;
 }
+export function aryDuplicateRemoveItem<T>(ary:T[],item:T):T[]
+{
+    if(!ary){
+        return [];
+    }
+    ary=[...ary];
+    for(let i=0;i<ary.length;i++){
+        if(ary[i]===item){
+            ary.splice(i,1);
+            return ary;
+        }
+    }
+    return ary;
+}
 
 export function serializeWithRefs(obj:any,space:number){
     const cache:any[] = [];
