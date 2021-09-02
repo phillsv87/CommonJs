@@ -7,14 +7,14 @@ const duration=400;
 
 export interface KeyboardAvoidContext
 {
-    add:(view:View)=>()=>void;
+    add:(view:View,name?:string)=>()=>void;
     enable:()=>void;
     disable:()=>void;
 }
 
 export const ReactKeyboardAvoidContext=React.createContext<KeyboardAvoidContext|null>(null);
 
-export function useAvoidKeyboard(enabled:boolean):[(view:View|null|undefined)=>void,View|null|undefined]
+export function useAvoidKeyboard(enabled:boolean, name?:string):[(view:View|null|undefined)=>void,View|null|undefined]
 {
 
     const [view,setView]=useState<View|null|undefined>(null);
@@ -26,9 +26,9 @@ export function useAvoidKeyboard(enabled:boolean):[(view:View|null|undefined)=>v
             return;
         }
 
-        return ctx.add(view);
+        return ctx.add(view,name);
 
-    },[view,enabled,ctx]);
+    },[view,enabled,name,ctx]);
 
     return [setView,view];
 }
@@ -51,6 +51,7 @@ export function useDisableAvoidKeyboard(enabled:boolean=true)
 interface CapturedView
 {
     view:View;
+    name?:string;
     time:number;
 }
 
@@ -95,11 +96,11 @@ export default function KeyboardAvoidingView({
         let disabled:number=0;
 
         const ctx:KeyboardAvoidContext={
-            add:(view:View)=>{
+            add:(view:View,name?:string)=>{
                 if(!m){
                     return ()=>{/**/};
                 }
-                const cv={view,time:new Date().getTime()};
+                const cv={view,name,time:new Date().getTime()};
                 views.push(cv);
                 update();
                 return ()=>{
@@ -151,7 +152,9 @@ export default function KeyboardAvoidingView({
         const update=()=>{
             const id=++updateId;
             if(height==0 || views.length==0 || disabled){
-                animateTo(0);
+                if(height===0 || disabled){
+                    animateTo(0);
+                }
                 return;
             }
             const cv=views[0];
