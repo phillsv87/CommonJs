@@ -492,3 +492,10 @@ export function newUuid()
 {
     return v4();
 }
+
+export function strReplaceAll(str:string,find:string,replaceWith:string){
+    if(!str){
+        return str;
+    }
+    return str.split(find).join(replaceWith);
+}
