@@ -172,11 +172,18 @@ export function useMerged<T>(value:T):T{
 
     const [store]=useState<T>(()=>value?{...value}:{} as T);
 
-    for(const e in value){
-        store[e]=value[e];
+
+    for(const e in store){
+        delete store[e];
     }
 
-    return store;
+    if(value){
+        for(const e in value){
+            store[e]=value[e];
+        }
+    }
+
+    return value?store:value;
 }
 
 export function useAsync<T,D>(
