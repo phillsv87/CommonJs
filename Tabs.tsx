@@ -4,11 +4,19 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import ContainerView from './ContainerView';
 import RnIcon from './RnIcon';
 
+export interface TabInfo
+{
+    index:number;
+    active:boolean;
+    tab:OptionalTabItem;
+}
+
 export interface TabItem
 {
     title?:string;
     icon?:string;
-    content:any;
+    content?:any;
+    renderContent?:(info:TabInfo)=>any;
     noScroll?:boolean;
     noPadding?:boolean;
     noContainer?:boolean;
@@ -135,14 +143,17 @@ export default function Tabs({
                             return null;
                         }
 
+                        const rendered=item.renderContent?
+                            item.renderContent({index:i,active:index===i,tab:item}):item.content
+
                         const content=(
                             <>
                                 <View style={{height:contentTopSpacing==='bar'?barHeight:contentTopSpacing||0}}/>
                                 {item.noContainer?
-                                    item.content
+                                    rendered
                                 :
                                     <ContainerView maxWidth={item.containerWidth||500}>
-                                        {item.content}
+                                        {rendered}
                                     </ContainerView>
                                 }
                                 <View style={{height:contentBottomSpacing||0}}/>
