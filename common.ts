@@ -499,3 +499,12 @@ export function strReplaceAll(str:string,find:string,replaceWith:string){
     }
     return str.split(find).join(replaceWith);
 }
+
+export function formatApiDate(date:string|Date)
+{
+    if(typeof date === 'string'){
+        return date;
+    }else{
+        return date.toISOString();
+    }
+}
