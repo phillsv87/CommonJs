@@ -508,3 +508,5 @@ export function formatApiDate(date:string|Date)
         return date.toISOString();
     }
 }
+
+export const sortNumbers=(a:number,b:number)=>a-b;
