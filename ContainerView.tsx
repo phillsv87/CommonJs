@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useState } from 'react';
 import { View, StyleProp, ViewStyle } from 'react-native';
 import { useDimensions } from './common-hooks-rn';
 
-interface ContainerViewProps
+export interface ContainerViewProps
 {
     maxWidth:number;
     style?:StyleProp<ViewStyle>;
