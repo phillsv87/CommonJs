@@ -20,7 +20,7 @@ import Ot from 'react-native-vector-icons/Octicons';
 import Sl from 'react-native-vector-icons/SimpleLineIcons';
 import Zo from 'react-native-vector-icons/Zocial';
 import { createIconSetFromIcoMoon } from 'react-native-vector-icons';
-import { TextProps } from 'react-native';
+import { Animated, TextProps } from 'react-native';
 
 export const defaultSet='fa';
 export const defaultIcon=defaultSet+':question';
@@ -142,8 +142,18 @@ export default function RnIcon({
                     return renderer(props,icon,size,color);
                 }
             }
-            
+
             return <Fa {...props} name={icon} size={size} color={color} />
     }
 
 }
+
+export class RnIconClass extends React.Component<RnIconProps, any>
+{
+    public render()
+    {
+        return RnIcon(this.props);
+    }
+}
+
+export const AnimatedIcon=Animated.createAnimatedComponent(RnIconClass);
