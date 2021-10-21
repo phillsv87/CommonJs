@@ -8,9 +8,9 @@ export interface PrettyProps extends TextProps
     style?:StyleProp<TextStyle>;
 }
 
-export default function Pretty({data,style,...props}:PrettyProps){
+export default function Pretty({data,selectable=true,style,...props}:PrettyProps){
 
     const json=useMemo(()=>serializeWithRefs(data,2),[data]);
 
-    return <Text {...props} style={[{backgroundColor:'#fff',padding:15},style]}>{json}</Text>
+    return <Text selectable={selectable} {...props} style={[{backgroundColor:'#fff',padding:15},style]}>{json}</Text>
 }
