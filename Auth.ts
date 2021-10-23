@@ -164,7 +164,7 @@ export class AuthManager extends EventEmitterEx
             if(signIn){
                 signIn.LastRenew=new Date().getTime();
             }
-        }catch(ex){
+        }catch(ex:any){
             Log.error('Sign in failed ',ex);
             return {
                 signIn:null,
@@ -197,7 +197,7 @@ export class AuthManager extends EventEmitterEx
             if(signIn){
                 signIn.LastRenew=new Date().getTime();
             }
-        }catch(ex){
+        }catch(ex:any){
             Log.error('Registration in failed ',ex);
             return {
                 signIn:null,
@@ -228,7 +228,7 @@ export class AuthManager extends EventEmitterEx
             if(signIn){
                 signIn.LastRenew=new Date().getTime();
             }
-        }catch(ex){
+        }catch(ex:any){
             if(ex.response && ex.response.status===401){
                 Log.info('SignIn rejected',ex);
                 signIn=null;

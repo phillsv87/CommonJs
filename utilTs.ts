@@ -98,7 +98,7 @@ export function useProperty<T extends EventEmitter,V>(emitter:T,propertyName:key
 export function useAsync<T,D>(defaultValue:D,asyncCallback:()=>Promise<T>,deps:DependencyList):T|D
 {
     const [value,setValue]=useState<T|D>(defaultValue);
-    const cb=useCallback(asyncCallback,deps);
+    const cb=useCallback(asyncCallback,deps);//eslint-disable-line
 
     useEffect(()=>{
         let active=true;
@@ -108,7 +108,7 @@ export function useAsync<T,D>(defaultValue:D,asyncCallback:()=>Promise<T>,deps:D
                 if(active){
                     setValue(r);
                 }
-            }catch(ex){
+            }catch(ex:any){
                 Log.error('useAsync callback error',ex);
             }
         }

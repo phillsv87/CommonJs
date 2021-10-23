@@ -122,7 +122,7 @@ export default class Http extends EventEmitterEx
             configRequest(request);
         }
         
-        const result=await http(request);
+        const result:any=await http(request);
 
         if(result.data && result.data['@odata.context']){
             if(Array.isArray(result.data.value)){
@@ -197,7 +197,7 @@ export default class Http extends EventEmitterEx
             const result = await request();
             evt.status=HttpUiRequestEventStatus.Success;
             return result;
-        }catch(ex){
+        }catch(ex:any){
             evt.error=ex;
             evt.status=HttpUiRequestEventStatus.Error;
             Log.error('http error',ex);
