@@ -234,14 +234,25 @@ export function setReferencedValue(value:any):string
     return id;
 }
 
+export function setReferencedValueWithTimeout(value:any,timeoutMs:number):string
+{
+    const id=setReferencedValue(value);
+
+    setTimeout(()=>{
+        removeReferencedValue(id);
+    },timeoutMs)
+
+    return id;
+}
+
 export function removeReferencedValue(id:string)
 {
     delete referenceValues[id];
 }
 
-export function getReferencedValue<T>(id:string):T
+export function getReferencedValue<T>(id:string|null|undefined):T
 {
-    return referenceValues[id];
+    return referenceValues[id as any];
 }
 
 export function useReferencedValueSource(value:any):string|undefined
