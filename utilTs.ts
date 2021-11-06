@@ -1,20 +1,30 @@
-import { useState, useEffect, DependencyList, useCallback, useMemo } from "react";
+import { useState, useEffect, DependencyList, useCallback, useMemo, useRef } from "react";
 import { EventEmitter } from "events";
 import Log from "./Log";
 
 export function useMerged<T>(value:T):T{
 
-    if(!value){
-        throw new Error('useMerged requires value be provided');
+    const obj=useRef<any>({}).current;
+    const ary=useRef<any[]>([]).current;
+
+    if(typeof value ==='object'){
+        if(Array.isArray(value)){
+            if(value.length<ary.length){
+                ary.splice(value.length,ary.length-value.length)
+            }
+            for(let i=0;i<value.length;i++){
+                ary[i]=value[i];
+            }
+            return ary as any;
+        }else{
+            for(let e in value){
+                obj[e]=value[e];
+            }
+            return obj as any;
+        }
+    }else{
+        return value as any;
     }
-
-    const [store]=useState<T>(()=>({...value}));
-
-    for(let e in value){
-        store[e]=value[e];
-    }
-
-    return store;
 }
 
 
