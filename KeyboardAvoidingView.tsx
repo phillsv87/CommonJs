@@ -191,7 +191,7 @@ export default function KeyboardAvoidingView({
         const scrollTol=20;
 
         touchEvents.current.onTouchStart=(e)=>{
-            if(height===0 || touchId!==null){
+            if(height===0 || touchId!==null || disabled){
                 return;
             }
             startY=e.nativeEvent.pageY;
