@@ -62,10 +62,10 @@ export function useKeyboardHeight():number
                 setHeight(0);
             }
 
-            Keyboard.addListener('keyboardDidShow',onKeyboardDidShow);
+            Keyboard.addListener('keyboardWillShow',onKeyboardDidShow);
             Keyboard.addListener('keyboardWillHide',onKeyboardDidHide);
             return ()=>{
-                Keyboard.removeListener('keyboardDidShow', onKeyboardDidShow);
+                Keyboard.removeListener('keyboardWillShow', onKeyboardDidShow);
                 Keyboard.removeListener('keyboardWillHide', onKeyboardDidHide);
             }
 
