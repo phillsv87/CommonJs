@@ -1,4 +1,4 @@
-import { GestureResponderEvent, Keyboard, KeyboardEvent, Dimensions, LayoutRectangle, LayoutChangeEvent, Image, ScaledSize } from "react-native";
+import { GestureResponderEvent, Keyboard, KeyboardEvent, Dimensions, LayoutRectangle, LayoutChangeEvent, Image, ScaledSize, AppState, AppStateStatus } from "react-native";
 import { useCallback, useState, useEffect, useLayoutEffect } from "react";
 import { Size } from "./common-types";
 
@@ -149,4 +149,27 @@ export function useDimensions(dim:'window'|'screen'='screen'):ScaledSize
     },[dim]);
 
     return size;
+}
+
+export function useAppState():AppStateStatus
+{
+
+    const [state,setState]=useState<AppStateStatus>(AppState.currentState);
+
+    useEffect(()=>{
+        let m=true;
+        const listener=(state:AppStateStatus)=>{
+            if(m){
+                setState(state);
+            }
+        }
+        AppState.addEventListener("change",listener);
+        return ()=>{
+            m=false;
+            AppState.removeEventListener("change",listener);
+        }
+    },[]);
+
+    return state;
+
 }
