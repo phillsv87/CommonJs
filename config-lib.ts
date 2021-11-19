@@ -1,13 +1,13 @@
-import * as fs from 'expo-file-system';
+import * as fs from 'react-native-fs';
 import * as path from 'path';
 
 export async function getEnvAsync<T extends string>(fileName:string, dev:T, notDev:T, allOptions:T[]):Promise<T>
 {
     try{
-        const envPath=path.isAbsolute(fileName)?fileName:path.join(fs.documentDirectory||'',fileName);
-        const stat=await fs.getInfoAsync(envPath);
-        if(stat.exists && !stat.isDirectory){
-            const env=(await fs.readAsStringAsync(envPath)).trim().toLowerCase();
+        const envPath=path.isAbsolute(fileName)?fileName:path.join(fs.DocumentDirectoryPath||'',fileName);
+        const stat=await fs.stat(envPath);
+        if(stat.isFile()){
+            const env=(await fs.read(envPath)).trim().toLowerCase();
             if(allOptions.includes(env as T)){
                 return env as T;
             }
@@ -22,11 +22,11 @@ export async function getEnvAsync<T extends string>(fileName:string, dev:T, notD
 export async function setEnvAsync<T extends string>(fileName:string,env:T|null):Promise<boolean>
 {
     try{
-        const envPath=path.isAbsolute(fileName)?fileName:path.join(fs.documentDirectory||'',fileName);
+        const envPath=path.isAbsolute(fileName)?fileName:path.join(fs.DocumentDirectoryPath||'',fileName);
         if(env===null){
-            await fs.deleteAsync(envPath);
+            await fs.unlink(envPath);
         }else{
-            await fs.writeAsStringAsync(envPath,env);
+            await fs.write(envPath,env);
         }
         return true;
     }catch(ex:any){
@@ -38,10 +38,10 @@ export async function setEnvAsync<T extends string>(fileName:string,env:T|null):
 export async function getConfigOverridesAsync<T>(fileName:string):Promise<Partial<T>>
 {
     try{
-        const envPath=path.isAbsolute(fileName)?fileName:path.join(fs.documentDirectory||'',fileName);
-        const stat=await fs.getInfoAsync(envPath);
-        if(stat.exists && !stat.isDirectory){
-            const config=(await fs.readAsStringAsync(envPath)).trim();
+        const envPath=path.isAbsolute(fileName)?fileName:path.join(fs.DocumentDirectoryPath||'',fileName);
+        const stat=await fs.stat(envPath);
+        if(!stat.isFile()){
+            const config=(await fs.read(envPath)).trim();
             if(config){
                 return JSON.parse(config);
             }
@@ -54,12 +54,11 @@ export async function getConfigOverridesAsync<T>(fileName:string):Promise<Partia
 export async function setConfigOverridesAsync<T>(fileName:string,overrides:Partial<T>|null):Promise<boolean>
 {
     try{
-        const configPath=path.isAbsolute(fileName)?fileName:path.join(fs.documentDirectory||'',fileName);
+        const configPath=path.isAbsolute(fileName)?fileName:path.join(fs.DocumentDirectoryPath||'',fileName);
         if(overrides===null){
-            await fs.deleteAsync(configPath);
+            await fs.unlink(configPath);
         }else{
-            console.log('config JSON',JSON.stringify(overrides))
-            await fs.writeAsStringAsync(configPath,JSON.stringify(overrides),{encoding:fs.EncodingType.UTF8});
+            await fs.write(configPath,JSON.stringify(overrides));
         }
         return true;
     }catch(ex:any){
