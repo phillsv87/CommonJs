@@ -510,3 +510,6 @@ export function formatApiDate(date:string|Date)
 }
 
 export const sortNumbers=(a:number,b:number)=>a-b;
+
+export const hasFlag=<T extends number>(flags:T|undefined|null, searchFlag:T):boolean=>
+    flags===null || flags===undefined?false:(flags&searchFlag)===searchFlag;
