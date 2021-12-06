@@ -8,6 +8,7 @@ export interface TabInfo
 {
     index:number;
     active:boolean;
+    hasBeenActive:boolean;
     tab:OptionalTabItem;
 }
 
@@ -105,9 +106,13 @@ export default function Tabs({
         }
     },[index,scrollView,width]);
 
+    const beenActive=useRef<number[]>([]);
     const onTabPress=useCallback((i:number)=>{
         if(i===index){
             return;
+        }
+        if(!beenActive.current.includes(i)){
+            beenActive.current.push(i);
         }
         if(_setIndex){
             _setIndex(i);
@@ -144,7 +149,12 @@ export default function Tabs({
                         }
 
                         const rendered=item.renderContent?
-                            item.renderContent({index:i,active:index===i,tab:item}):item.content
+                            item.renderContent({
+                                index:i,
+                                active:index===i,
+                                hasBeenActive:index===i || beenActive.current.includes(i),
+                                tab:item
+                            }):item.content
 
                         const content=(
                             <>
