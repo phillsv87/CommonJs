@@ -513,3 +513,20 @@ export const sortNumbers=(a:number,b:number)=>a-b;
 
 export const hasFlag=<T extends number>(flags:T|undefined|null, searchFlag:T):boolean=>
     flags===null || flags===undefined?false:(flags&searchFlag)===searchFlag;
+
+
+export function decodePathParts<TPath extends string|null|undefined>(path:TPath):TPath
+{
+    if(!path){
+        return path;
+    }
+
+    let p:string=path;
+
+    const [filePath,query]=p.split('?',2);
+    p=filePath.split('/').map(p=>decodeURIComponent(p)).join('/');
+    if(query){
+        p+='?'+query;
+    }
+    return p as TPath;
+}
