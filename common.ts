@@ -1,6 +1,14 @@
 import EventEmitter from "eventemitter3";
 import { v4 } from "./uuid";
 
+export const secondMs=1000;
+export const minuteMs=secondMs*60;
+export const hourMs=minuteMs*60;
+export const dayMs=hourMs*24;
+export const weekMs=dayMs*7;
+export const avgMonthMs=dayMs*30;
+export const yearMs=dayMs*365;
+
 export function trimStrings(obj:any,maxDepth:number=20){
 
     maxDepth--;
@@ -541,5 +549,24 @@ export function parseJwt(token:string){
         return JSON.parse(jsonPayload);
     }catch{
         return null;
+    }
+}
+
+
+/**
+ * Returns millisecond time value as a video editing time string. [hours]:[minutes]:[seconds]:[frame]
+ */
+export function formatVideoEditingTimeString(milliseconds:number, fps:number=30, alwaysIncludeHours:boolean=false)
+{
+    const h=Math.floor(milliseconds/hourMs);
+    const m=Math.floor((milliseconds%hourMs)/minuteMs);
+    const s=Math.floor((milliseconds%minuteMs)/secondMs);
+    const f=Math.floor((milliseconds%secondMs)/(1000/fps));
+
+    if(h || alwaysIncludeHours){
+        return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}:${f.toString().padStart(2,'0')}`;
+    }else{
+        return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}:${f.toString().padStart(2,'0')}`;
+
     }
 }
