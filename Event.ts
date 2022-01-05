@@ -31,14 +31,16 @@ export default class Event<TListener>
     }
 }
 
-export interface EventSource<TListener>
+export interface EventSourceT<TListener>
 {
-    evt:Event<TListener>;
-    trigger:TListener;
+    readonly evt:Event<TListener>;
+    readonly trigger:TListener;
 }
 
+export type EventSource = EventSourceT<()=>void>;
 
-export function createEvent<TListener>():EventSource<TListener>
+
+export function createEvent<TListener>():EventSourceT<TListener>
 {
     const listeners:ListenersRef<TListener>={}
     const evt=new Event<TListener>(listeners);
@@ -54,4 +56,15 @@ export function createEvent<TListener>():EventSource<TListener>
             }
         ) as any
     };
+}
+
+export function joinRemoveListeners(...listeners:(()=>void)[])
+{
+    return ()=>{
+        if(listeners){
+            for(const l of listeners){
+                l();
+            }
+        }
+    }
 }
