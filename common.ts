@@ -124,6 +124,22 @@ export function getCurrentTime():number
     return new Date().getTime();
 }
 
+export function aryCount<T>(ary:T[]|null|undefined,check:((item:T)=>boolean|null|undefined)|null|undefined):number
+{
+    if(!ary || !check){
+        return 0;
+    }
+
+    let count=0;
+    for(let i=0;i<ary.length;i++){
+        if(check(ary[i])){
+            count++
+        }
+    }
+
+    return count;
+}
+
 export function aryOrderBy<T>(ary:T[],selectCompareValue:(item:T)=>number)
 {
     if(!ary || !selectCompareValue)
