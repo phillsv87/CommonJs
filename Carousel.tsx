@@ -1,29 +1,37 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, NativeSyntheticEvent, NativeScrollEvent, StyleProp, ViewStyle } from 'react-native';
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useDimensions } from './common-hooks-rn';
+import { useSafeArea } from './SafeArea';
 
 interface CarouselProps
 {
     children:any;
-    dots?:boolean;
+    dots?:boolean|'float-bottom';
+    dotRenderer?:(active:boolean,index:number)=>any;
     onIndexChange?:(index:number)=>void;
     style?:StyleProp<ViewStyle>;
     flex1?:boolean;
+    autoDismissKeyboard?:boolean;
 }
 
 export default function Carousel({
     children,
     dots,
+    dotRenderer,
     onIndexChange,
     style,
-    flex1
+    flex1,
+    autoDismissKeyboard=true
 }:CarouselProps){
 
     const [index,setIndex]=useState(0);
     useEffect(()=>{
+        if(autoDismissKeyboard){
+            Keyboard.dismiss();
+        }
         onIndexChange?.(index);
-    },[index,onIndexChange])
+    },[index,onIndexChange,autoDismissKeyboard])
 
     const {width:defaultWidth}=useDimensions();
     const [width,setWidth]=useState(defaultWidth);
@@ -41,6 +49,7 @@ export default function Carousel({
         return values;
     },[count]);
 
+    const {bottom}=useSafeArea();
 
     return (
         <View style={[style,flex1&&styles.flex]} onLayout={e=>setWidth(e.nativeEvent.layout.width)}>
@@ -55,10 +64,23 @@ export default function Carousel({
                     </View>
                 ))}
             </ScrollView>
-            {dots&&<View style={styles.dots}>
-                {dotValues.map(i=>(
-                    <View key={i} style={[styles.dot,i===index&&styles.dotActive]}/>
-                ))}
+            {!!dots&&<View pointerEvents='none' style={[carouselDotStyles.dots,dots==='float-bottom'&&{
+                position:'absolute',
+                bottom,
+                left:0,
+                right:0
+            }]}>
+                {dotValues.map(i=>{
+                    if(dotRenderer){
+                        const dr=dotRenderer(i===index,i);
+                        if(dr){
+                            return <Fragment key={i}>{dr}</Fragment>;
+                        }
+                    }
+                    return (
+                        <View key={i} style={[carouselDotStyles.dot,i===index&&carouselDotStyles.dotActive]}/>
+                    )
+                })}
             </View>}
         </View>
     )
@@ -66,6 +88,12 @@ export default function Carousel({
 }
 
 const styles=StyleSheet.create({
+    flex:{
+        flex:1
+    },
+});
+
+export const carouselDotStyles=StyleSheet.create({
     dots:{
         marginTop:12,
         flexDirection:'row',
@@ -82,9 +110,6 @@ const styles=StyleSheet.create({
         backgroundColor:'#C8C4D9'
 
     },
-    flex:{
-        flex:1
-    }
 });
 
 
