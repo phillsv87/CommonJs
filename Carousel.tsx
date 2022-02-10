@@ -1,6 +1,5 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
-import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useDimensions } from './common-hooks-rn';
 import { useSafeArea } from './SafeArea';
 
@@ -13,6 +12,8 @@ interface CarouselProps
     style?:StyleProp<ViewStyle>;
     flex1?:boolean;
     autoDismissKeyboard?:boolean;
+    gotoIndex?:number|null;
+    resetGotoIndex?:(gotoIndex:null)=>void;
 }
 
 export default function Carousel({
@@ -22,8 +23,11 @@ export default function Carousel({
     onIndexChange,
     style,
     flex1,
-    autoDismissKeyboard=true
+    autoDismissKeyboard=true,
+    gotoIndex,
+    resetGotoIndex
 }:CarouselProps){
+
 
     const [index,setIndex]=useState(0);
     useEffect(()=>{
@@ -31,10 +35,14 @@ export default function Carousel({
             Keyboard.dismiss();
         }
         onIndexChange?.(index);
-    },[index,onIndexChange,autoDismissKeyboard])
+    },[index,onIndexChange,autoDismissKeyboard]);
 
     const {width:defaultWidth}=useDimensions();
     const [width,setWidth]=useState(defaultWidth);
+    const widthRef=useRef(width);
+    useEffect(()=>{
+        widthRef.current=width;
+    },[width]);
 
     const onEndScroll=useCallback((e:NativeSyntheticEvent<NativeScrollEvent>)=>{
         setIndex(Math.round(e.nativeEvent.contentOffset.x/width))
@@ -51,9 +59,21 @@ export default function Carousel({
 
     const {bottom}=useSafeArea();
 
+    const [scrollView,setScrollView]=useState<ScrollView|null>(null);
+    useEffect(()=>{
+        if(gotoIndex===undefined || gotoIndex===null || !scrollView){
+            return;
+        }
+
+        scrollView.scrollTo({x:widthRef.current*gotoIndex,animated:true});
+        resetGotoIndex?.(null);
+
+    },[gotoIndex,scrollView,width,resetGotoIndex])
+
     return (
         <View style={[style,flex1&&styles.flex]} onLayout={e=>setWidth(e.nativeEvent.layout.width)}>
             <ScrollView
+                ref={setScrollView}
                 horizontal
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
