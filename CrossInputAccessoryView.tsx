@@ -4,7 +4,7 @@ import { InputAccessoryView as RnInputAccessoryView, Platform, StyleSheet, View 
 interface InputAccessoryViewProps
 {
     children?:any;
-    accessoryId?:string;
+    accessoryId?:string|null;
 }
 
 export default function InputAccessoryView({
@@ -13,7 +13,7 @@ export default function InputAccessoryView({
 }:InputAccessoryViewProps){
 
     return (Platform.OS==='ios'?
-        <RnInputAccessoryView nativeID={accessoryId}>
+        <RnInputAccessoryView nativeID={accessoryId||undefined}>
             {children}
         </RnInputAccessoryView>
     :
