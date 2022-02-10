@@ -1,17 +1,19 @@
 import React from 'react';
-import { View, StyleSheet, Platform, InputAccessoryView as RnInputAccessoryView } from 'react-native';
+import { InputAccessoryView as RnInputAccessoryView, Platform, StyleSheet, View } from 'react-native';
 
 interface InputAccessoryViewProps
 {
     children?:any;
+    accessoryId?:string;
 }
 
 export default function InputAccessoryView({
-    children
+    children,
+    accessoryId='default-accessor'
 }:InputAccessoryViewProps){
 
     return (Platform.OS==='ios'?
-        <RnInputAccessoryView>
+        <RnInputAccessoryView nativeID={accessoryId}>
             {children}
         </RnInputAccessoryView>
     :
