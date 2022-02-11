@@ -14,6 +14,9 @@ interface CarouselProps extends Pick<ScrollViewProps,'onScroll'|'scrollEventThro
     autoDismissKeyboard?:boolean;
     gotoIndex?:number|null;
     resetGotoIndex?:(gotoIndex:null)=>void;
+    noMapChildren?:boolean;
+    noMapChildCount?:number;
+
 }
 
 export default function Carousel({
@@ -26,6 +29,8 @@ export default function Carousel({
     autoDismissKeyboard=true,
     gotoIndex,
     resetGotoIndex,
+    noMapChildren,
+    noMapChildCount,
     ...scrollViewProps
 }:CarouselProps){
 
@@ -49,7 +54,7 @@ export default function Carousel({
         setIndex(Math.round(e.nativeEvent.contentOffset.x/width))
     },[width]);
 
-    const count=React.Children.count(children);
+    const count=noMapChildren?(noMapChildCount||1):React.Children.count(children);
     const dotValues=useMemo(()=>{
         const values:number[]=[];
         for(let i=0;i<count;i++){
@@ -80,7 +85,7 @@ export default function Carousel({
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
                 onMomentumScrollEnd={onEndScroll}>
-                {React.Children.map(children,(c,i)=>(
+                {noMapChildren?children:React.Children.map(children,(c,i)=>(
                     <View key={i} style={{width:width}}>
                         {c}
                     </View>
