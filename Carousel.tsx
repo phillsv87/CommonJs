@@ -1,9 +1,9 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, ScrollView, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, ScrollView, ScrollViewProps, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useDimensions } from './common-hooks-rn';
 import { useSafeArea } from './SafeArea';
 
-interface CarouselProps
+interface CarouselProps extends Pick<ScrollViewProps,'onScroll'|'scrollEventThrottle'|'onContentSizeChange'|'onLayout'>
 {
     children:any;
     dots?:boolean|'float-bottom';
@@ -25,7 +25,8 @@ export default function Carousel({
     flex1,
     autoDismissKeyboard=true,
     gotoIndex,
-    resetGotoIndex
+    resetGotoIndex,
+    ...scrollViewProps
 }:CarouselProps){
 
 
@@ -73,6 +74,7 @@ export default function Carousel({
     return (
         <View style={[style,flex1&&styles.flex]} onLayout={e=>setWidth(e.nativeEvent.layout.width)}>
             <ScrollView
+                {...scrollViewProps}
                 ref={setScrollView}
                 horizontal
                 pagingEnabled
