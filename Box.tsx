@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ViewStyle, StyleProp, LayoutChangeEvent } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { LayoutChangeEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
 interface BoxProps
 {
@@ -9,7 +9,11 @@ interface BoxProps
     sizeToWidth?:boolean;
     children?:any;
     overflow?:boolean;
+    align?:'flex-end'|'flex-start',
+    before?:any;
+    after?:any;
     onChangeSize?: (size:number) => void;
+    onSpaceChange?: (h:number,v:number) => void;
 }
 
 export default function Box({
@@ -19,7 +23,11 @@ export default function Box({
     sizeToWidth,
     children,
     overflow,
-    onChangeSize
+    align,
+    before,
+    after,
+    onChangeSize,
+    onSpaceChange
 }:BoxProps){
 
     if(sizeToWidth && noFlex===undefined){
@@ -34,20 +42,26 @@ export default function Box({
             overflow?
                 Math.max(e.nativeEvent.layout.width,e.nativeEvent.layout.height):
                 Math.min(e.nativeEvent.layout.width,e.nativeEvent.layout.height);
+
         setSize(size);
         if(onChangeSize){
             onChangeSize(size);
         }
-    },[onChangeSize,sizeToWidth,overflow]);
+        if(onSpaceChange){
+            onSpaceChange(e.nativeEvent.layout.height-size,e.nativeEvent.layout.width-size);
+        }
+    },[onChangeSize,onSpaceChange,sizeToWidth,overflow]);
 
     return (
-        <View style={[noFlex?null:{flex:1},styles.root,style]} onLayout={onLayout}>
+        <View style={[noFlex?null:{flex:1},styles.root,align&&{justifyContent:align},style]} onLayout={onLayout}>
+            {before}
             <View style={[size===null?null:{
                 width:size,
                 height:size
             },boxStyle]}>
                 {children}
             </View>
+            {after}
         </View>
     )
 
