@@ -16,6 +16,7 @@ interface CarouselProps extends Pick<ScrollViewProps,'onScroll'|'scrollEventThro
     resetGotoIndex?:(gotoIndex:null)=>void;
     noMapChildren?:boolean;
     noMapChildCount?:number;
+    maxIndex?:number;
 
 }
 
@@ -31,6 +32,7 @@ export default function Carousel({
     resetGotoIndex,
     noMapChildren,
     noMapChildCount,
+    maxIndex,
     ...scrollViewProps
 }:CarouselProps){
 
@@ -74,7 +76,19 @@ export default function Carousel({
         scrollView.scrollTo({x:widthRef.current*gotoIndex,animated:true});
         resetGotoIndex?.(null);
 
-    },[gotoIndex,scrollView,width,resetGotoIndex])
+    },[gotoIndex,scrollView,width,resetGotoIndex]);
+
+    let content=noMapChildren?children:React.Children.map(children,(c,i)=>(
+        <View key={i} style={{width:width}}>
+            {c}
+        </View>
+    ))
+
+    if(maxIndex!==undefined){
+        content=<View style={{flexDirection:'row',width:width*Math.min(maxIndex+1,count)}}>
+            {content}
+        </View>
+    }
 
     return (
         <View style={[style,flex1&&styles.flex]} onLayout={e=>setWidth(e.nativeEvent.layout.width)}>
@@ -85,11 +99,7 @@ export default function Carousel({
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
                 onMomentumScrollEnd={onEndScroll}>
-                {noMapChildren?children:React.Children.map(children,(c,i)=>(
-                    <View key={i} style={{width:width}}>
-                        {c}
-                    </View>
-                ))}
+                {content}
             </ScrollView>
             {!!dots&&<View pointerEvents='none' style={[carouselDotStyles.dots,dots==='float-bottom'&&{
                 position:'absolute',
