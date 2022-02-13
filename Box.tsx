@@ -12,7 +12,8 @@ interface BoxProps
     align?:'flex-end'|'flex-start',
     before?:any;
     after?:any;
-    onChangeSize?: (size:number) => void;
+    ar?:number;
+    onChangeSize?: (size:number, width:number, height:number) => void;
     onSpaceChange?: (h:number,v:number) => void;
 }
 
@@ -26,6 +27,7 @@ export default function Box({
     align,
     before,
     after,
+    ar=1,
     onChangeSize,
     onSpaceChange
 }:BoxProps){
@@ -34,30 +36,43 @@ export default function Box({
         noFlex=true;
     }
 
-    const [size,setSize]=useState<null|number>(null);
+    const [size,setSize]=useState({w:0,h:0});
 
     const onLayout=useCallback((e:LayoutChangeEvent)=>{
+        const w=e.nativeEvent.layout.width;
+        const h=e.nativeEvent.layout.height;
         const size=sizeToWidth?
-            e.nativeEvent.layout.width:
+            w:
             overflow?
-                Math.max(e.nativeEvent.layout.width,e.nativeEvent.layout.height):
-                Math.min(e.nativeEvent.layout.width,e.nativeEvent.layout.height);
+                Math.max(w,h):
+                Math.min(w,h);
 
-        setSize(size);
+        setSize({w:w,h:h});
         if(onChangeSize){
-            onChangeSize(size);
+            onChangeSize(size,w,h);
         }
         if(onSpaceChange){
-            onSpaceChange(e.nativeEvent.layout.height-size,e.nativeEvent.layout.width-size);
+            onSpaceChange(h-size,w-size);
         }
     },[onChangeSize,onSpaceChange,sizeToWidth,overflow]);
+
+    let width:number,height:number;
+
+    const boxAr=size.w/size.h;
+    if(boxAr>ar){// box is wider
+        height=size.h;
+        width=size.h*ar;
+    }else{
+        width=size.w;
+        height=size.w/ar;
+    }
 
     return (
         <View style={[noFlex?null:{flex:1},styles.root,align&&{justifyContent:align},style]} onLayout={onLayout}>
             {before}
-            <View style={[size===null?null:{
-                width:size,
-                height:size
+            <View style={[size.w===0 || size.h===0?null:{
+                width,
+                height
             },boxStyle]}>
                 {children}
             </View>
