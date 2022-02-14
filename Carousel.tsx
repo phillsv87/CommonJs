@@ -3,7 +3,7 @@ import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, ScrollView, ScrollVi
 import { useDimensions } from './common-hooks-rn';
 import { useSafeArea } from './SafeArea';
 
-interface CarouselProps extends Pick<ScrollViewProps,'onScroll'|'scrollEventThrottle'|'onContentSizeChange'|'onLayout'>
+interface CarouselProps extends Pick<ScrollViewProps,'onScroll'|'scrollEnabled'|'scrollEventThrottle'|'onContentSizeChange'|'onLayout'>
 {
     children:any;
     dots?:boolean|'float-bottom';
@@ -17,6 +17,7 @@ interface CarouselProps extends Pick<ScrollViewProps,'onScroll'|'scrollEventThro
     noMapChildren?:boolean;
     noMapChildCount?:number;
     maxIndex?:number;
+    overflowVisible?:boolean;
 
 }
 
@@ -33,6 +34,7 @@ export default function Carousel({
     noMapChildren,
     noMapChildCount,
     maxIndex,
+    overflowVisible,
     ...scrollViewProps
 }:CarouselProps){
 
@@ -97,6 +99,7 @@ export default function Carousel({
                 ref={setScrollView}
                 horizontal
                 pagingEnabled
+                style={overflowVisible&&{overflow:'visible'}}
                 showsHorizontalScrollIndicator={false}
                 onMomentumScrollEnd={onEndScroll}>
                 {content}
