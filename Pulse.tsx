@@ -14,6 +14,7 @@ interface PulseProps
     lowScale?:number;
     children?:any;
     viewRef?:(view:View)=>void;
+    pointerEvents?: 'box-none' | 'none' | 'box-only' | 'auto';
 }
 
 export default function Pulse({
@@ -26,7 +27,8 @@ export default function Pulse({
     scale=1,
     lowScale=1,
     children,
-    viewRef
+    viewRef,
+    pointerEvents
 }:PulseProps){
 
     const [_on,setOn]=useState(true);
@@ -56,7 +58,7 @@ export default function Pulse({
     },[enabled,duration]);
 
     return (
-        <Animated.View ref={viewRef} style={[{
+        <Animated.View pointerEvents={pointerEvents} ref={viewRef} style={[{
             opacity:tw.map(lowOpacity,opacity),
             transform:(scale===1&&lowScale===1)?undefined:[{scale:tw.map(lowScale,scale)}]
         },style]}>
