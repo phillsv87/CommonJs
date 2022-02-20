@@ -50,13 +50,29 @@ export class ProgressGroup implements Progress
     public add(name:string, initStatus:string='', initValue:number=0):Progress
     {
         const item=createProgress(name,initStatus,initValue);
+        return this.addItem(item);
+    }
+
+    public addItem(item:Progress):Progress
+    {
         this._items=Object.freeze([...this._items,item]);
         item.progress.evt.addListener(this.onSubProgress);
+        this.updateProgress();
         this._onChange.trigger();
         return item;
     }
 
     public remove(itemOrName:string|Progress)
+    {
+        const removed=this._remove(itemOrName);
+        if(removed){
+            this.updateProgress();
+            this._onChange.trigger();
+        }
+        return removed;
+    }
+
+    private _remove(itemOrName:string|Progress)
     {
         let item:Progress|null;
         if(typeof itemOrName === 'string'){
@@ -68,9 +84,25 @@ export class ProgressGroup implements Progress
             return null;
         }
         item.progress.evt.removeListener(this.onSubProgress);
-        this._items=Object.freeze(this._items.filter(s=>s!==item))
-        this._onChange.trigger();
+        this._items=Object.freeze(this._items.filter(s=>s!==item));
         return item;
+    }
+
+    public clear(status:string=''):number
+    {
+        let count=0;
+        const items=[...this._items];
+        for(const i of items){
+            if(this._remove(i)){
+                count++;
+            }
+        }
+        if(count){
+            this._onChange.trigger();
+        }
+        this.progress.setValue(0);
+        this.status.setValue(status);
+        return count;
     }
 
     private readonly onSubProgress=()=>{
@@ -98,6 +130,15 @@ export interface Progress
     set(value:number, status?:string|null):number;
 }
 
+export interface ProgressSummary
+{
+    readonly id:number;
+    readonly name:string;
+    readonly status:string;
+    readonly progress:number;
+    readonly items?:ProgressSummary[];
+}
+
 export function createProgress(name:string, initStatus:string='', initValue:number=0):Progress
 {
     const id=nextId++;
@@ -121,4 +162,21 @@ export function createProgress(name:string, initStatus:string='', initValue:numb
         },
         onChange:onChange.evt
     });
+}
+
+export function progressToValue(progress:Progress|number|null|undefined)
+{
+    const p=progress?(typeof progress === 'number'?progress:progress.get()):0;
+    return isFinite(p)?p:0;
+}
+
+export function progressToSummary(progress:Progress): ProgressSummary
+{
+    return {
+        id:progress.id,
+        name:progress.name,
+        status:progress.status.getValue(),
+        progress:progress.progress.getValue(),
+        items:progress.items?.map(p=>progressToSummary(p)),
+    }
 }
