@@ -232,7 +232,7 @@ export function deepCompare(a:any, b:any, keyComparer?:KeyComparer, keyComparerS
             }
         }
         let dc=0;
-        for(const e in b){
+        for(const e in b){// eslint-disable-line
             dc++;
         }
         if(ac!==dc){// ;)
@@ -516,7 +516,7 @@ export class Lock
         this._maxConcurrent=maxConcurrent;
     }
 
-    public waitAsync():Promise<()=>void>
+    public waitAsync(cancel?:CancelToken):Promise<()=>void>
     {
         let released=false;
         const release=()=>{
@@ -530,8 +530,11 @@ export class Lock
             this._count++;
             return new Promise(r=>r(release));
         }else{
-            return new Promise(r=>{
+            return new Promise((r,j)=>{
+                const cl=cancel?()=>{j('canceled')}:null;
+                cancel?.once(CancelEvt,cl as any);
                 this._queue.push(()=>{
+                    cancel?.removeListener(CancelEvt,cl as any);
                     this._count++;
                     r(release);
                 });
@@ -643,5 +646,27 @@ export function formatVideoEditingTimeString(milliseconds:number, fps:number=30,
     }else{
         return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}:${f.toString().padStart(2,'0')}`;
 
+    }
+}
+
+export interface PromiseSource<T>
+{
+    promise:Promise<T>;
+    resolve:(value:T|PromiseLike<T>)=>void;
+    reject:(reason:any)=>void;
+}
+
+export function createPromiseSource<T>()
+{
+    let resolve:any;
+    let reject:any;
+    const promise=new Promise<T>((r,j)=>{
+        resolve=r;
+        reject=j;
+    })
+    return {
+        promise,
+        resolve:resolve as (value:T|PromiseLike<T>)=>void,
+        reject:reject as (reason:any)=>void
     }
 }
