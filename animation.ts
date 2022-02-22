@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, DependencyList } from 'react';
+import { DependencyList, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Keyboard, KeyboardEvent } from 'react-native';
 import { areShallowEqual } from './common';
 
@@ -11,6 +11,11 @@ export interface AnimationHandel
     display:'flex'|'none',
     map:(from:any,to:any)=>Animated.AnimatedInterpolation,
     mapPairs:(pairs:number[])=>Animated.AnimatedInterpolation
+}
+
+export interface MappedAnimationHandel extends AnimationHandel
+{
+    mappedValue:Animated.AnimatedInterpolation;
 }
 
 export interface AnimationConfig
@@ -140,6 +145,65 @@ export function useTween(
     },[value,an])
 
     return an;
+}
+
+export function useMappedTween(
+    mapValue:any,
+    config?:AnimationConfig,
+    onEnd?:AnimationEndCallback,
+    onEndDeps?:DependencyList):MappedAnimationHandel
+{
+    const ref=useRef({mapValue,index:0});
+
+    const [state,setState]=useState<{
+        index:number,
+        fromIndex:number;
+        from:any;
+        toIndex:number;
+        to:any;
+    }>({
+        index:0,
+        fromIndex:0,
+        from:mapValue,
+        toIndex:1,
+        to:mapValue
+    });
+
+    useLayoutEffect(()=>{
+        if(mapValue===ref.current.mapValue){
+            return;
+        }
+
+        const prev=ref.current.mapValue;
+        const index=++ref.current.index;
+        ref.current.mapValue=mapValue;
+
+        setState({
+            index,
+            fromIndex:index-1,
+            from:prev,
+            toIndex:index,
+            to:mapValue
+        });
+
+    },[mapValue]);
+
+    const value=state.index;
+
+    const an=useAnimation(value,config,onEnd,onEndDeps);
+
+
+    useEffect(()=>{
+        an.play(value);
+    },[value,an])
+
+    return {
+        ...an,
+        mappedValue:an.value.interpolate({
+            inputRange:[state.fromIndex,state.toIndex],
+            outputRange:[state.from,state.to],
+        })
+    }
 }
 
 export interface KeyboardAnimationConfig
