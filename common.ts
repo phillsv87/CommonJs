@@ -670,3 +670,73 @@ export function createPromiseSource<T>()
         reject:reject as (reason:any)=>void
     }
 }
+
+const httpReg=/^https?:\/\//i
+export function isHttp(path:string|null|undefined):boolean
+{
+    if(!path){
+        return false;
+    }
+    return httpReg.test(path);
+}
+
+export type MergeObjsTest=(a:any,b:any,depth:number)=>boolean
+
+function _mergeObjs(a:any,b:any, maxDepth:number, depth:number, aryMerge:MergeObjsTest|undefined):any
+{
+    const aType=typeof a;
+    const bType=typeof b;
+
+    if(!a || !b || aType!==bType || aType!=='object'){
+        return a;
+    }
+
+    if(Array.isArray(a)){
+        const ary=[...a,...b];
+        if(aryMerge){
+            for(let ai=0;ai<ary.length;ai++){
+                for(let bi=ai+1;bi<ary.length;bi++){
+                    const itemA=ary[ai];
+                    const itemB=ary[bi];
+                    if(aryMerge(itemA,itemB,depth)){
+                        ary[ai]=_mergeObjs(itemA,itemB,maxDepth,depth+1,aryMerge);
+                        ary.splice(bi,1);
+                        bi--;
+                    }
+                }
+            }
+        }
+        return ary;
+    }else{
+        const m={...a}
+        for(const e in b){
+            if(m[e]===undefined){
+                m[e]=b[e];
+            }else if(typeof b[e] === 'object'){
+                m[e]=_mergeObjs(m[e],b[e],maxDepth,depth+1,aryMerge);
+            }
+        }
+        return m;
+    }
+
+
+}
+
+export function mergeObjs(a:any,b:any, aryMerge?:MergeObjsTest, maxDepth:number=1000):any
+{
+    return _mergeObjs(a,b,maxDepth,0,aryMerge)
+}
+
+
+export function mergeObjAry(ary:any[], aryMerge?:MergeObjsTest, maxDepth:number=1000):any
+{
+
+    let m:any={};
+    if(!ary?.length){
+        return m;
+    }
+    for(const o of ary){
+        m=_mergeObjs(m,o,maxDepth,0,aryMerge);
+    }
+    return m;
+}
