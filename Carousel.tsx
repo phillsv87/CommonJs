@@ -1,9 +1,24 @@
+import { NamedEventT, ValueEventListener } from '@iyio/named-events';
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, ScrollView, ScrollViewProps, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { useDimensions } from './common-hooks-rn';
 import { useSafeArea } from './SafeArea';
 
-interface CarouselProps extends Pick<ScrollViewProps,'onScroll'|'scrollEnabled'|'scrollEventThrottle'|'onContentSizeChange'|'onLayout'>
+
+export interface GotoOptions
+{
+    index:number;
+    animated?:boolean;
+}
+
+interface CarouselProps extends Pick<ScrollViewProps,
+    'onScroll'|
+    'scrollEnabled'|
+    'scrollEventThrottle'|
+    'onScrollBeginDrag'|
+    'onMomentumScrollBegin'|
+    'onContentSizeChange'|
+    'onLayout'>
 {
     children:any;
     dots?:boolean|'float-bottom';
@@ -18,6 +33,7 @@ interface CarouselProps extends Pick<ScrollViewProps,'onScroll'|'scrollEnabled'|
     noMapChildCount?:number;
     maxIndex?:number;
     overflowVisible?:boolean;
+    gotoCtrl?:NamedEventT<ValueEventListener<GotoOptions>>;
 
 }
 
@@ -35,6 +51,7 @@ export default function Carousel({
     noMapChildCount,
     maxIndex,
     overflowVisible,
+    gotoCtrl,
     ...scrollViewProps
 }:CarouselProps){
 
@@ -79,6 +96,15 @@ export default function Carousel({
         resetGotoIndex?.(null);
 
     },[gotoIndex,scrollView,width,resetGotoIndex]);
+
+    useEffect(()=>{
+        if(!gotoCtrl || !scrollView){
+            return;
+        }
+        return gotoCtrl(({index,animated=true})=>{
+            scrollView.scrollTo({x:widthRef.current*index,animated});
+        })
+    },[gotoCtrl,scrollView])
 
     let content=noMapChildren?children:React.Children.map(children,(c,i)=>(
         <View key={i} style={{width:width}}>
