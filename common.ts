@@ -204,6 +204,12 @@ export function deepCompare(a:any, b:any, keyComparer?:KeyComparer, keyComparerS
         return a===b;
     }
 
+    if(a===null){
+        return a===b;
+    }else if(b===null){
+        return false;
+    }
+
     if(Array.isArray(a)){
         if(a.length!==b.length){
             return false;
