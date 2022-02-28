@@ -686,6 +686,15 @@ export function isHttp(path:string|null|undefined):boolean
     return httpReg.test(path);
 }
 
+const protocolReg=/^\w+:\/\//i
+export function isRooted(path:string|null|undefined):boolean
+{
+    if(!path){
+        return false;
+    }
+    return path[0]==='/' || protocolReg.test(path);
+}
+
 export type MergeObjsTest=(a:any,b:any,depth:number)=>boolean
 
 function _mergeObjs(a:any,b:any, maxDepth:number, depth:number, aryMerge:MergeObjsTest|undefined):any
