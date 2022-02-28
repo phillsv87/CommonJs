@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useState } from 'react';
-import { View, StyleProp, ViewStyle } from 'react-native';
+import { StyleProp, View, ViewStyle } from 'react-native';
 import { useDimensions } from './common-hooks-rn';
 
 export interface ContainerViewProps
@@ -29,5 +29,17 @@ export default function ContainerView({
             {children}
         </View>
     )
+
+}
+
+export function useContainerPadding(maxWidth:number,availableWidth?:number)
+{
+    const {width}=useDimensions();
+
+    if(availableWidth===undefined){
+        availableWidth=width;
+    }
+
+    return availableWidth>maxWidth?(availableWidth-maxWidth)/2:0;
 
 }
