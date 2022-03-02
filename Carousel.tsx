@@ -35,6 +35,7 @@ interface CarouselProps extends Pick<ScrollViewProps,
     overflowVisible?:boolean;
     gotoCtrl?:NamedEventT<ValueEventListener<GotoOptions>>;
     peek?:number;
+    getSlideStyle?:(slideIndex:number,slideCount:number,carouselIndex:number)=>StyleProp<ViewStyle>|null|undefined;
 
 }
 
@@ -54,6 +55,7 @@ export default function Carousel({
     overflowVisible,
     gotoCtrl,
     peek,
+    getSlideStyle,
     ...scrollViewProps
 }:CarouselProps){
 
@@ -109,7 +111,7 @@ export default function Carousel({
     },[gotoCtrl,scrollView])
 
     let content=noMapChildren?children:React.Children.map(children,(c,i)=>(
-        <View key={i} style={{width:width}}>
+        <View key={i} style={[{width:width},getSlideStyle?.(i,count,index)]}>
             {c}
         </View>
     ))
