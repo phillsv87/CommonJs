@@ -695,9 +695,9 @@ export function isRooted(path:string|null|undefined):boolean
     return path[0]==='/' || protocolReg.test(path);
 }
 
-export type MergeObjsTest=(a:any,b:any,depth:number)=>boolean
+export type MergeObjsTest=(a:any,b:any,depth:number,key:string|number|undefined)=>boolean
 
-function _mergeObjs(a:any,b:any, maxDepth:number, depth:number, aryMerge:MergeObjsTest|undefined):any
+function _mergeObjs(a:any,b:any, maxDepth:number, depth:number, key:string|number|undefined, aryMerge:MergeObjsTest|undefined):any
 {
     const aType=typeof a;
     const bType=typeof b;
@@ -713,8 +713,8 @@ function _mergeObjs(a:any,b:any, maxDepth:number, depth:number, aryMerge:MergeOb
                 for(let bi=ai+1;bi<ary.length;bi++){
                     const itemA=ary[ai];
                     const itemB=ary[bi];
-                    if(aryMerge(itemA,itemB,depth)){
-                        ary[ai]=_mergeObjs(itemA,itemB,maxDepth,depth+1,aryMerge);
+                    if(aryMerge(itemA,itemB,depth,key)){
+                        ary[ai]=_mergeObjs(itemA,itemB,maxDepth,depth+1,ai,aryMerge);
                         ary.splice(bi,1);
                         bi--;
                     }
@@ -728,7 +728,7 @@ function _mergeObjs(a:any,b:any, maxDepth:number, depth:number, aryMerge:MergeOb
             if(m[e]===undefined){
                 m[e]=b[e];
             }else if(typeof b[e] === 'object'){
-                m[e]=_mergeObjs(m[e],b[e],maxDepth,depth+1,aryMerge);
+                m[e]=_mergeObjs(m[e],b[e],maxDepth,depth+1,e,aryMerge);
             }
         }
         return m;
@@ -739,7 +739,7 @@ function _mergeObjs(a:any,b:any, maxDepth:number, depth:number, aryMerge:MergeOb
 
 export function mergeObjs(a:any,b:any, aryMerge?:MergeObjsTest, maxDepth:number=1000):any
 {
-    return _mergeObjs(a,b,maxDepth,0,aryMerge)
+    return _mergeObjs(a,b,maxDepth,0,undefined,aryMerge)
 }
 
 
@@ -751,7 +751,7 @@ export function mergeObjAry(ary:any[], aryMerge?:MergeObjsTest, maxDepth:number=
         return m;
     }
     for(const o of ary){
-        m=_mergeObjs(m,o,maxDepth,0,aryMerge);
+        m=_mergeObjs(m,o,maxDepth,0,undefined,aryMerge);
     }
     return m;
 }
