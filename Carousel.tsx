@@ -34,6 +34,7 @@ interface CarouselProps extends Pick<ScrollViewProps,
     maxIndex?:number;
     overflowVisible?:boolean;
     gotoCtrl?:NamedEventT<ValueEventListener<GotoOptions>>;
+    peek?:number;
 
 }
 
@@ -52,6 +53,7 @@ export default function Carousel({
     maxIndex,
     overflowVisible,
     gotoCtrl,
+    peek,
     ...scrollViewProps
 }:CarouselProps){
 
@@ -119,13 +121,13 @@ export default function Carousel({
     }
 
     return (
-        <View style={[style,flex1&&styles.flex]} onLayout={e=>setWidth(e.nativeEvent.layout.width)}>
+        <View style={[style,flex1&&styles.flex,{marginHorizontal:peek}]} onLayout={e=>setWidth(e.nativeEvent.layout.width)}>
             <ScrollView
                 {...scrollViewProps}
                 ref={setScrollView}
                 horizontal
                 pagingEnabled
-                style={overflowVisible&&{overflow:'visible'}}
+                style={(overflowVisible || !!peek)&&{overflow:'visible'}}
                 showsHorizontalScrollIndicator={false}
                 onMomentumScrollEnd={onEndScroll}>
                 {content}
