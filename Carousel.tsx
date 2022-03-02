@@ -22,6 +22,11 @@ interface CarouselProps extends Pick<ScrollViewProps,
 {
     children:any;
     dots?:boolean|'float-bottom';
+    dotStyle?:StyleProp<ViewStyle>;
+    dotStyles?:(StyleProp<ViewStyle>|null|undefined)[];
+    activeDotStyle?:StyleProp<ViewStyle>;
+    dotContent?:any;
+    dotContents?:any[];
     dotRenderer?:(active:boolean,index:number)=>any;
     onIndexChange?:(index:number)=>void;
     style?:StyleProp<ViewStyle>;
@@ -42,6 +47,11 @@ interface CarouselProps extends Pick<ScrollViewProps,
 export default function Carousel({
     children,
     dots,
+    dotStyle,
+    dotStyles,
+    activeDotStyle,
+    dotContent,
+    dotContents,
     dotRenderer,
     onIndexChange,
     style,
@@ -138,7 +148,7 @@ export default function Carousel({
                 position:'absolute',
                 bottom,
                 left:0,
-                right:0
+                right:0,
             }]}>
                 {dotValues.map(i=>{
                     if(dotRenderer){
@@ -148,7 +158,16 @@ export default function Carousel({
                         }
                     }
                     return (
-                        <View key={i} style={[carouselDotStyles.dot,i===index&&carouselDotStyles.dotActive]}/>
+                        <View key={i} style={[
+                            carouselDotStyles.dot,
+                            i===index&&carouselDotStyles.dotActive,
+                            dotStyle,
+                            dotStyles?.[i],
+                            i===index&&activeDotStyle
+                        ]}>
+                            {dotContent}
+                            {dotContents?.[i]}
+                        </View>
                     )
                 })}
             </View>}
@@ -159,7 +178,7 @@ export default function Carousel({
 
 const styles=StyleSheet.create({
     flex:{
-        flex:1
+        flex:1,
     },
 });
 
@@ -173,11 +192,12 @@ export const carouselDotStyles=StyleSheet.create({
         width:8,
         height:8,
         borderRadius:4,
-        backgroundColor:'#F4F2FF',
-        marginHorizontal:2
+        backgroundColor:'#C8C4D9',
+        marginHorizontal:2,
+        opacity:0.5
     },
     dotActive:{
-        backgroundColor:'#C8C4D9'
+        opacity:1
 
     },
 });
