@@ -1,5 +1,5 @@
-import * as fs from 'react-native-fs';
 import * as path from 'path';
+import * as fs from 'react-native-fs';
 
 export async function getEnvAsync<T extends string>(fileName:string, dev:T, notDev:T, allOptions:T[]):Promise<T>
 {
@@ -26,7 +26,7 @@ export async function setEnvAsync<T extends string>(fileName:string,env:T|null):
         if(env===null){
             await fs.unlink(envPath);
         }else{
-            await fs.write(envPath,env);
+            await fs.writeFile(envPath,env);
         }
         return true;
     }catch(ex:any){
@@ -58,7 +58,7 @@ export async function setConfigOverridesAsync<T>(fileName:string,overrides:Parti
         if(overrides===null){
             await fs.unlink(configPath);
         }else{
-            await fs.write(configPath,JSON.stringify(overrides));
+            await fs.writeFile(configPath,JSON.stringify(overrides));
         }
         return true;
     }catch(ex:any){
