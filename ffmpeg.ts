@@ -49,7 +49,7 @@ export async function resizeAsync(source:string,width:number,dest?:string):Promi
     }
 
     const cmd=`-i "${source.replace('file://','')}" -vf scale="${width}:-1" "${dest}"`;
-    console.log(cmd);
+    console.debug(cmd);
 
     const result=await RNFFmpeg.execute(cmd);
 

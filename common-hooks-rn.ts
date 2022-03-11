@@ -1,5 +1,5 @@
-import { GestureResponderEvent, Keyboard, KeyboardEvent, Dimensions, LayoutRectangle, LayoutChangeEvent, Image, ScaledSize, AppState, AppStateStatus } from "react-native";
-import { useCallback, useState, useEffect, useLayoutEffect } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { AppState, AppStateStatus, Dimensions, GestureResponderEvent, Image, Keyboard, KeyboardEvent, LayoutChangeEvent, LayoutRectangle, ScaledSize } from "react-native";
 import { Size } from "./common-types";
 
 export const defaultDebugWidth=100;
@@ -33,7 +33,7 @@ export function useDetectDebugGesture(
         }
         if(point===taps){
 
-            console.log('Debug Gesture Detected');
+            console.debug('Debug Gesture Detected');
 
             setPoint(0);
             if(onDetected){

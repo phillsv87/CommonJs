@@ -54,13 +54,13 @@ export function enableListening()
 
     consoleIntercepted=true;
 
-    const defaultLog=console.log;
+    const defaultLog=console['log'];
     const defaultInfo=console.info;
     const defaultDebug=console.debug;
     const defaultWarn=console.warn;
     const defaultError=console.error;
 
-    console.log=(...args)=>
+    console['log']=(...args)=>
     {
         if(defaultLog){
             defaultLog.call(console,args);
