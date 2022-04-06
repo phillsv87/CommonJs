@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { MutableRefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AppState, AppStateStatus, Dimensions, GestureResponderEvent, Image, Keyboard, KeyboardEvent, LayoutChangeEvent, LayoutRectangle, ScaledSize } from "react-native";
 import { Size } from "./common-types";
 
@@ -94,6 +94,21 @@ export function useViewLayout():[LayoutRectangle,(event: LayoutChangeEvent) => v
         setLayout({...event.nativeEvent.layout});
     },[]);
     return [layout,update];
+
+}
+
+export function useViewLayoutRef():[MutableRefObject<LayoutRectangle>,(event: LayoutChangeEvent) => void]
+{
+
+    const layout=useRef<LayoutRectangle>({x:0,y:0,width:0,height:0});
+    const update=useCallback((event: LayoutChangeEvent)=>{
+        const l=event.nativeEvent.layout;
+        layout.current.x=l.x;
+        layout.current.y=l.y;
+        layout.current.width=l.width;
+        layout.current.height=l.height;
+    },[]);
+    return [layout,update]
 
 }
 
