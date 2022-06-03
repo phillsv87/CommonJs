@@ -4,6 +4,28 @@ import { Keyboard, NativeScrollEvent, NativeSyntheticEvent, ScrollView, ScrollVi
 import { useDimensions } from './common-hooks-rn';
 import { useSafeArea } from './SafeArea';
 
+export interface CarouselPositionEvent
+{
+    /**
+     * Width of the carousel
+     */
+    width:number;
+
+    /**
+     * Left position of the carousel
+     */
+    left:number;
+
+    /**
+     * Relative offset of the carousel ranging from 0 to 1
+     */
+    offset:number;
+
+    /**
+     * with / left
+     */
+    leftOffset:number;
+}
 
 export interface GotoOptions
 {
@@ -29,6 +51,7 @@ interface CarouselProps extends Pick<ScrollViewProps,
     dotContents?:any[];
     dotRenderer?:(active:boolean,index:number)=>any;
     onIndexChange?:(index:number)=>void;
+    onPositionChange?:(evt:CarouselPositionEvent)=>void;
     style?:StyleProp<ViewStyle>;
     flex1?:boolean;
     autoDismissKeyboard?:boolean;
@@ -66,6 +89,8 @@ export default function Carousel({
     gotoCtrl,
     peek,
     getSlideStyle,
+    onScroll,
+    onPositionChange,
     ...scrollViewProps
 }:CarouselProps){
 
@@ -120,6 +145,20 @@ export default function Carousel({
         })
     },[gotoCtrl,scrollView])
 
+    const _onScroll=useCallback((evt:NativeSyntheticEvent<NativeScrollEvent>)=>{
+        if(onPositionChange){
+            const left=evt.nativeEvent.contentOffset.x;
+            const w=evt.nativeEvent.contentSize.width;
+            onPositionChange({
+                width:w,
+                left,
+                offset:left/(w-width),
+                leftOffset:left/w
+            })
+        }
+        onScroll?.(evt);
+    },[onScroll,onPositionChange,width])
+
     let content=noMapChildren?children:React.Children.map(children,(c,i)=>(
         <View key={i} style={[{width:width},getSlideStyle?.(i,count,index)]}>
             {c}
@@ -141,7 +180,8 @@ export default function Carousel({
                 pagingEnabled
                 style={(overflowVisible || !!peek)&&{overflow:'visible'}}
                 showsHorizontalScrollIndicator={false}
-                onMomentumScrollEnd={onEndScroll}>
+                onMomentumScrollEnd={onEndScroll}
+                onScroll={_onScroll}>
                 {content}
             </ScrollView>
             {!!dots&&<View pointerEvents='none' style={[carouselDotStyles.dots,dots==='float-bottom'&&{
