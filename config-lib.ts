@@ -40,7 +40,7 @@ export async function getConfigOverridesAsync<T>(fileName:string):Promise<Partia
     try{
         const envPath=path.isAbsolute(fileName)?fileName:path.join(fs.DocumentDirectoryPath||'',fileName);
         const stat=await fs.stat(envPath);
-        if(!stat.isFile()){
+        if(stat.isFile()){
             const config=(await fs.read(envPath)).trim();
             if(config){
                 return JSON.parse(config);
