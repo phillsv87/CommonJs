@@ -91,6 +91,7 @@ export default function Carousel({
     getSlideStyle,
     onScroll,
     onPositionChange,
+    scrollEventThrottle=16,
     ...scrollViewProps
 }:CarouselProps){
 
@@ -175,6 +176,7 @@ export default function Carousel({
         <View style={[style,flex1&&styles.flex,{marginHorizontal:peek}]} onLayout={e=>setWidth(e.nativeEvent.layout.width)}>
             <ScrollView
                 {...scrollViewProps}
+                scrollEventThrottle={scrollEventThrottle}
                 ref={setScrollView}
                 horizontal
                 pagingEnabled
