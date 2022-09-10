@@ -10,7 +10,7 @@ import { getFileExt, joinPaths } from './common';
 
 const successCode=0;
 
-function getTmpFilePath(ext:string|null){
+export function getTmpFilePath(ext:string|null){
     return fs.TemporaryDirectoryPath+
         'tmp-'+
         (new Date().getTime())+'-'+
